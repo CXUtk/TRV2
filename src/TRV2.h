@@ -4,4 +4,5 @@
 #include <glm/glm.hpp>
 #include <iostream>
 
+// Components
 class IGraphicsDevice;

@@ -7,9 +7,3 @@ TRGame& TRGame::GetInstance() {
 
 TRGame::~TRGame() {
 }
-
-void TRGame::Initialize() {
-}
-
-void TRGame::Run() {
-}

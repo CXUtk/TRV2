@@ -7,8 +7,9 @@ public:
     static TRGame& GetInstance();
     ~TRGame();
 
-    void Initialize();
+    void Initialize(int argc, char** argv);
     void Run();
+
 private:
     std::shared_ptr<IGraphicsDevice> _graphicsDevice;
 };

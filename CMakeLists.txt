@@ -7,7 +7,7 @@ project ("TRV2")
 
 
 # 包含子项目。
-add_executable ("TRV2" "src/main.cpp" "src/TRGame.cpp")
+add_executable ("TRV2" "src/main.cpp" "src/TRGame.cpp" "src/Config/ITRConfig.h")
 
 
 # 编译选项
@@ -15,13 +15,14 @@ set_target_properties ("TRV2" PROPERTIES CXX_STANDARD 17 CXX_EXTENSIONS OFF)
 
 add_subdirectory ("ext/glad")
 add_subdirectory ("ext/GLFW")
+add_subdirectory ("ext/SJson")
 
 message(STATUS "${PROJECT_SOURCE_DIR}")
 message(STATUS "${PROJECT_BINARY_DIR}")
 
 find_package(OpenGL REQUIRED)
 target_link_libraries("TRV2" PRIVATE OpenGL::GL)
-target_link_libraries ("TRV2" PRIVATE glad glfw)
+target_link_libraries ("TRV2" PRIVATE glad glfw SJson)
 
 # Include 目录
 include_directories("${PROJECT_SOURCE_DIR}/ext")
