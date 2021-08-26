@@ -4,9 +4,14 @@ import codecs
 from chardet.universaldetector import UniversalDetector
 
 # 把文件夹中所有 *.cpp, *.h, *.hpp, *.inl, ... 等源码文件全部转换为utf8编码
-
+__exts__ = (
+    ".md", ".txt",
+    ".cpp", ".h", ".hpp", ".inl"
+)
 
 # 检测文件的编码
+
+
 def detectEncoding(file):
     detector = UniversalDetector()
     with open(file, 'rb') as f1:
@@ -16,8 +21,8 @@ def detectEncoding(file):
 
 
 def encodeToTarget(fileName, encoding, target):
-    #TODO: This is dangerous ^^||, would need a backup option :)
-    #NOTE: Use 'replace' option which tolerates errorneous characters
+    # TODO: This is dangerous ^^||, would need a backup option :)
+    # NOTE: Use 'replace' option which tolerates errorneous characters
     data = codecs.open(fileName, 'rb', encoding, 'replace').read()
     open(fileName, 'wb').write(data.encode(target, 'replace'))
 
@@ -34,7 +39,7 @@ def main():
     for root, dirs, files in os.walk(sourceDir):
         for file in files:
             fileName = os.path.join(root, file)
-            if fileName.endswith(".cpp"):
+            if fileName.endswith(__exts__):
                 result = detectEncoding(fileName)
 
                 if result['confidence'] == 0 and result['encoding'] == None:

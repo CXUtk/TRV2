@@ -1,7 +1,7 @@
 ﻿// TRV2.cpp: 定义应用程序的入口点。
 //
 
-#include "TRV2.h"
+#include <TRV2.h>
 
 using namespace std;
 
