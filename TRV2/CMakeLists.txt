@@ -4,7 +4,7 @@
 cmake_minimum_required (VERSION 3.13)
 
 # 将源代码添加到此项目的可执行文件。
-add_executable ("TRV2" "TRV2.cpp" "TRV2.h")
+add_executable ("TRV2" "TRV2.cpp" "TRV2.h" "main.cpp")
 
 
 set_target_properties ("TRV2" PROPERTIES
