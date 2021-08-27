@@ -1,8 +1,7 @@
 ﻿#pragma once
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
-#include <glm/glm.hpp>
-#include <iostream>
 
-// Components
+// Graphics
 class IGraphicsDevice;
+
+// Configs
+class ClientConfig;
