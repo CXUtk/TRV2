@@ -1,6 +1,5 @@
 ﻿#pragma once
 #include <TRV2.h>
-#include <memory>
 
 #define ReadonlyProperty(type, publicName, privateName) public: type Get##publicName() { return privateName; } \
 private: type ##privateName;
@@ -14,7 +13,10 @@ public:
     void Run();
 
     ReadonlyProperty(std::shared_ptr<ClientConfig>, ClientConfig, _clientConfig)
+    ReadonlyProperty(std::shared_ptr<Logger>, Logger, _logger)
 
 private:
+    TRGame();
+
     std::shared_ptr<IGraphicsDevice> _graphicsDevice;
 };

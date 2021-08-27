@@ -3,11 +3,15 @@
 #
 cmake_minimum_required (VERSION 3.13)
 
-project ("TRV2")
-
+project ("TRV2" VERSION 1.0)
 
 # 包含子项目。
-add_executable ("TRV2" "src/main.cpp" "src/TRGame.cpp" "src/Config/ClientConfig.cpp" "src/Graphics/GraphicsInterface/OpenGLGraphicsDevice.cpp")
+add_executable ("TRV2" 
+"src/main.cpp"
+"src/TRGame.cpp"
+"src/Config/ClientConfig.cpp"
+"src/Graphics/GraphicsInterface/OpenGLGraphicsDevice.cpp"
+"src/Utils/Logger.cpp")
 
 
 # 编译选项
