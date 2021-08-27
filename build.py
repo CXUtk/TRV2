@@ -62,4 +62,6 @@ def main():
 
 
 if __name__ == '__main__':
+    print('\n************************************* Executing Resources-copy Script *************************************\n')
     main()
+    print('\n************************************* Finished Resources-copy Script **************************************\n')

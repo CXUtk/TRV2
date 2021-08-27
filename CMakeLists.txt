@@ -37,12 +37,17 @@ include_directories("${PROJECT_SOURCE_DIR}/src")
 include_directories("${PROJECT_SOURCE_DIR}/ext/GLFW/include")
 
 
-message(STATUS "\n************************************* Executing Encoding-check Script *************************************\n")
-execute_process(COMMAND python ${PROJECT_SOURCE_DIR}/encoding.py "${PROJECT_SOURCE_DIR}/src" "utf-8-sig")
-message(STATUS "\n************************************* Finished Encoding-check Script **************************************\n")
+add_custom_command(TARGET "TRV2" PRE_BUILD
+                   COMMAND python ${PROJECT_SOURCE_DIR}/encoding.py "${PROJECT_SOURCE_DIR}/src" "utf-8-sig")
+add_custom_command(TARGET "TRV2" POST_BUILD
+                   COMMAND python ${PROJECT_SOURCE_DIR}/build.py "${PROJECT_SOURCE_DIR}/Resources" "${PROJECT_BINARY_DIR}")
 
-message(STATUS "\n************************************* Executing Resources-copy Script *************************************\n")
-execute_process(COMMAND python ${PROJECT_SOURCE_DIR}/build.py "${PROJECT_SOURCE_DIR}/Resources" "${PROJECT_BINARY_DIR}")
-message(STATUS "\n************************************* Finished Resources-copy Script **************************************\n")
+# message(STATUS "\n************************************* Executing Encoding-check Script *************************************\n")
+# execute_process(COMMAND python ${PROJECT_SOURCE_DIR}/encoding.py "${PROJECT_SOURCE_DIR}/src" "utf-8-sig")
+# message(STATUS "\n************************************* Finished Encoding-check Script **************************************\n")
+
+# message(STATUS "\n************************************* Executing Resources-copy Script *************************************\n")
+# execute_process(COMMAND python ${PROJECT_SOURCE_DIR}/build.py "${PROJECT_SOURCE_DIR}/Resources" "${PROJECT_BINARY_DIR}")
+# message(STATUS "\n************************************* Finished Resources-copy Script **************************************\n")
 
 

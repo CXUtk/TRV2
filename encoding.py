@@ -61,4 +61,6 @@ def main():
 
 
 if __name__ == '__main__':
+    print('\n************************************* Executing Encoding-check Script *************************************\n')
     main()
+    print('\n************************************* Finished Encoding-check Script **************************************\n')
