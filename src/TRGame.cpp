@@ -1,8 +1,9 @@
 ﻿#include "TRGame.h"
-
 #include <Utils/Logging/Logger.h>
 #include <Configs/ClientConfig.h>
-#include <Graphics/GraphicsInterface/OpenGLGraphicsDevice.h>
+#include <Graphics/GraphicsDevices/OpenGLGraphicsDevice.h>
+#include <Core/OpenGLTRGameGraphicsAPI.h>
+#include <Graphics/Interfaces/ITRWindow.h>
 
 TRGame& TRGame::GetInstance() 
 {
@@ -10,7 +11,26 @@ TRGame& TRGame::GetInstance()
     return game;
 }
 
-TRGame::TRGame() {
+TRGame::TRGame() 
+{
+}
+
+void TRGame::loadSupportiveSystem()
+{
+    _logger = std::make_shared<Logger>();
+    _clientConfig = std::make_shared<ClientConfig>();
+    logTRHeaderInfos();
+}
+
+void TRGame::loadGraphicsSystem()
+{
+    _logger->LogInfo("Loading graphics system");
+    OpenGLTRGameGraphicsAPI graphicsAPI;
+    graphicsAPI.Initialize(_clientConfig.get());
+
+    _graphicsDevice = graphicsAPI.GetGraphicsDevice();
+    _gameWindow = graphicsAPI.GetWindow();
+    _graphicsAPIUtils = graphicsAPI.GetGraphicsAPIUtils();
 }
 
 void TRGame::logTRHeaderInfos()
@@ -27,17 +47,22 @@ TRGame::~TRGame() {
 
 void TRGame::Initialize(int argc, char** argv)
 {
-    _logger = std::make_shared<Logger>();
-
-    _clientConfig = std::make_shared<ClientConfig>();
-    logTRHeaderInfos();
-
-    _graphicsDevice = std::make_shared<OpenGLGraphicsDevice>(_clientConfig);
-    
-    _graphicsDevice->Initialize();
+    loadSupportiveSystem();
+    loadGraphicsSystem();
 }
 
 void TRGame::Run()
 {
-    _graphicsDevice->Loop();
+    double minElapsedTime = 1.0 / _clientConfig->GetFPSCap();
+    double prevTimestamp = _graphicsAPIUtils->GetTime();
+    while (!_gameWindow->ShouldClose()) {
+        _gameWindow->BeginFrame();
+
+        _gameWindow->SwapBuffers();
+
+        while (_graphicsAPIUtils->GetTime() - prevTimestamp < minElapsedTime) {
+            _gameWindow->PollEvents();
+        }
+        prevTimestamp = _graphicsAPIUtils->GetTime();
+    }
 }

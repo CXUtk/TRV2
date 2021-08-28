@@ -6,15 +6,14 @@ class ClientConfig
 public:
 	ClientConfig();
 
-	int GetClientWidth() const { return _clientWidth; }
-	int GetClientHeight() const { return _clientHeight; }
-	int GetFPSCap() const { return _fpsCap; }
+	// Game properties
+	ReadonlyProperty(std::string, ClientTitle, clientTitle);
+	ReadonlyProperty(std::string, VersionString, versionString);
 
-	ReadonlyProperty(std::string, ClientTitle, clientTitle)
-	ReadonlyProperty(std::string, VersionString, versionString)
+	// Client properties
+	ReadonlyProperty(int, ClientWidth, clientWidth);
+	ReadonlyProperty(int, ClientHeight, clientHeight);
+	ReadonlyProperty(int, FPSCap, fpsCap);
 
 private:
-	// Client render info
-	int _clientWidth, _clientHeight;
-	int _fpsCap;
 };

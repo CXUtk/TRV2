@@ -13,8 +13,10 @@ add_executable ("TRV2"
 "src/main.cpp"
 "src/TRGame.cpp"
 "src/Configs/ClientConfig.cpp"
-"src/Graphics/GraphicsInterface/OpenGLGraphicsDevice.cpp"
-"src/Utils/Logging/Logger.cpp")
+"src/Graphics/GraphicsDevices/OpenGLGraphicsDevice.cpp"
+"src/Utils/Logging/Logger.cpp"
+"src/Graphics/OpenGLWindow.cpp" 
+"src/Core/OpenGLTRGameGraphicsAPI.cpp")
 
 
 # 编译选项

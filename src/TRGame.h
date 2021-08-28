@@ -10,13 +10,18 @@ public:
     void Initialize(int argc, char** argv);
     void Run();
 
-    ReadonlyProperty(std::shared_ptr<ClientConfig>, ClientConfig, clientConfig)
-    ReadonlyProperty(std::shared_ptr<Logger>, Logger, logger)
-
+    ReadonlySharedPtrProperty(ClientConfig, ClientConfig, clientConfig);
+    ReadonlySharedPtrProperty(Logger, Logger, logger);
+    ReadonlySharedPtrProperty(ITRGraphicsDevice, GraphicsDevice, graphicsDevice);
+    ReadonlySharedPtrProperty(ITRWindow, Window, gameWindow);
+    ReadonlySharedPtrProperty(ITRGameGraphicsAPIUtils, GraphicsAPIUtils, graphicsAPIUtils);
 private:
     TRGame();
+
+    // 加载函数
+    void loadSupportiveSystem();
+    void loadGraphicsSystem();
+
+    // Utils
     void logTRHeaderInfos();
-
-
-    std::shared_ptr<IGraphicsDevice> _graphicsDevice;
 };
