@@ -3,19 +3,22 @@
 #
 cmake_minimum_required (VERSION 3.13)
 
-project ("TRV2" VERSION 1.0)
+project ("TRV2" VERSION 1.0.0.0)
+
+# 指定版本号的配置文件
+configure_file("${PROJECT_SOURCE_DIR}/src/Configs/CompileTimeConfig.h.in" "${PROJECT_SOURCE_DIR}/generated/CompileTimeConfig.h")
 
 # 包含子项目。
 add_executable ("TRV2" 
 "src/main.cpp"
 "src/TRGame.cpp"
-"src/Config/ClientConfig.cpp"
+"src/Configs/ClientConfig.cpp"
 "src/Graphics/GraphicsInterface/OpenGLGraphicsDevice.cpp"
-"src/Utils/Logger.cpp")
+"src/Utils/Logging/Logger.cpp")
 
 
 # 编译选项
-set_target_properties ("TRV2" PROPERTIES CXX_STANDARD 17 CXX_EXTENSIONS OFF)
+set_target_properties ("TRV2" PROPERTIES CXX_STANDARD 20 CXX_EXTENSIONS OFF)
 
 if ( CMAKE_COMPILER_IS_GNUCC )
     target_compile_options("TRV2" PRIVATE "-Wall -Wextra")
@@ -36,6 +39,7 @@ target_link_libraries("TRV2" PRIVATE OpenGL::GL)
 target_link_libraries ("TRV2" PRIVATE glad glfw SJson)
 
 # Include 目录
+include_directories("${PROJECT_SOURCE_DIR}/generated")
 include_directories("${PROJECT_SOURCE_DIR}/ext")
 include_directories("${PROJECT_SOURCE_DIR}/src")
 include_directories("${PROJECT_SOURCE_DIR}/ext/GLFW/include")
