@@ -1,5 +1,5 @@
 ﻿#include "OpenGLGraphicsDevice.h"
-#include <Config/ClientConfig.h>
+#include <Configs/ClientConfig.h>
 #include <glm/glm.hpp>
 #include <exception>
 
