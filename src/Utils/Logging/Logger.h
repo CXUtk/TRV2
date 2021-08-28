@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include <mutex>
 
 class Logger
 {
@@ -9,4 +10,8 @@ public:
 	void LogWarning(const char* format, ...);
 	void LogError(const char* format, ...);
 	void LogDebug(const char* format, ...);
+
+private:
+	void pushLog(const char * badge, const char* format, va_list ap);
+	std::mutex _mutexLock;
 };

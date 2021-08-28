@@ -16,7 +16,8 @@ TRGame::TRGame() {
 void TRGame::logTRHeaderInfos()
 {
     _logger->LogInfo("TR Game Started");
-    _logger->LogInfo("Current Version: %s", _clientConfig->GetVersionString().c_str());
+    auto version = _clientConfig->GetVersionString();
+    _logger->LogInfo("Current Version: %s", version.c_str());
     _logger->LogInfo("Initialization Stage");
 }
 
