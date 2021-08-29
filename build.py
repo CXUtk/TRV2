@@ -22,7 +22,7 @@ def copyFiles(resourcePath: str, dirName: str, outputPath: str):
             with open(filePath, 'rb') as fsrc:
                 with open(targetPath, 'rb') as ftarget:
                     if fsrc.read() != ftarget.read():
-                        fileList.append(filePath)
+                        fileList.append((filePath, targetPath))
 
     for src, dest in fileList:
         os.makedirs(os.path.dirname(dest), exist_ok=True)

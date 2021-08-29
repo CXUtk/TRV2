@@ -23,7 +23,24 @@ void TRGame::update()
 
 void TRGame::draw()
 {
-    _spriteRenderer->Draw();
+    auto projection = glm::ortho(0.f, (float)_clientConfig->GetClientWidth(),
+        0.f, (float)_clientConfig->GetClientHeight());
+    _spriteRenderer->Begin(projection);
+    {
+        for (int i = 0; i <= 400; i++) {
+            float x = i / 400.f;
+            for (int j = 0; j <= 300; j++) {
+                float y = j / 300.f;
+                _spriteRenderer->Draw(glm::vec2(i * 2, j * 2), glm::vec2(2, 2),
+                    glm::vec2(0), glm::vec4(x, y, 1, 1));
+            }
+        }
+        //_spriteRenderer->Draw(glm::vec2(200, 200), glm::vec2(200, 200),
+        //    glm::vec2(0), glm::vec4(1, 0, 0, 1));
+        //_spriteRenderer->Draw(glm::vec2(700, 300), glm::vec2(200, 200),
+        //    glm::vec2(0), glm::vec4(0, 1, 0, 1));
+    }
+    _spriteRenderer->End();
 }
 
 void TRGame::loadSupportiveSystem()
@@ -96,6 +113,8 @@ void TRGame::Run()
         update();
         draw();
         _gameWindow->SwapBuffers();
+        _gameWindow->PollEvents();
+        printf("%lf\n", _graphicsAPIUtils->GetTime() - prevTimestamp);
         while (_graphicsAPIUtils->GetTime() - prevTimestamp < minElapsedTime) {
             _gameWindow->PollEvents();
         }
