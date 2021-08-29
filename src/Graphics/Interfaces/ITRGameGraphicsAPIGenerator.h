@@ -2,7 +2,7 @@
 #include <memory>
 #include <TRV2.h>
 
-class ITRGameGraphicsAPI
+class ITRGameGraphicsAPIGenerator
 {
 public:
 	virtual void Initialize(const ClientConfig* config) = 0;

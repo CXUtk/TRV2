@@ -2,12 +2,12 @@
 
 // Interfaces
 // Core
-class ITRGameGraphicsAPI;
-class ITRGameGraphicsAPIUtils;
+class ITRWindow;
 
 // Graphics
 class ITRGraphicsDevice;
-class ITRWindow;
+class ITRGameGraphicsAPIUtils;
+class ITRGameGraphicsAPIGenerator;
 
 // Configs
 class ClientConfig;

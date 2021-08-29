@@ -15,6 +15,14 @@ TRGame::TRGame()
 {
 }
 
+void TRGame::update()
+{
+}
+
+void TRGame::draw()
+{
+}
+
 void TRGame::loadSupportiveSystem()
 {
     _logger = std::make_shared<Logger>();
@@ -26,7 +34,8 @@ void TRGame::loadGraphicsSystem()
 {
     _logger->LogInfo("Loading graphics system");
 
-    OpenGLTRGameGraphicsAPI graphicsAPI;
+    // 这里 hard code 了一下OpenGL的API，因为第一阶段项目只考虑OpenGL
+    OpenGLTRGameGraphicsAPIGenerator graphicsAPI;
     graphicsAPI.Initialize(_clientConfig.get());
 
     _graphicsDevice = graphicsAPI.GetGraphicsDevice();
@@ -60,9 +69,9 @@ void TRGame::Run()
     double prevTimestamp = _graphicsAPIUtils->GetTime();
     while (!_gameWindow->ShouldClose()) {
         _gameWindow->BeginFrame();
-
+        update();
+        draw();
         _gameWindow->SwapBuffers();
-
         while (_graphicsAPIUtils->GetTime() - prevTimestamp < minElapsedTime) {
             _gameWindow->PollEvents();
         }

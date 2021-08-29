@@ -18,6 +18,10 @@ public:
 private:
     TRGame();
 
+    // 核心流程
+    void update();
+    void draw();
+
     // 加载函数
     void loadSupportiveSystem();
     void loadGraphicsSystem();

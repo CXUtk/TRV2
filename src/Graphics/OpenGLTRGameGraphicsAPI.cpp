@@ -5,15 +5,15 @@
 #include <Graphics/GraphicsDevices/OpenGLGraphicsDevice.h>
 #include <Core/TRWindow/OpenGLWindow.h>
 
-OpenGLTRGameGraphicsAPI::OpenGLTRGameGraphicsAPI()
+OpenGLTRGameGraphicsAPIGenerator::OpenGLTRGameGraphicsAPIGenerator()
 {
 }
 
-OpenGLTRGameGraphicsAPI::~OpenGLTRGameGraphicsAPI()
+OpenGLTRGameGraphicsAPIGenerator::~OpenGLTRGameGraphicsAPIGenerator()
 {
 }
 
-void OpenGLTRGameGraphicsAPI::Initialize(const ClientConfig* config)
+void OpenGLTRGameGraphicsAPIGenerator::Initialize(const ClientConfig* config)
 {
 	// Create upper layers
 	_graphicsDevice = std::make_shared<OpenGLGraphicsDevice>();

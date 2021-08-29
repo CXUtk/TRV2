@@ -1,14 +1,14 @@
 ﻿#pragma once
 #include <memory>
 #include <TRV2.h>
-#include <Graphics/Interfaces/ITRGameGraphicsAPI.h>
+#include <Graphics/Interfaces/ITRGameGraphicsAPIGenerator.h>
 #include <Graphics/Interfaces/ITRGameGraphicsAPIUtils.h>
 
-class OpenGLTRGameGraphicsAPI : public ITRGameGraphicsAPI
+class OpenGLTRGameGraphicsAPIGenerator : public ITRGameGraphicsAPIGenerator
 {
 public:
-	OpenGLTRGameGraphicsAPI();
-	~OpenGLTRGameGraphicsAPI();
+	OpenGLTRGameGraphicsAPIGenerator();
+	~OpenGLTRGameGraphicsAPIGenerator();
 
 	void Initialize(const ClientConfig* config) override;
 	virtual std::shared_ptr<ITRGraphicsDevice> GetGraphicsDevice() const override {
