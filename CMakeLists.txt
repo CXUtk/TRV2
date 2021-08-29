@@ -17,7 +17,7 @@ add_executable("TRV2"
 "src/Utils/Logging/Logger.cpp"
 "src/Core/TRWindow/OpenGLWindow.cpp" 
 "src/Graphics/OpenGLTRGameGraphicsAPI.cpp"
-"src/Graphics/Renderers/OpenGLSpriteRenderer.cpp" )
+"src/Graphics/Renderers/OpenGLSpriteRenderer.cpp")
 
 
 # 编译选项

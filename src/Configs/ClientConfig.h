@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include <TRV2.h>
 #include <string>
 class ClientConfig

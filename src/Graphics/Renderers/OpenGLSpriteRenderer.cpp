@@ -1,4 +1,4 @@
-#include "OpenGLSpriteRenderer.h"
+﻿#include "OpenGLSpriteRenderer.h"
 #include <glm/glm.hpp>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
