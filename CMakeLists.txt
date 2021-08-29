@@ -21,7 +21,9 @@ add_executable("TRV2"
 
 
 # 编译选项
-set_target_properties("TRV2" PROPERTIES CXX_STANDARD 20 CXX_EXTENSIONS OFF)
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
 
 if ( CMAKE_COMPILER_IS_GNUCC )
     target_compile_options("TRV2" PRIVATE "-Wall -Wextra")
