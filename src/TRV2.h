@@ -4,16 +4,25 @@
 // Core
 class ITRWindow;
 
+// Assets
+class AssetsManager;
+
 // Graphics
 class ITRGraphicsDevice;
 class ITRGameGraphicsAPIUtils;
 class ITRGameGraphicsAPIGenerator;
+class OpenGLSpriteRenderer;
 
 // Configs
 class ClientConfig;
 
 // Utils
 class Logger;
+
+
+// Temp
+class OpenGLShader;
+
 
 // Macros
 #define ReadonlyProperty(type, publicName, privateName) public: type Get##publicName() const { return _##privateName; } \

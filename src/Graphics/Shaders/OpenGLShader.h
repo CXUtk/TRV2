@@ -40,6 +40,11 @@ inline void OpenGLShader::SetParameter(const GLchar* name, glm::vec3 value) {
 }
 
 template<>
+inline void OpenGLShader::SetParameter(const GLchar* name, glm::vec4 value) {
+    glUniform4fv(glGetUniformLocation(this->_id, name), 1, glm::value_ptr(value));
+}
+
+template<>
 inline void OpenGLShader::SetParameter(const GLchar* name, glm::mat4 value) {
     glUniformMatrix4fv(glGetUniformLocation(this->_id, name), 1, GL_FALSE, glm::value_ptr(value));
 }

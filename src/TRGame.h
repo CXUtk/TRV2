@@ -15,6 +15,8 @@ public:
     ReadonlySharedPtrProperty(ITRGraphicsDevice, GraphicsDevice, graphicsDevice);
     ReadonlySharedPtrProperty(ITRWindow, Window, gameWindow);
     ReadonlySharedPtrProperty(ITRGameGraphicsAPIUtils, GraphicsAPIUtils, graphicsAPIUtils);
+    ReadonlySharedPtrProperty(OpenGLSpriteRenderer, SpriteRenderer, spriteRenderer);
+    ReadonlySharedPtrProperty(AssetsManager, AssetsManager, assetsManager);
 private:
     TRGame();
 
@@ -25,6 +27,9 @@ private:
     // 加载函数
     void loadSupportiveSystem();
     void loadGraphicsSystem();
+    void loadAssets();
+
+    void postSetUpContents();
 
     // Utils
     void logTRHeaderInfos();

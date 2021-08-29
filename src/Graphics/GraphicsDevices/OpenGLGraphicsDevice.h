@@ -7,5 +7,6 @@ public:
 	~OpenGLGraphicsDevice();
 
 	void Initialize(const ClientConfig* clientConfig) override;
+	std::shared_ptr<OpenGLSpriteRenderer> CreateSpriteRenderer() const override;
 private:
 };

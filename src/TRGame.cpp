@@ -4,6 +4,8 @@
 #include <Graphics/GraphicsDevices/OpenGLGraphicsDevice.h>
 #include <Graphics/OpenGLTRGameGraphicsAPI.h>
 #include <Core/Interfaces/ITRWindow.h>
+#include <Assets/AssetsManager.h>
+#include <Graphics/Renderers/OpenGLSpriteRenderer.h>
 
 TRGame& TRGame::GetInstance() 
 {
@@ -21,11 +23,11 @@ void TRGame::update()
 
 void TRGame::draw()
 {
+    _spriteRenderer->Draw();
 }
 
 void TRGame::loadSupportiveSystem()
 {
-    _logger = std::make_shared<Logger>();
     _clientConfig = std::make_shared<ClientConfig>();
     logTRHeaderInfos();
 }
@@ -43,6 +45,17 @@ void TRGame::loadGraphicsSystem()
     _graphicsAPIUtils = graphicsAPI.GetGraphicsAPIUtils();
 }
 
+void TRGame::loadAssets()
+{
+    _logger->LogInfo("Loading assets");
+    _assetsManager = std::make_shared<AssetsManager>();
+}
+
+void TRGame::postSetUpContents()
+{
+    _spriteRenderer = _graphicsDevice->CreateSpriteRenderer();
+}
+
 void TRGame::logTRHeaderInfos()
 {
     _logger->LogInfo("TR Game Started");
@@ -57,8 +70,19 @@ TRGame::~TRGame() {
 
 void TRGame::Initialize(int argc, char** argv)
 {
-    loadSupportiveSystem();
-    loadGraphicsSystem();
+    _logger = std::make_shared<Logger>();
+
+    try {
+        loadSupportiveSystem();
+        loadGraphicsSystem();
+        loadAssets();
+
+        postSetUpContents();
+    }
+    catch (std::exception ex) {
+        _logger->LogError("Error: %s", ex.what());
+        throw;
+    }
 
     _logger->LogInfo("Finished initialization");
 }
