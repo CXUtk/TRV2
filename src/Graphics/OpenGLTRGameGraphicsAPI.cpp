@@ -3,7 +3,7 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <Graphics/GraphicsDevices/OpenGLGraphicsDevice.h>
-#include <Graphics/OpenGLWindow.h>
+#include <Core/TRWindow/OpenGLWindow.h>
 
 OpenGLTRGameGraphicsAPI::OpenGLTRGameGraphicsAPI()
 {

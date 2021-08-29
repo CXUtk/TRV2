@@ -9,18 +9,18 @@ project ("TRV2" VERSION 1.0.0.0)
 configure_file("${PROJECT_SOURCE_DIR}/src/Configs/CompileTimeConfig.h.in" "${PROJECT_SOURCE_DIR}/generated/CompileTimeConfig.h")
 
 # 包含子项目。
-add_executable ("TRV2" 
+add_executable("TRV2" 
 "src/main.cpp"
 "src/TRGame.cpp"
 "src/Configs/ClientConfig.cpp"
 "src/Graphics/GraphicsDevices/OpenGLGraphicsDevice.cpp"
 "src/Utils/Logging/Logger.cpp"
-"src/Graphics/OpenGLWindow.cpp" 
-"src/Core/OpenGLTRGameGraphicsAPI.cpp")
+"src/Core/TRWindow/OpenGLWindow.cpp" 
+"src/Graphics/OpenGLTRGameGraphicsAPI.cpp")
 
 
 # 编译选项
-set_target_properties ("TRV2" PROPERTIES CXX_STANDARD 20 CXX_EXTENSIONS OFF)
+set_target_properties("TRV2" PROPERTIES CXX_STANDARD 20 CXX_EXTENSIONS OFF)
 
 if ( CMAKE_COMPILER_IS_GNUCC )
     target_compile_options("TRV2" PRIVATE "-Wall -Wextra")
@@ -29,16 +29,17 @@ if ( MSVC )
     target_compile_options("TRV2" PRIVATE "/W4")
 endif()
 
-add_subdirectory ("ext/glad")
-add_subdirectory ("ext/GLFW")
-add_subdirectory ("ext/SJson")
+# 添加库引用
+add_subdirectory("ext/glad")
+add_subdirectory("ext/GLFW")
+add_subdirectory("ext/SJson")
 
 message(STATUS "${PROJECT_SOURCE_DIR}")
 message(STATUS "${PROJECT_BINARY_DIR}")
 
 find_package(OpenGL REQUIRED)
 target_link_libraries("TRV2" PRIVATE OpenGL::GL)
-target_link_libraries ("TRV2" PRIVATE glad glfw SJson)
+target_link_libraries("TRV2" PRIVATE glad glfw SJson)
 
 # Include 目录
 include_directories("${PROJECT_SOURCE_DIR}/generated")

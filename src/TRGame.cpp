@@ -2,8 +2,8 @@
 #include <Utils/Logging/Logger.h>
 #include <Configs/ClientConfig.h>
 #include <Graphics/GraphicsDevices/OpenGLGraphicsDevice.h>
-#include <Core/OpenGLTRGameGraphicsAPI.h>
-#include <Graphics/Interfaces/ITRWindow.h>
+#include <Graphics/OpenGLTRGameGraphicsAPI.h>
+#include <Core/Interfaces/ITRWindow.h>
 
 TRGame& TRGame::GetInstance() 
 {
@@ -25,6 +25,7 @@ void TRGame::loadSupportiveSystem()
 void TRGame::loadGraphicsSystem()
 {
     _logger->LogInfo("Loading graphics system");
+
     OpenGLTRGameGraphicsAPI graphicsAPI;
     graphicsAPI.Initialize(_clientConfig.get());
 
@@ -49,6 +50,8 @@ void TRGame::Initialize(int argc, char** argv)
 {
     loadSupportiveSystem();
     loadGraphicsSystem();
+
+    _logger->LogInfo("Finished initialization");
 }
 
 void TRGame::Run()

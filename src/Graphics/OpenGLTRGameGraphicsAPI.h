@@ -1,8 +1,8 @@
 ﻿#pragma once
 #include <memory>
 #include <TRV2.h>
-#include <Core/Interfaces/ITRGameGraphicsAPI.h>
-#include <Core/Interfaces/ITRGameGraphicsAPIUtils.h>
+#include <Graphics/Interfaces/ITRGameGraphicsAPI.h>
+#include <Graphics/Interfaces/ITRGameGraphicsAPIUtils.h>
 
 class OpenGLTRGameGraphicsAPI : public ITRGameGraphicsAPI
 {

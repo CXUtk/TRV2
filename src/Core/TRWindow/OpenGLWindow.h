@@ -2,7 +2,7 @@
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
-#include <Graphics/Interfaces/ITRWindow.h>
+#include <Core/Interfaces/ITRWindow.h>
 
 class OpenGLWindow :public ITRWindow
 {

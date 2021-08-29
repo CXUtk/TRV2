@@ -5,7 +5,6 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <Configs/ClientConfig.h>
-#include <Graphics/OpenGLWindow.h>
 
 OpenGLGraphicsDevice::OpenGLGraphicsDevice()
 {

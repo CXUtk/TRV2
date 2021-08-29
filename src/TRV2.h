@@ -1,4 +1,6 @@
 ﻿#pragma once
+
+// Interfaces
 // Core
 class ITRGameGraphicsAPI;
 class ITRGameGraphicsAPIUtils;
