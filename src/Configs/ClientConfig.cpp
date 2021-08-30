@@ -1,6 +1,6 @@
 ﻿#include <Configs/ClientConfig.h>
 #include <CompileTimeConfig.h>
-#include <format>
+#include <Utils/Utils.h>
 
 ClientConfig::ClientConfig()
 {
@@ -10,7 +10,7 @@ ClientConfig::ClientConfig()
 
 	_clientTitle = "TR V2";
 
-	_versionString = std::format("{}.{}.{}.{}", TRV2_VERSION_MAJOR, 
+	_versionString = string_format("%d.%d.%d.%d", TRV2_VERSION_MAJOR, 
 		TRV2_VERSION_MINOR, 
 		TRV2_VERSION_PATCH, 
 		TRV2_VERSION_TWEAK);

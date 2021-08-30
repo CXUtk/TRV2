@@ -11,7 +11,7 @@ int main(int argc, char** argv)
         game.Run();
     }
     catch (std::exception ex) {
-        fprintf(stderr, "ERROR: %s", ex.what());
+        fprintf(stderr, "Error encountered, game terminated!\n");
     }
     return 0;
 }
