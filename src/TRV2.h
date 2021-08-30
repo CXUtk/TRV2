@@ -1,5 +1,7 @@
 ﻿#pragma once
 
+class TRGame;
+
 // Interfaces
 // Core
 class ITRWindow;

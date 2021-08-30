@@ -4,6 +4,8 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <algorithm>
+#include <TRGame.h>
+#include <Utils/Logging/Logger.h>
 
 
 static const Vertex2D simpleQuadVertices[4] = {
@@ -112,6 +114,7 @@ void OpenGLSpriteRenderer::flush()
 	_spriteShader->SetParameter<glm::mat4>("uWorldTransform", getCurrentTransform());
 	{
 		int sz = _currentVertex;
+		TRGame::GetInstance().GetLogger()->LogDebug("number of sprites: %d\n", _currentVertex);
 		assert(sz % 4 == 0);
 		glBindVertexArray(_mainVAO);
 		// 以最多 MaxVerticesPerBatch 个点为单位，分批绘制线段

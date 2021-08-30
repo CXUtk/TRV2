@@ -131,6 +131,7 @@ void TRGame::Run()
         draw();
         _gameWindow->SwapBuffers();
         _gameWindow->PollEvents();
+        _logger->LogDebug("Elapsed Time: %lf", _graphicsAPIUtils->GetTime() - prevTimestamp);
         while (_graphicsAPIUtils->GetTime() - prevTimestamp < minElapsedTime) {
             _gameWindow->PollEvents();
         }

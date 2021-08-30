@@ -41,8 +41,14 @@ GameWorld::GameWorld(int width, int height) : _width(width), _height(height)
 			float v2 = glm::mix(randTable[baseCoord.x][baseCoord.y + 1], randTable[baseCoord.x + 1][baseCoord.y + 1], extraCoord.x);
 			float v = glm::mix(v1, v2, extraCoord.y);
 
-			if (v > 0.5) {
+			if (v > 0.7) {
 				SetTile(x, y, Tile(1));
+			}
+			else if(v > 0.5) {
+				SetTile(x, y, Tile(2));
+			}
+			else if(v > 0.3) {
+				SetTile(x, y, Tile(3));
 			}
 			else {
 				SetTile(x, y, Tile(4));
