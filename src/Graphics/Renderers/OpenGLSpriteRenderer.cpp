@@ -14,7 +14,7 @@ static const Vertex2D simpleQuadVertices[4] = {
 };
 
 static const GLuint simpleQuadIndicies[6] = { 0, 1, 3, 0, 3, 2 };
-static constexpr int MaxQuadsPerBatch = 100000;
+static constexpr int MaxQuadsPerBatch = 4096;
 static constexpr int MaxVerticesPerBatch = MaxQuadsPerBatch * 4;
 static constexpr int MaxIndiciesPerBatch = MaxQuadsPerBatch * 6;
 
@@ -91,7 +91,7 @@ void OpenGLSpriteRenderer::pushQuad(glm::vec2 tpos, glm::vec2 size, glm::vec2 or
 		auto pos = (simpleQuadVertices[i].Position + origin) * size;
 		auto vpos = (rotation == 0.f) ? (glm::vec4(pos, 0, 1)) : (transform * glm::vec4(pos, 0, 1));
 		_vertices[_currentVertex].Position.x = vpos.x + tpos.x;
-		_vertices[_currentVertex].Position.t = vpos.y + tpos.y;
+		_vertices[_currentVertex].Position.y = vpos.y + tpos.y;
 		_vertices[_currentVertex].TextureCoords = simpleQuadVertices[i].TextureCoords;
 		_vertices[_currentVertex].Color = color;
 		_currentVertex++;
