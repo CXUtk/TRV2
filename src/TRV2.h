@@ -18,7 +18,13 @@ class ClientConfig;
 
 // Utils
 class Logger;
+struct Rect;
+struct RectI;
 
+
+// Game
+class Tile;
+class GameWorld;
 
 // Temp
 class OpenGLShader;

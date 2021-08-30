@@ -1,4 +1,5 @@
 ﻿#include "TRGame.h"
+
 #include <Utils/Logging/Logger.h>
 #include <Configs/ClientConfig.h>
 #include <Graphics/GraphicsDevices/OpenGLGraphicsDevice.h>
@@ -6,6 +7,10 @@
 #include <Core/Interfaces/ITRWindow.h>
 #include <Assets/AssetsManager.h>
 #include <Graphics/Renderers/OpenGLSpriteRenderer.h>
+
+#include <Game/Worlds/GameWorld.h>
+#include <Utils/Structures/Rect.h>
+#include <glm/gtx/transform.hpp>
 
 TRGame& TRGame::GetInstance() 
 {
@@ -15,6 +20,7 @@ TRGame& TRGame::GetInstance()
 
 TRGame::TRGame() 
 {
+    _screenPosition = glm::vec2(0);
 }
 
 void TRGame::update()
@@ -25,20 +31,24 @@ void TRGame::draw()
 {
     auto projection = glm::ortho(0.f, (float)_clientConfig->GetClientWidth(),
         0.f, (float)_clientConfig->GetClientHeight());
-    _spriteRenderer->Begin(projection);
+    auto translation = glm::translate(glm::vec3(-_screenPosition, 0));
+
+    _spriteRenderer->Begin(projection * translation);
     {
-        for (int i = 0; i <= 400; i++) {
-            float x = i / 400.f;
-            for (int j = 0; j <= 300; j++) {
-                float y = j / 300.f;
-                _spriteRenderer->Draw(glm::vec2(i * 2, j * 2), glm::vec2(2, 2),
-                    glm::vec2(0), glm::vec4(x, y, 1, 1));
-            }
-        }
-        //_spriteRenderer->Draw(glm::vec2(200, 200), glm::vec2(200, 200),
-        //    glm::vec2(0), glm::vec4(1, 0, 0, 1));
-        //_spriteRenderer->Draw(glm::vec2(700, 300), glm::vec2(200, 200),
-        //    glm::vec2(0), glm::vec4(0, 1, 0, 1));
+        // calculate draw rect
+        glm::ivec2 botLeft((int)(_screenPosition.x / GameWorld::TILE_SIZE), (int)(_screenPosition.y / GameWorld::TILE_SIZE));
+        botLeft.x = std::max(0, std::min(_gameWorld->GetWidth() - 1, botLeft.x));
+        botLeft.y = std::max(0, std::min(_gameWorld->GetHeight() - 1, botLeft.y));
+
+        glm::ivec2 topRight((int)((_screenPosition.x + _clientConfig->GetClientWidth() + GameWorld::TILE_SIZE) / GameWorld::TILE_SIZE),
+            (int)((_screenPosition.y + _clientConfig->GetClientHeight() + GameWorld::TILE_SIZE) / GameWorld::TILE_SIZE));
+        topRight.x = std::max(0, std::min(_gameWorld->GetWidth() - 1, topRight.x));
+        topRight.y = std::max(0, std::min(_gameWorld->GetHeight() - 1, topRight.y));
+
+        RectI viewRect(botLeft, topRight - botLeft);
+        _gameWorld->RenderWorld(_spriteRenderer.get(), viewRect);
+
+        _screenPosition.x += 2;
     }
     _spriteRenderer->End();
 }
@@ -68,9 +78,15 @@ void TRGame::loadAssets()
     _assetsManager = std::make_shared<AssetsManager>();
 }
 
-void TRGame::postSetUpContents()
+void TRGame::postLoadEngines()
 {
     _spriteRenderer = _graphicsDevice->CreateSpriteRenderer();
+}
+
+void TRGame::loadGameContent()
+{
+    _gameWorld = std::make_unique<GameWorld>(1000, 1000);
+
 }
 
 void TRGame::logTRHeaderInfos()
@@ -94,7 +110,8 @@ void TRGame::Initialize(int argc, char** argv)
         loadGraphicsSystem();
         loadAssets();
 
-        postSetUpContents();
+        postLoadEngines();
+        loadGameContent();
     }
     catch (std::exception ex) {
         _logger->LogError("Error: %s", ex.what());
@@ -114,7 +131,6 @@ void TRGame::Run()
         draw();
         _gameWindow->SwapBuffers();
         _gameWindow->PollEvents();
-        printf("%lf\n", _graphicsAPIUtils->GetTime() - prevTimestamp);
         while (_graphicsAPIUtils->GetTime() - prevTimestamp < minElapsedTime) {
             _gameWindow->PollEvents();
         }

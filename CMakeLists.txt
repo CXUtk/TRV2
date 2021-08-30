@@ -19,7 +19,8 @@ add_executable("TRV2"
 "src/Graphics/OpenGLTRGameGraphicsAPI.cpp"
 "src/Graphics/Renderers/OpenGLSpriteRenderer.cpp"
 "src/Assets/AssetsManager.cpp"
-"src/Assets/Loaders/OpenGLShaderLoader.cpp")
+"src/Assets/Loaders/OpenGLShaderLoader.cpp"
+"src/Game/Worlds/GameWorld.cpp")
 
 
 # 编译选项

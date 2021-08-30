@@ -17,7 +17,7 @@ public:
 	void Begin(const glm::mat4& transform);
 	void End();
 
-	void Draw(glm::vec2 pos, glm::vec2 size, glm::vec2 origin, const glm::vec4& color);
+	void Draw(glm::vec2 pos, glm::vec2 size, glm::vec2 origin, float rotation, const glm::vec4& color);
 
 private:
 	GLuint _mainVAO, _mainVBO, _mainEBO;

@@ -71,9 +71,9 @@ void OpenGLSpriteRenderer::End()
 	_batchStateStack.pop_back();
 }
 
-void OpenGLSpriteRenderer::Draw(glm::vec2 pos, glm::vec2 size, glm::vec2 origin, const glm::vec4& color)
+void OpenGLSpriteRenderer::Draw(glm::vec2 pos, glm::vec2 size, glm::vec2 origin, float rotation, const glm::vec4& color)
 {
-	pushQuad(pos, size, origin, 0.f, color);
+	pushQuad(pos, size, origin, rotation, color);
 }
 
 glm::mat4 OpenGLSpriteRenderer::getCurrentTransform() const
@@ -83,13 +83,18 @@ glm::mat4 OpenGLSpriteRenderer::getCurrentTransform() const
 
 void OpenGLSpriteRenderer::pushQuad(glm::vec2 tpos, glm::vec2 size, glm::vec2 origin, float rotation, const glm::vec4& color)
 {
-	glm::mat4 transform;
+	glm::mat2 transform = glm::identity<glm::mat2>();
 	if (rotation != 0.f) {
-		glm::rotate(rotation, glm::vec3(0, 0, 1));
+		auto cosr = std::cos(rotation);
+		auto sinr = std::sin(rotation);
+		transform[0][0] = cosr;
+		transform[1][0] = sinr;
+		transform[0][1] = -sinr;
+		transform[1][1] = cosr;
 	}
 	for (int i = 0; i < 4; i++) {
-		auto pos = (simpleQuadVertices[i].Position + origin) * size;
-		auto vpos = (rotation == 0.f) ? (glm::vec4(pos, 0, 1)) : (transform * glm::vec4(pos, 0, 1));
+		auto pos = (simpleQuadVertices[i].Position - origin) * size;
+		auto vpos = (rotation == 0.f) ? (pos) : (transform * pos);
 		_vertices[_currentVertex].Position.x = vpos.x + tpos.x;
 		_vertices[_currentVertex].Position.y = vpos.y + tpos.y;
 		_vertices[_currentVertex].TextureCoords = simpleQuadVertices[i].TextureCoords;

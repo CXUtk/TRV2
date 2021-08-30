@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include <TRV2.h>
 #include <memory>
+#include <glm/glm.hpp>
 
 class TRGame {
 public:
@@ -29,8 +30,13 @@ private:
     void loadGraphicsSystem();
     void loadAssets();
 
-    void postSetUpContents();
+    void postLoadEngines();
+    void loadGameContent();
 
     // Utils
     void logTRHeaderInfos();
+
+
+    std::unique_ptr<GameWorld> _gameWorld;
+    glm::vec2 _screenPosition;
 };
