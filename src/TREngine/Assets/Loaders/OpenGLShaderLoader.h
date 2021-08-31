@@ -1,7 +1,7 @@
 ﻿#pragma once
 #include <memory>
 #include <string>
-#include <TREngine/Interfaces.h>
+#include <Interfaces.h>
 
 class OpenGLShaderLoader
 {

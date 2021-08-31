@@ -27,7 +27,7 @@ void OpenGLGraphicsDevice::Initialize(const ClientConfig* clientConfig)
 	glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 }
 
-std::shared_ptr<OpenGLSpriteRenderer> OpenGLGraphicsDevice::CreateSpriteRenderer() const
+std::shared_ptr<ISpriteRenderer> OpenGLGraphicsDevice::CreateSpriteRenderer() const
 {
 	auto assetManager = _engine->GetAssetsManager();
 	auto shader = assetManager->GetShader("BUILTIN:Sprite2D");

@@ -18,7 +18,7 @@ public:
     ReadonlySharedPtrProperty(ITRGraphicsDevice, GraphicsDevice, graphicsDevice);
     ReadonlySharedPtrProperty(ITRWindow, Window, gameWindow);
     ReadonlySharedPtrProperty(ITRGameGraphicsAPIUtils, GraphicsAPIUtils, graphicsAPIUtils);
-    ReadonlySharedPtrProperty(OpenGLSpriteRenderer, SpriteRenderer, spriteRenderer);
+    ReadonlySharedPtrProperty(ISpriteRenderer, SpriteRenderer, spriteRenderer);
     ReadonlySharedPtrProperty(AssetsManager, AssetsManager, assetsManager);
     ReadonlySharedPtrProperty(Logger, Logger, logger);
 private:

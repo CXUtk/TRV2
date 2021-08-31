@@ -67,7 +67,7 @@ void GameWorld::SetTile(int x, int y, const Tile& tile)
 	_tiles[y * _width + x] = tile;
 }
 
-void GameWorld::RenderWorld(OpenGLSpriteRenderer* renderer, const RectI& renderRect)
+void GameWorld::RenderWorld(ISpriteRenderer* renderer, const RectI& renderRect)
 {
 	auto start = glm::vec2(renderRect.Position);
 	for (int i = 0; i < renderRect.Size.x; i++) {

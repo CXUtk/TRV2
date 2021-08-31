@@ -1,6 +1,6 @@
 ﻿#pragma once
 #include <memory>
-#include <TREngine/Interfaces.h>
+#include <Interfaces.h>
 
 class ITRGameGraphicsAPIUtils
 {

@@ -7,7 +7,7 @@ public:
 	~OpenGLGraphicsDevice();
 
 	void Initialize(const ClientConfig* clientConfig) override;
-	std::shared_ptr<OpenGLSpriteRenderer> CreateSpriteRenderer() const override;
+	std::shared_ptr<ISpriteRenderer> CreateSpriteRenderer() const override;
 private:
 	TREngine* _engine;
 };

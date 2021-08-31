@@ -1,5 +1,5 @@
 ﻿#pragma once
-#include <TREngine/Interfaces.h>
+#include <Interfaces.h>
 #include <string>
 class ClientConfig
 {

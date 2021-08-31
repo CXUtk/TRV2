@@ -1,23 +1,26 @@
 ﻿#pragma once
+#include "BatchInfo.h"
+
 #include <Interfaces.h>
-#include <memory>
+#include <Graphics/Shaders/OpenGLShader.h>
+#include <Graphics/Interfaces/ISpriteRenderer.h>
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
-#include <Graphics/Shaders/OpenGLShader.h>
 #include <vector>
-#include "BatchInfo.h"
+#include <memory>
 
-class OpenGLSpriteRenderer
+
+class OpenGLSpriteRenderer : public ISpriteRenderer
 {
 public:
 	OpenGLSpriteRenderer(const ITRGraphicsDevice* graphicsDevice, OpenGLShader* spriteShader);
 	~OpenGLSpriteRenderer();
 
-	void Begin(const glm::mat4& transform);
-	void End();
+	void Begin(const glm::mat4& transform) override;
+	void End() override;
 
-	void Draw(glm::vec2 pos, glm::vec2 size, glm::vec2 origin, float rotation, const glm::vec4& color);
+	void Draw(glm::vec2 pos, glm::vec2 size, glm::vec2 origin, float rotation, const glm::vec4& color) override;
 
 private:
 	GLuint _mainVAO, _mainVBO, _mainEBO;

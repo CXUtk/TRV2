@@ -13,7 +13,7 @@ public:
 	void SetTile(int x, int y, const Tile& tile);
 
 
-	void RenderWorld(OpenGLSpriteRenderer* renderer, const RectI& renderRect);
+	void RenderWorld(ISpriteRenderer* renderer, const RectI& renderRect);
 
 	static constexpr int TILE_SIZE = 16;
 

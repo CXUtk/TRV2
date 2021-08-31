@@ -12,7 +12,7 @@ class AssetsManager;
 class ITRGraphicsDevice;
 class ITRGameGraphicsAPIUtils;
 class ITRGameGraphicsAPIGenerator;
-class OpenGLSpriteRenderer;
+class ISpriteRenderer;
 
 // Configs
 class ClientConfig;

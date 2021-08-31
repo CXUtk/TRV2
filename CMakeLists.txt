@@ -39,7 +39,9 @@ endif()
 # Include 目录
 include_directories("${PROJECT_SOURCE_DIR}/generated")
 include_directories("${PROJECT_SOURCE_DIR}/ext/includes")
+include_directories("${PROJECT_SOURCE_DIR}/src/TREngine")
 include_directories("${PROJECT_SOURCE_DIR}/src")
+
 
 # 添加库引用
 # 引用引擎
