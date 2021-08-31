@@ -3,22 +3,27 @@
 #
 cmake_minimum_required (VERSION 3.13)
 
-project ("TRV2_Game" VERSION 1.0.0.0)
+project ("TRV2_Game" VERSION 0.2.0.0)
+
+# 初始化变量
+set(TRV2_GAME_SRC_DIR "${PROJECT_SOURCE_DIR}/src/TRGame")
+set(TRV2_Engine_SRC_DIR "${PROJECT_SOURCE_DIR}/src/TREngine")
+message(STATUS "${PROJECT_SOURCE_DIR}")
+message(STATUS "${PROJECT_BINARY_DIR}")
+
 
 # 指定版本号的配置文件
 configure_file(
-    "${PROJECT_SOURCE_DIR}/TRGame/Configs/CompileTimeConfig.h.in"
-    "${PROJECT_SOURCE_DIR}/generated/CompileTimeConfig.h"
+    "${TRV2_GAME_SRC_DIR}/Configs/CompileTimeConfig.h.in"
+    "${PROJECT_SOURCE_DIR}/generated/CompileTimeConfig_Game.h"
 )
 
 # 包含子项目。
 add_executable("TRV2_Game" 
-"TRGame/main.cpp"
-"TRGame/TRGame.cpp"
-"TRGame/Worlds/GameWorld.cpp" "ext/includes/glad/KHR/khrplatform.h")
-
-message(STATUS "${PROJECT_SOURCE_DIR}")
-message(STATUS "${PROJECT_BINARY_DIR}")
+"${TRV2_GAME_SRC_DIR}/main.cpp"
+"${TRV2_GAME_SRC_DIR}/TRGame.cpp"
+"${TRV2_GAME_SRC_DIR}/Worlds/GameWorld.cpp"
+)
 
 # 编译选项
 set(CMAKE_CXX_STANDARD 17)
@@ -31,24 +36,23 @@ if ( MSVC )
     target_compile_options("TRV2_Game" PRIVATE "/W4")
 endif()
 
-# 添加库引用
-
-# 引用引擎
-add_subdirectory("TREngine")
-
-# 引用库
-find_package(OpenGL REQUIRED)
-target_link_libraries("TRV2_Game" PRIVATE OpenGL::GL)
-target_link_libraries("TRV2_Game" PRIVATE glad glfw SJson TRV2_Engine)
-
 # Include 目录
 include_directories("${PROJECT_SOURCE_DIR}/generated")
 include_directories("${PROJECT_SOURCE_DIR}/ext/includes")
-include_directories("${PROJECT_SOURCE_DIR}/TREngine")
-include_directories("${PROJECT_SOURCE_DIR}/TRGame")
+include_directories("${PROJECT_SOURCE_DIR}/src")
+
+# 添加库引用
+# 引用引擎
+add_subdirectory("src/TREngine")
+
+# 引用库
+target_link_libraries("TRV2_Game" PRIVATE TRV2_Engine)
+
+message(STATUS "${PROJECT_SOURCE_DIR}")
+message(STATUS "${PROJECT_BINARY_DIR}")
 
 add_custom_command(TARGET "TRV2_Game" PRE_BUILD
-                   COMMAND python ${PROJECT_SOURCE_DIR}/encoding.py "${PROJECT_SOURCE_DIR}/TRGame" "utf-8-sig")
+                   COMMAND python ${PROJECT_SOURCE_DIR}/encoding.py "${TRV2_GAME_SRC_DIR}" "utf-8-sig")
 add_custom_command(TARGET "TRV2_Game" POST_BUILD
                    COMMAND python ${PROJECT_SOURCE_DIR}/build.py "${PROJECT_SOURCE_DIR}/Resources" "${PROJECT_BINARY_DIR}")
 

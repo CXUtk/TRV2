@@ -1,7 +1,7 @@
 ﻿#include "GameWorld.h"
 #include "Tile.h"
-#include <Utils/Structures/Rect.h>
-#include <Graphics/Renderers/OpenGLSpriteRenderer.h>
+#include <TREngine/Utils/Structures/Rect.h>
+#include <TREngine/Graphics/Renderers/OpenGLSpriteRenderer.h>
 #include <random>
 
 static const glm::vec4 tempColorTable[5] = {

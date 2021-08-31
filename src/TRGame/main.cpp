@@ -1,4 +1,4 @@
-﻿#include <TRGame.h>
+﻿#include <TRGame/TRGame.h>
 #include <cstdio>
 
 int main(int argc, char** argv)

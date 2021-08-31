@@ -1,5 +1,5 @@
 ﻿#pragma once
-#include <TREngine_Interfaces.h>
+#include <TREngine/Interfaces.h>
 #include <memory>
 
 class ITRGraphicsDevice

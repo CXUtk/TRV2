@@ -1,6 +1,6 @@
 ﻿#pragma once
 #include <memory>
-#include <TREngine_Interfaces.h>
+#include <TREngine/Interfaces.h>
 
 class ITRWindow
 {

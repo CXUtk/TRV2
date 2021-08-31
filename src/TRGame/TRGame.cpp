@@ -1,13 +1,14 @@
 ﻿#include "TRGame.h"
-#include <TREngine.h>
-#include <Configs/ClientConfig.h>
-#include <Utils/Logging/Logger.h>
-#include <Core/Interfaces/ITRWindow.h>
-#include <Graphics/Interfaces/ITRGameGraphicsAPIUtils.h>
-#include <Graphics/Renderers/OpenGLSpriteRenderer.h>
-#include <Worlds/GameWorld.h>
 
-#include <Utils/Structures/Rect.h>
+#include <TREngine/TREngine.h>
+#include <TREngine/Configs/ClientConfig.h>
+#include <TREngine/Utils/Logging/Logger.h>
+#include <TREngine/Core/Interfaces/ITRWindow.h>
+#include <TREngine/Graphics/Interfaces/ITRGameGraphicsAPIUtils.h>
+#include <TREngine/Graphics/Renderers/OpenGLSpriteRenderer.h>
+#include <TREngine/Utils/Structures/Rect.h>
+
+#include <TRGame/Worlds/GameWorld.h>
 
 #include <glm/gtx/transform.hpp>
 

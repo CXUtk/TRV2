@@ -1,5 +1,5 @@
 ﻿#pragma once
-#include <TREngine_Interfaces.h>
+#include <Interfaces.h>
 #include <memory>
 #include <glm/glm.hpp>
 
