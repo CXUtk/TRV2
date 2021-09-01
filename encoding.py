@@ -5,7 +5,6 @@ from chardet.universaldetector import UniversalDetector
 
 # 把文件夹中所有 *.cpp, *.h, *.hpp, *.inl, ... 等源码文件全部转换为utf8编码
 __exts__ = (
-    ".md", ".txt",
     ".cpp", ".h", ".hpp", ".inl"
 )
 

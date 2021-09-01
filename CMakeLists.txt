@@ -3,68 +3,59 @@
 #
 cmake_minimum_required (VERSION 3.13)
 
-project ("TRV2" VERSION 1.0.0.0)
+project ("TRV2_Game" VERSION 0.2.0.0)
+
+# 初始化变量
+set(TRV2_GAME_SRC_DIR "${PROJECT_SOURCE_DIR}/src/TRGame")
+set(TRV2_Engine_SRC_DIR "${PROJECT_SOURCE_DIR}/src/TREngine")
+message(STATUS "${PROJECT_SOURCE_DIR}")
+message(STATUS "${PROJECT_BINARY_DIR}")
+
 
 # 指定版本号的配置文件
-configure_file("${PROJECT_SOURCE_DIR}/src/Configs/CompileTimeConfig.h.in" "${PROJECT_SOURCE_DIR}/generated/CompileTimeConfig.h")
+configure_file(
+    "${TRV2_GAME_SRC_DIR}/Configs/CompileTimeConfig.h.in"
+    "${PROJECT_SOURCE_DIR}/generated/CompileTimeConfig_Game.h"
+)
 
 # 包含子项目。
-add_executable("TRV2" 
-"src/main.cpp"
-"src/TRGame.cpp"
-"src/Configs/ClientConfig.cpp"
-"src/Graphics/GraphicsDevices/OpenGLGraphicsDevice.cpp"
-"src/Utils/Logging/Logger.cpp"
-"src/Core/TRWindow/OpenGLWindow.cpp" 
-"src/Graphics/OpenGLTRGameGraphicsAPI.cpp"
-"src/Graphics/Renderers/OpenGLSpriteRenderer.cpp"
-"src/Assets/AssetsManager.cpp"
-"src/Assets/Loaders/OpenGLShaderLoader.cpp"
-"src/Game/Worlds/GameWorld.cpp")
-
+add_executable("TRV2_Game" 
+"${TRV2_GAME_SRC_DIR}/main.cpp"
+"${TRV2_GAME_SRC_DIR}/TRGame.cpp"
+"${TRV2_GAME_SRC_DIR}/Worlds/GameWorld.cpp"
+)
 
 # 编译选项
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
-
 if ( CMAKE_COMPILER_IS_GNUCC )
-    target_compile_options("TRV2" PRIVATE "-Wall -Wextra")
+    target_compile_options("TRV2_Game" PRIVATE "-Wall -Wextra")
 endif()
 if ( MSVC )
-    target_compile_options("TRV2" PRIVATE "/W4")
+    target_compile_options("TRV2_Game" PRIVATE "/W4")
 endif()
 
+# Include 目录
+include_directories("${PROJECT_SOURCE_DIR}/generated")
+include_directories("${PROJECT_SOURCE_DIR}/ext/includes")
+include_directories("${PROJECT_SOURCE_DIR}/src/TREngine")
+include_directories("${PROJECT_SOURCE_DIR}/src")
+
+
 # 添加库引用
-add_subdirectory("ext/glad")
-add_subdirectory("ext/GLFW")
-add_subdirectory("ext/SJson")
+# 引用引擎
+add_subdirectory("src/TREngine")
+
+# 引用库
+target_link_libraries("TRV2_Game" PRIVATE TRV2_Engine)
 
 message(STATUS "${PROJECT_SOURCE_DIR}")
 message(STATUS "${PROJECT_BINARY_DIR}")
 
-find_package(OpenGL REQUIRED)
-target_link_libraries("TRV2" PRIVATE OpenGL::GL)
-target_link_libraries("TRV2" PRIVATE glad glfw SJson)
-
-# Include 目录
-include_directories("${PROJECT_SOURCE_DIR}/generated")
-include_directories("${PROJECT_SOURCE_DIR}/ext")
-include_directories("${PROJECT_SOURCE_DIR}/src")
-include_directories("${PROJECT_SOURCE_DIR}/ext/GLFW/include")
-
-
-add_custom_command(TARGET "TRV2" PRE_BUILD
-                   COMMAND python ${PROJECT_SOURCE_DIR}/encoding.py "${PROJECT_SOURCE_DIR}/src" "utf-8-sig")
-add_custom_command(TARGET "TRV2" POST_BUILD
+add_custom_command(TARGET "TRV2_Game" PRE_BUILD
+                   COMMAND python ${PROJECT_SOURCE_DIR}/encoding.py "${TRV2_GAME_SRC_DIR}" "utf-8-sig")
+add_custom_command(TARGET "TRV2_Game" POST_BUILD
                    COMMAND python ${PROJECT_SOURCE_DIR}/build.py "${PROJECT_SOURCE_DIR}/Resources" "${PROJECT_BINARY_DIR}")
-
-# message(STATUS "\n************************************* Executing Encoding-check Script *************************************\n")
-# execute_process(COMMAND python ${PROJECT_SOURCE_DIR}/encoding.py "${PROJECT_SOURCE_DIR}/src" "utf-8-sig")
-# message(STATUS "\n************************************* Finished Encoding-check Script **************************************\n")
-
-# message(STATUS "\n************************************* Executing Resources-copy Script *************************************\n")
-# execute_process(COMMAND python ${PROJECT_SOURCE_DIR}/build.py "${PROJECT_SOURCE_DIR}/Resources" "${PROJECT_BINARY_DIR}")
-# message(STATUS "\n************************************* Finished Resources-copy Script **************************************\n")
 
 

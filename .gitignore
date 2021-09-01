@@ -44,6 +44,13 @@ compile_commands.json
 CTestTestfile.cmake
 _deps
 out
+build
+
+# Cmake in Engine
+TREngine/out
+
+# VSCode
+.vscode
 
 
 ## Ignore Visual Studio temporary files, build results, and
