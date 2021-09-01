@@ -23,7 +23,7 @@ add_library("TRV2_Engine" STATIC
 "Assets/AssetsManager.cpp"
 "Assets/Loaders/OpenGLShaderLoader.cpp" 
 "Graphics/Shaders/OpenGLShader.cpp"
-"Core/InputController/OpenGLInputController.cpp")
+"Core/InputController/OpenGLInputController.cpp" "Graphics/Interfaces/ITexture.h" "Graphics/Textures/OpenGLTexture2D.h" "Assets/Loaders/OpenGLTextureLoader.h" "Assets/Loaders/OpenGLTextureLoader.cpp" "Graphics/Textures/OpenGLTexture2D.cpp")
 
 
 message(STATUS "${PROJECT_SOURCE_DIR}")

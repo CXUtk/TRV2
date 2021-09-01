@@ -13,7 +13,7 @@ static const glm::vec4 tempColorTable[5] = {
 };
 
 std::mt19937 mt;
-static constexpr float Magnifier = 100.f;
+static constexpr float Magnifier = 50.f;
 
 static float GetRandFloat() {
 	return (float)mt() / mt.max();

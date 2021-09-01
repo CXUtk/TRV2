@@ -18,13 +18,15 @@ struct BatchState
 	BatchState(const glm::mat4& transform) : WorldTransform(transform) {}
 };
 
-struct Vertex2D
+struct BatchVertex2D
 {
 	glm::vec2 Position;
 	glm::vec2 TextureCoords;
 	glm::vec4 Color;
-	Vertex2D() = default;
-	Vertex2D(glm::vec2 pos, glm::vec2 texCoords, const glm::vec4& color) : Position(pos),
-		TextureCoords(texCoords), Color(color) {}
+	float TextureIndex;
+
+	BatchVertex2D() = default;
+	BatchVertex2D(glm::vec2 pos, glm::vec2 texCoords, const glm::vec4& color) : Position(pos),
+		TextureCoords(texCoords), Color(color), TextureIndex(0) {}
 };
 TRV2_NAMESPACE_END

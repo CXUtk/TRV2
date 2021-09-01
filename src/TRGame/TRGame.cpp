@@ -85,7 +85,6 @@ void TRGame::update()
 
     expV += controller.GetScrollValue().y * 0.1;
     factor = std::exp(expV);
-    printf("%lf\n", factor);
 }
 
 void TRGame::draw()
