@@ -21,7 +21,8 @@ add_library("TRV2_Engine" STATIC
 "Graphics/OpenGLTRGameGraphicsAPI.cpp"
 "Graphics/Renderers/OpenGLSpriteRenderer.cpp"
 "Assets/AssetsManager.cpp"
-"Assets/Loaders/OpenGLShaderLoader.cpp" )
+"Assets/Loaders/OpenGLShaderLoader.cpp" 
+"Graphics/Shaders/OpenGLShader.cpp")
 
 
 message(STATUS "${PROJECT_SOURCE_DIR}")

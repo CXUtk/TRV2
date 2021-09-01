@@ -5,8 +5,6 @@
 #include <Graphics/Shaders/OpenGLShader.h>
 #include <Graphics/Interfaces/ISpriteRenderer.h>
 
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
 #include <vector>
 #include <memory>
 

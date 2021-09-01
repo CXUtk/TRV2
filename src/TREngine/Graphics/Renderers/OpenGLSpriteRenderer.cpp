@@ -110,7 +110,7 @@ void OpenGLSpriteRenderer::pushQuad(glm::vec2 tpos, glm::vec2 size, glm::vec2 or
 void OpenGLSpriteRenderer::flush()
 {
 	_spriteShader->Apply();
-	_spriteShader->SetParameter<glm::mat4>("uWorldTransform", getCurrentTransform());
+	_spriteShader->SetParameterfm4x4("uWorldTransform", getCurrentTransform());
 	{
 		int sz = _currentVertex;
 		assert(sz % 4 == 0);

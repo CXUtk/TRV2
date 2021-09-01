@@ -13,6 +13,7 @@ class ITRGraphicsDevice;
 class ITRGameGraphicsAPIUtils;
 class ITRGameGraphicsAPIGenerator;
 class ISpriteRenderer;
+class IShader;
 
 // Configs
 class ClientConfig;
@@ -26,10 +27,6 @@ struct RectI;
 // Game
 class Tile;
 class GameWorld;
-
-// Temp
-class OpenGLShader;
-
 
 // Macros
 #define ReadonlyProperty(type, publicName, privateName) public: type Get##publicName() const { return _##privateName; } \
