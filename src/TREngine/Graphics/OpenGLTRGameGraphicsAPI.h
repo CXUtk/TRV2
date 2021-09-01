@@ -1,10 +1,10 @@
 ﻿#pragma once
 #include <memory>
-#include <Interfaces.h>
-#include <Graphics/Interfaces/ITRGameGraphicsAPIGenerator.h>
-#include <Graphics/Interfaces/ITRGameGraphicsAPIUtils.h>
+#include <TREngine_Interfaces.h>
+#include <Graphics/Interfaces/ITRAPIGenerator.h>
+#include <Graphics/Interfaces/ITRAPIUtils.h>
 
-class OpenGLTRGameGraphicsAPIGenerator : public ITRGameGraphicsAPIGenerator
+class OpenGLTRGameGraphicsAPIGenerator : public ITRAPIGenerator
 {
 public:
 	OpenGLTRGameGraphicsAPIGenerator(TREngine* engine);
@@ -29,7 +29,7 @@ private:
 	TREngine* _engine;
 };
 
-class OpenGLTRGameGraphicsAPIUtils : public ITRGameGraphicsAPIUtils
+class OpenGLTRGameGraphicsAPIUtils : public ITRAPIUtils
 {
 public:
 	OpenGLTRGameGraphicsAPIUtils();

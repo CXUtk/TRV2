@@ -5,10 +5,11 @@
 #include <TREngine.h>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
-#include <Configs/ClientConfig.h>
+#include <Configs/EngineSettings.h>
 #include <Assets/AssetsManager.h>
 #include <Graphics/Renderers/OpenGLSpriteRenderer.h>
 
+TRV2_NAMESPACE_BEGIN
 OpenGLGraphicsDevice::OpenGLGraphicsDevice(TREngine* engine) : _engine(engine)
 {
 }
@@ -18,7 +19,7 @@ OpenGLGraphicsDevice::~OpenGLGraphicsDevice()
     glfwTerminate();
 }
 
-void OpenGLGraphicsDevice::Initialize(const ClientConfig* clientConfig)
+void OpenGLGraphicsDevice::Initialize(const EngineSettings& clientConfig)
 {
 	glfwInit();
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
@@ -29,7 +30,6 @@ void OpenGLGraphicsDevice::Initialize(const ClientConfig* clientConfig)
 
 std::shared_ptr<ISpriteRenderer> OpenGLGraphicsDevice::CreateSpriteRenderer() const
 {
-	auto assetManager = _engine->GetAssetsManager();
-	auto shader = assetManager->GetShader("BUILTIN:Sprite2D");
-	return std::make_shared<OpenGLSpriteRenderer>(this, shader.get());
+	return std::make_shared<OpenGLSpriteRenderer>(this);
 }
+TRV2_NAMESPACE_END

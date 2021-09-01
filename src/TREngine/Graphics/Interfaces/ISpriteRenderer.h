@@ -1,8 +1,9 @@
 ﻿#pragma once
-#include <Interfaces.h>
+#include <TREngine_Interfaces.h>
 #include <memory>
 #include <Graphics/Shaders/OpenGLShader.h>
 
+TRV2_NAMESPACE_BEGIN
 class ISpriteRenderer
 {
 public:
@@ -14,3 +15,4 @@ public:
 
 private:
 };
+TRV2_NAMESPACE_END

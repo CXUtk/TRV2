@@ -1,6 +1,7 @@
-#include "OpenGLShader.h"
+﻿#include "OpenGLShader.h"
 #include <glm/gtc/type_ptr.hpp>
 
+TRV2_NAMESPACE_BEGIN
 void OpenGLShader::Apply() {
 	glUseProgram(_id);
 }
@@ -24,3 +25,4 @@ void OpenGLShader::SetParameterfm4x4(const std::string& name, const glm::mat4& v
 {
 	glUniformMatrix4fv(glGetUniformLocation(this->_id, name.c_str()), 1, GL_FALSE, glm::value_ptr(value));
 }
+TRV2_NAMESPACE_END

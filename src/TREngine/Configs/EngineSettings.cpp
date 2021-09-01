@@ -1,8 +1,9 @@
-﻿#include <Configs/ClientConfig.h>
+﻿#include "EngineSettings.h"
 #include <CompileTimeConfig_Engine.h>
 #include <Utils/Utils.h>
 
-ClientConfig::ClientConfig()
+TRV2_NAMESPACE_BEGIN
+EngineSettings::EngineSettings()
 {
 	_clientWidth = 800, _clientHeight = 600;
 
@@ -15,3 +16,4 @@ ClientConfig::ClientConfig()
 		TRV2_ENGINE_VERSION_PATCH,
 		TRV2_ENGINE_VERSION_TWEAK);
 }
+TRV2_NAMESPACE_END

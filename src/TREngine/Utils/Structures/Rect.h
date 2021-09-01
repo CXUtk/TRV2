@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include <glm/glm.hpp>
 
+TRV2_NAMESPACE_BEGIN
 struct Rect
 {
 	glm::vec2 Position;
@@ -19,3 +20,4 @@ struct RectI
 	RectI() = default;
 	RectI(glm::ivec2 pos, glm::ivec2 size) : Position(pos), Size(size) {}
 };
+TRV2_NAMESPACE_END

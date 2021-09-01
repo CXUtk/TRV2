@@ -14,11 +14,11 @@ configure_file(
 # 包含子项目。
 add_library("TRV2_Engine" STATIC
 "TREngine.cpp"
-"Configs/ClientConfig.cpp"
+"Configs/EngineSettings.cpp"
 "Graphics/GraphicsDevices/OpenGLGraphicsDevice.cpp"
 "Utils/Logging/Logger.cpp"
 "Core/TRWindow/OpenGLWindow.cpp" 
-"Graphics/OpenGLTRGameGraphicsAPI.cpp"
+"Graphics/TROpenGLAPI.cpp"
 "Graphics/Renderers/OpenGLSpriteRenderer.cpp"
 "Assets/AssetsManager.cpp"
 "Assets/Loaders/OpenGLShaderLoader.cpp" 

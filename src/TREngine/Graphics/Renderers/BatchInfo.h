@@ -1,6 +1,8 @@
 ﻿#pragma once
+#include <TREngine_Interfaces.h>
 #include <glm/glm.hpp>
 
+TRV2_NAMESPACE_BEGIN
 struct BatchInfo
 {
 	glm::vec2 Position, Size;
@@ -25,3 +27,4 @@ struct Vertex2D
 	Vertex2D(glm::vec2 pos, glm::vec2 texCoords, const glm::vec4& color) : Position(pos),
 		TextureCoords(texCoords), Color(color) {}
 };
+TRV2_NAMESPACE_END

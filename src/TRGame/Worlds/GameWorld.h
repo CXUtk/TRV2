@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-#include <TREngine/Interfaces.h>
+#include <TREngine/TREngine_Interfaces.h>
 #include <memory>
 #include "Tile.h"
 
@@ -13,7 +13,7 @@ public:
 	void SetTile(int x, int y, const Tile& tile);
 
 
-	void RenderWorld(ISpriteRenderer* renderer, const RectI& renderRect);
+	void RenderWorld(trv2::ISpriteRenderer& renderer, const trv2::RectI& renderRect);
 
 	static constexpr int TILE_SIZE = 16;
 

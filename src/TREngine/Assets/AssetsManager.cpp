@@ -2,12 +2,14 @@
 #include <Utils/Utils.h>
 #include <Assets/Loaders/OpenGLShaderLoader.h>
 
+
+TRV2_NAMESPACE_BEGIN
 AssetsManager::AssetsManager()
 {
 	loadBuiltinAssets();
 }
 
-std::shared_ptr<OpenGLShader> AssetsManager::GetShader(const std::string& name) const
+std::shared_ptr<IShader> AssetsManager::GetShader(const std::string& name) const
 {
 	if (_shadersTable.find(name) == _shadersTable.end()) {
 		throw std::exception(string_format("Cannot find shader %s", name.c_str()).c_str());
@@ -17,6 +19,5 @@ std::shared_ptr<OpenGLShader> AssetsManager::GetShader(const std::string& name) 
 
 void AssetsManager::loadBuiltinAssets()
 {
-	_shadersTable["BUILTIN:Sprite2D"] = OpenGLShaderLoader::LoadOpenGLShader("Resources/Shaders/sprite2d.vert",
-		"Resources/Shaders/spritepure.frag");
 }
+TRV2_NAMESPACE_END

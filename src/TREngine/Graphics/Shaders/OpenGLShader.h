@@ -1,11 +1,12 @@
 ﻿#pragma once
 
-#include <Interfaces.h>
+#include <TREngine_Interfaces.h>
 #include <Graphics/Interfaces/IShader.h>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 
+TRV2_NAMESPACE_BEGIN
 class OpenGLShader : public IShader
 {
 public:
@@ -20,6 +21,7 @@ public:
 private:
     GLuint _id;
 };
+TRV2_NAMESPACE_END
 //
 //template<>
 //inline void OpenGLShader::SetParameter(const GLchar* name, int value) {

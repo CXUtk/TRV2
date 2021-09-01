@@ -5,8 +5,10 @@
 #include <GLFW/glfw3.h>
 #include <algorithm>
 #include <Utils/Logging/Logger.h>
+#include <Assets/Loaders/OpenGLShaderLoader.h>
 
 
+TRV2_NAMESPACE_BEGIN
 static const Vertex2D simpleQuadVertices[4] = {
 	Vertex2D(glm::vec2(0, 0), glm::vec2(0, 0), glm::vec4(1)),
 	Vertex2D(glm::vec2(1, 0), glm::vec2(1, 0), glm::vec4(1)),
@@ -19,10 +21,11 @@ static constexpr int MaxQuadsPerBatch = 4096;
 static constexpr int MaxVerticesPerBatch = MaxQuadsPerBatch * 4;
 static constexpr int MaxIndiciesPerBatch = MaxQuadsPerBatch * 6;
 
-
-OpenGLSpriteRenderer::OpenGLSpriteRenderer(const ITRGraphicsDevice* graphicsDevice, OpenGLShader* spriteShader)
-	: _spriteShader(spriteShader)
+OpenGLSpriteRenderer::OpenGLSpriteRenderer(const ITRGraphicsDevice* graphicsDevice)
 {
+	_spriteShaderPure = OpenGLShaderLoader::LoadOpenGLShader("Resources/Shaders/sprite2d.vert",
+			"Resources/Shaders/spritepure.frag");
+
 	glGenVertexArrays(1, &_mainVAO);
 	glGenBuffers(1, &_mainVBO);
 	glGenBuffers(1, &_mainEBO);
@@ -109,8 +112,8 @@ void OpenGLSpriteRenderer::pushQuad(glm::vec2 tpos, glm::vec2 size, glm::vec2 or
 
 void OpenGLSpriteRenderer::flush()
 {
-	_spriteShader->Apply();
-	_spriteShader->SetParameterfm4x4("uWorldTransform", getCurrentTransform());
+	_spriteShaderPure->Apply();
+	_spriteShaderPure->SetParameterfm4x4("uWorldTransform", getCurrentTransform());
 	{
 		int sz = _currentVertex;
 		assert(sz % 4 == 0);
@@ -138,3 +141,4 @@ void OpenGLSpriteRenderer::flush()
 
 	_currentVertex = 0;
 }
+TRV2_NAMESPACE_END

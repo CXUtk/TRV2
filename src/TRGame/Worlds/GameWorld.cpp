@@ -67,7 +67,7 @@ void GameWorld::SetTile(int x, int y, const Tile& tile)
 	_tiles[y * _width + x] = tile;
 }
 
-void GameWorld::RenderWorld(ISpriteRenderer* renderer, const RectI& renderRect)
+void GameWorld::RenderWorld(trv2::ISpriteRenderer& renderer, const trv2::RectI& renderRect)
 {
 	auto start = glm::vec2(renderRect.Position);
 	for (int i = 0; i < renderRect.Size.x; i++) {
@@ -76,7 +76,7 @@ void GameWorld::RenderWorld(ISpriteRenderer* renderer, const RectI& renderRect)
 			auto startPos = glm::vec2(coord) * (float)GameWorld::TILE_SIZE;
 			auto tile = GetTile(coord.x, coord.y);
 
-			renderer->Draw(startPos, glm::vec2(TILE_SIZE), glm::vec2(0), 0.f, tempColorTable[tile.GetType()]);
+			renderer.Draw(startPos, glm::vec2(TILE_SIZE), glm::vec2(0), 0.f, tempColorTable[tile.GetType()]);
 		}
 	}
 }

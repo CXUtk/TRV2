@@ -1,6 +1,7 @@
 ﻿#include "OpenGLWindow.h"
-#include <Configs/ClientConfig.h>
+#include <Configs/EngineSettings.h>
 
+TRV2_NAMESPACE_BEGIN
 static void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
     glViewport(0, 0, width, height);
@@ -18,10 +19,10 @@ OpenGLWindow::~OpenGLWindow()
     _window = nullptr;
 }
 
-void OpenGLWindow::Initialize(const ClientConfig* config)
+void OpenGLWindow::Initialize(const EngineSettings& config)
 {
-    _window = glfwCreateWindow(config->GetClientWidth(), config->GetClientHeight(),
-        config->GetClientTitle().c_str(), nullptr, nullptr);
+    _window = glfwCreateWindow(config.GetClientWidth(), config.GetClientHeight(),
+        config.GetClientTitle().c_str(), nullptr, nullptr);
     if (!_window) {
         throw std::exception("Failed to create window");
     }
@@ -50,3 +51,4 @@ void OpenGLWindow::PollEvents()
 {
     glfwPollEvents();
 }
+TRV2_NAMESPACE_END

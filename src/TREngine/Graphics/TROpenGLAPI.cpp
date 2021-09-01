@@ -1,19 +1,20 @@
-﻿#include "OpenGLTRGameGraphicsAPI.h"
+﻿#include "TROpenGLAPI.h"
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <Graphics/GraphicsDevices/OpenGLGraphicsDevice.h>
 #include <Core/TRWindow/OpenGLWindow.h>
 
-OpenGLTRGameGraphicsAPIGenerator::OpenGLTRGameGraphicsAPIGenerator(TREngine* engine) : _engine(engine)
+TRV2_NAMESPACE_BEGIN
+TROpenGLAPIGenerator::TROpenGLAPIGenerator(TREngine* engine) : _engine(engine)
 {
 }
 
-OpenGLTRGameGraphicsAPIGenerator::~OpenGLTRGameGraphicsAPIGenerator()
+TROpenGLAPIGenerator::~TROpenGLAPIGenerator()
 {
 }
 
-void OpenGLTRGameGraphicsAPIGenerator::Initialize(const ClientConfig* config)
+void TROpenGLAPIGenerator::Initialize(const EngineSettings& config)
 {
 	// Create upper layers
 	_graphicsDevice = std::make_shared<OpenGLGraphicsDevice>(_engine);
@@ -22,7 +23,7 @@ void OpenGLTRGameGraphicsAPIGenerator::Initialize(const ClientConfig* config)
 	_gameWindow = std::make_shared<OpenGLWindow>();
 	_gameWindow->Initialize(config);
 
-	_graphicsAPIUtils = std::make_shared<OpenGLTRGameGraphicsAPIUtils>();
+	_graphicsAPIUtils = std::make_shared<TROpenGLAPIUtils>();
 
 
 	// Initialize GLAD and configs
@@ -33,11 +34,12 @@ void OpenGLTRGameGraphicsAPIGenerator::Initialize(const ClientConfig* config)
 	glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
 }
 
-OpenGLTRGameGraphicsAPIUtils::OpenGLTRGameGraphicsAPIUtils()
+TROpenGLAPIUtils::TROpenGLAPIUtils()
 {
 }
 
-double OpenGLTRGameGraphicsAPIUtils::GetTime()
+double TROpenGLAPIUtils::GetTime()
 {
 	return glfwGetTime();
 }
+TRV2_NAMESPACE_END

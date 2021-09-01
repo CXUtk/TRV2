@@ -1,7 +1,8 @@
 ﻿#pragma once
-#include <TREngine/Interfaces.h>
 #include <memory>
 #include <glm/glm.hpp>
+#include <TREngine/TREngine_Interfaces.h>
+#include <TRGame/TRGame_Interfaces.h>
 
 class TRGame
 {
@@ -12,8 +13,8 @@ public:
     void Initialize(int argc, char** argv);
     void Run();
 
-    ReadonlyUniquePtrProperty(TREngine, Engine, engine);
-    ReadonlyUniquePtrProperty(Logger, Logger, logger);
+    ReadonlyUniquePtrProperty(trv2::TREngine, Engine, engine);
+    ReadonlyUniquePtrProperty(trv2::Logger, Logger, logger);
 private:
     TRGame();
 

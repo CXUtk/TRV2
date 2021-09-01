@@ -1,8 +1,9 @@
 ﻿#pragma once
-#include <Interfaces.h>
+#include <TREngine_Interfaces.h>
 #include <memory>
 #include <glm/glm.hpp>
 
+TRV2_NAMESPACE_BEGIN
 class TREngine
 {
 public:
@@ -14,13 +15,13 @@ public:
 
     double GetGameTime();
 
-    ReadonlySharedPtrProperty(ClientConfig, ClientConfig, clientConfig);
-    ReadonlySharedPtrProperty(ITRGraphicsDevice, GraphicsDevice, graphicsDevice);
-    ReadonlySharedPtrProperty(ITRWindow, Window, gameWindow);
-    ReadonlySharedPtrProperty(ITRGameGraphicsAPIUtils, GraphicsAPIUtils, graphicsAPIUtils);
-    ReadonlySharedPtrProperty(ISpriteRenderer, SpriteRenderer, spriteRenderer);
-    ReadonlySharedPtrProperty(AssetsManager, AssetsManager, assetsManager);
-    ReadonlySharedPtrProperty(Logger, Logger, logger);
+    ReadonlyReferenceProperty(EngineSettings, EngineSetting, engineSetting);
+    ReadonlyReferenceProperty(ITRGraphicsDevice, GraphicsDevice, graphicsDevice);
+    ReadonlyReferenceProperty(ITRWindow, Window, gameWindow);
+    ReadonlyReferenceProperty(ITRAPIUtils, APIUtils, apiUtils);
+    ReadonlyReferenceProperty(ISpriteRenderer, SpriteRenderer, spriteRenderer);
+    ReadonlyReferenceProperty(AssetsManager, AssetsManager, assetsManager);
+    ReadonlyReferenceProperty(Logger, Logger, logger);
 private:
     // 加载函数
     void loadSupportiveSystem();
@@ -29,3 +30,4 @@ private:
     // Utils
     void logEngineInfo();
 };
+TRV2_NAMESPACE_END

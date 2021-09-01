@@ -1,10 +1,11 @@
 ﻿#pragma once
-#include <Interfaces.h>
+#include <TREngine_Interfaces.h>
 #include <string>
-class ClientConfig
+TRV2_NAMESPACE_BEGIN
+class EngineSettings
 {
 public:
-	ClientConfig();
+	EngineSettings();
 
 	// Game properties
 	ReadonlyProperty(std::string, ClientTitle, clientTitle);
@@ -17,3 +18,4 @@ public:
 
 private:
 };
+TRV2_NAMESPACE_END

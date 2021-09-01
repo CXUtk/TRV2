@@ -2,9 +2,8 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <Utils/Utils.h>
-#include <Graphics/Shaders/OpenGLShader.h>
 
-
+TRV2_NAMESPACE_BEGIN
 static const int MAX_BUFFSIZE = 1024;
 static char infoLog[MAX_BUFFSIZE];
 
@@ -45,3 +44,4 @@ std::shared_ptr<OpenGLShader> OpenGLShaderLoader::LoadOpenGLShader(const std::st
     glDeleteShader(fragment);
     return std::make_shared<OpenGLShader>(id);
 }
+TRV2_NAMESPACE_END

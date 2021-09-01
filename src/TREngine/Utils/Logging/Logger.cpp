@@ -7,7 +7,7 @@
 
 #include "Logger.h"
 
-
+TRV2_NAMESPACE_BEGIN
 static const char* infoBadge = "[INFO]";
 static const char* warningBadge = "[WARN]";
 static const char* errorBadge = "[ERROR]";
@@ -70,3 +70,4 @@ void Logger::pushLog(const char* badge, const char* format, va_list ap)
 
 	fprintf(stdout, "\n");
 }
+TRV2_NAMESPACE_END
