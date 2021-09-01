@@ -6,7 +6,7 @@
 #include <Core/TRWindow/OpenGLWindow.h>
 
 TRV2_NAMESPACE_BEGIN
-TROpenGLAPIGenerator::TROpenGLAPIGenerator(TREngine* engine) : _engine(engine)
+TROpenGLAPIGenerator::TROpenGLAPIGenerator()
 {
 }
 
@@ -17,7 +17,7 @@ TROpenGLAPIGenerator::~TROpenGLAPIGenerator()
 void TROpenGLAPIGenerator::Initialize(const EngineSettings& config)
 {
 	// Create upper layers
-	_graphicsDevice = std::make_shared<OpenGLGraphicsDevice>(_engine);
+	_graphicsDevice = std::make_shared<OpenGLGraphicsDevice>();
 	_graphicsDevice->Initialize(config);
 
 	_gameWindow = std::make_shared<OpenGLWindow>();

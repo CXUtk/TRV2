@@ -10,7 +10,7 @@
 #include <Graphics/Renderers/OpenGLSpriteRenderer.h>
 
 TRV2_NAMESPACE_BEGIN
-OpenGLGraphicsDevice::OpenGLGraphicsDevice(TREngine* engine) : _engine(engine)
+OpenGLGraphicsDevice::OpenGLGraphicsDevice()
 {
 }
 

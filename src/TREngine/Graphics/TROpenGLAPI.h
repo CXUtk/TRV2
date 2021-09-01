@@ -8,7 +8,7 @@ TRV2_NAMESPACE_BEGIN
 class TROpenGLAPIGenerator : public ITRAPIGenerator
 {
 public:
-	TROpenGLAPIGenerator(TREngine* engine);
+	TROpenGLAPIGenerator();
 	~TROpenGLAPIGenerator();
 
 	void Initialize(const EngineSettings& config) override;
@@ -26,8 +26,6 @@ private:
 	std::shared_ptr<ITRGraphicsDevice> _graphicsDevice;
 	std::shared_ptr<ITRWindow> _gameWindow;
 	std::shared_ptr<ITRAPIUtils> _graphicsAPIUtils;
-
-	TREngine* _engine;
 };
 
 class TROpenGLAPIUtils : public ITRAPIUtils

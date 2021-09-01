@@ -50,7 +50,7 @@ TRV2_NAMESPACE_BEGIN
      _logger->LogInfo("Loading graphics system");
 
      // 这里 hard code 了一下OpenGL的API，因为第一阶段项目只考虑OpenGL
-     TROpenGLAPIGenerator apiGenerator(this);
+     TROpenGLAPIGenerator apiGenerator;
      apiGenerator.Initialize(cref(_engineSetting));
 
      _graphicsDevice = apiGenerator.CreateGraphicsDevice();

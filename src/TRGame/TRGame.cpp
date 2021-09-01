@@ -58,7 +58,7 @@ void TRGame::Run()
     }
 }
 
-TRGame::TRGame()
+TRGame::TRGame() : _screenPosition(glm::vec2(0))
 {
 }
 
