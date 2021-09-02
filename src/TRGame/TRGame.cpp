@@ -72,16 +72,16 @@ void TRGame::update()
 {
     auto& controller = _engine->GetWindow().GetInputController();
 
-    if (controller.IsKeyDowned('A')) {
+    if (controller.IsKeyDowned(trv2::TRV2KeyCode::TRV2_A_KEY)) {
         _screenPosition.x -= 20;
     }
-    else if (controller.IsKeyDowned('D')) {
+    else if (controller.IsKeyDowned(trv2::TRV2KeyCode::TRV2_D_KEY)) {
         _screenPosition.x += 20;
     }
-    else if (controller.IsKeyDowned('W')) {
+    else if (controller.IsKeyDowned(trv2::TRV2KeyCode::TRV2_W_KEY)) {
         _screenPosition.y += 20;
     }
-    else if (controller.IsKeyDowned('S')) {
+    else if (controller.IsKeyDowned(trv2::TRV2KeyCode::TRV2_S_KEY)) {
         _screenPosition.y -= 20;
     }
 
@@ -90,11 +90,11 @@ void TRGame::update()
 
     auto pos = controller.GetMousePos();
 
-    if (controller.IsMouseClicked(GLFW_MOUSE_BUTTON_1)) {
+    if (controller.IsMouseClicked(trv2::TRV2MouseButtonCode::LEFT_BUTTON)) {
         mouseDragStart = controller.GetMousePos();
         oldScreenPos = _screenPosition;
     }
-    if (controller.IsMouseDowned(GLFW_MOUSE_BUTTON_1)) {
+    if (controller.IsMouseDowned(trv2::TRV2MouseButtonCode::LEFT_BUTTON)) {
         auto moveDir = (controller.GetMousePos() - mouseDragStart) / factor;
         _screenPosition = oldScreenPos - moveDir;
     }
@@ -102,9 +102,11 @@ void TRGame::update()
 
 void TRGame::draw()
 {
-    auto& config = _engine->GetEngineSetting();
-    auto projection = glm::ortho(0.f, (float)config.GetClientWidth(),
-            0.f, (float)config.GetClientHeight());
+    auto& window = _engine->GetWindow();
+    auto clientSize = window.GetWindowSize();
+
+    auto projection = glm::ortho(0.f, (float)clientSize.x,
+            0.f, (float)clientSize.y);
 
     auto translation = glm::scale(glm::vec3(factor));
     translation = glm::translate(translation, glm::vec3(-_screenPosition, 0));
@@ -114,8 +116,8 @@ void TRGame::draw()
 
     spriteRenderer.Begin(projection * translation);
     {
-        auto renderWidth = config.GetClientWidth() / factor;
-        auto renderHeight = config.GetClientHeight() / factor;
+        auto renderWidth = clientSize.x / factor;
+        auto renderHeight = clientSize.y / factor;
 
         // calculate draw rect
         glm::ivec2 botLeft((int)(_screenPosition.x / GameWorld::TILE_SIZE), (int)(_screenPosition.y / GameWorld::TILE_SIZE));
