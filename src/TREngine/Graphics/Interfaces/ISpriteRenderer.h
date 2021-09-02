@@ -12,6 +12,8 @@ public:
 
 	virtual void Draw(glm::vec2 pos, glm::vec2 size,
 		glm::vec2 origin, float rotation, const glm::vec4& color) = 0;
+	virtual void Draw(const ITexture2D& texture, glm::vec2 pos, glm::vec2 size,
+		glm::vec2 origin, float rotation, const glm::vec4& color) = 0;
 
 private:
 };

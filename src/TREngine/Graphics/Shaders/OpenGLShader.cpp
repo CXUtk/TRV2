@@ -25,4 +25,12 @@ void OpenGLShader::SetParameterfm4x4(const std::string& name, const glm::mat4& v
 {
 	glUniformMatrix4fv(glGetUniformLocation(this->_id, name.c_str()), 1, GL_FALSE, glm::value_ptr(value));
 }
+void OpenGLShader::SetParameterfvArray(const std::string& name, const float* data, int size)
+{
+	glUniform1fv(glGetUniformLocation(this->_id, name.c_str()), size, data);
+}
+void OpenGLShader::SetParameterintvArray(const std::string& name, const int* data, int size)
+{
+	glUniform1iv(glGetUniformLocation(this->_id, name.c_str()), size, data);
+}
 TRV2_NAMESPACE_END

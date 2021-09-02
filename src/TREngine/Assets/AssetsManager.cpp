@@ -1,7 +1,7 @@
 ﻿#include "AssetsManager.h"
 #include <Utils/Utils.h>
 #include <Assets/Loaders/OpenGLShaderLoader.h>
-
+#include <Assets/Loaders/OpenGLTextureLoader.h>
 
 TRV2_NAMESPACE_BEGIN
 AssetsManager::AssetsManager()
@@ -17,7 +17,16 @@ std::shared_ptr<IShader> AssetsManager::GetShader(const std::string& name) const
 	return _shadersTable.at(name);
 }
 
+std::shared_ptr<ITexture2D> AssetsManager::GetTexture2D(const std::string& name) const
+{
+	if (_texture2DTable.find(name) == _texture2DTable.end()) {
+		throw std::exception(string_format("Cannot find texture 2d %s", name.c_str()).c_str());
+	}
+	return _texture2DTable.at(name);
+}
+
 void AssetsManager::loadBuiltinAssets()
 {
+	_texture2DTable["icon"] = OpenGLTextureLoader::CreateTexture2D("Resources/Images/icon.png");
 }
 TRV2_NAMESPACE_END

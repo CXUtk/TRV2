@@ -1,8 +1,7 @@
 ﻿#pragma once
 #include <memory>
 
-#define TRV2_NAMESPACE_BEGIN namespace trv2\
-{
+#define TRV2_NAMESPACE_BEGIN namespace trv2 {
 
 #define TRV2_NAMESPACE_END }
 
@@ -25,6 +24,7 @@ class ITRAPIUtils;
 class ITRAPIGenerator;
 class ISpriteRenderer;
 class IShader;
+class ITexture2D;
 
 // Configs
 class EngineSettings;
