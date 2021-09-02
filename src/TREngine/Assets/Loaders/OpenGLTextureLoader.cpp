@@ -1,8 +1,8 @@
-#include "OpenGLTextureLoader.h"
+﻿#include "OpenGLTextureLoader.h"
 #include <stbi/stb_image.h>
 
 TRV2_NAMESPACE_BEGIN
-std::shared_ptr<OpenGLTexture> trv2::OpenGLTextureLoader::LoadOpenGLShader(const std::string& filePath)
+std::shared_ptr<OpenGLTexture2D> trv2::OpenGLTextureLoader::LoadOpenGLShader(const std::string& filePath)
 {
     int width, height, nrChannels;
     unsigned char* data = stbi_load(filePath.c_str(), &width, &height, &nrChannels, 0);

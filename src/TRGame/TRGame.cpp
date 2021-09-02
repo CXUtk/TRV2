@@ -66,6 +66,8 @@ TRGame::TRGame() : _screenPosition(glm::vec2(0))
 
 static float expV = 0;
 static float factor = 0;
+static glm::vec2 mouseDragStart;
+static glm::vec2 oldScreenPos;
 void TRGame::update()
 {
     auto& controller = _engine->GetWindow().GetInputController();
@@ -83,8 +85,19 @@ void TRGame::update()
         _screenPosition.y -= 20;
     }
 
-    expV += controller.GetScrollValue().y * 0.1;
+    expV += controller.GetScrollValue().y * 0.1f;
     factor = std::exp(expV);
+
+    auto pos = controller.GetMousePos();
+
+    if (controller.IsMouseClicked(GLFW_MOUSE_BUTTON_1)) {
+        mouseDragStart = controller.GetMousePos();
+        oldScreenPos = _screenPosition;
+    }
+    if (controller.IsMouseDowned(GLFW_MOUSE_BUTTON_1)) {
+        auto moveDir = (controller.GetMousePos() - mouseDragStart) / factor;
+        _screenPosition = oldScreenPos - moveDir;
+    }
 }
 
 void TRGame::draw()

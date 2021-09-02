@@ -21,6 +21,8 @@ public:
 	void PollEvents() override;
 
 	const IInputController& GetInputController() const override { return trv2::cref(_inputController); }
+
+	glm::ivec2 GetWindowSize() const override;
 private:
 	GLFWwindow* _window;
 	std::shared_ptr<OpenGLInputController> _inputController;

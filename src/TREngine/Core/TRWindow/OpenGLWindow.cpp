@@ -54,4 +54,10 @@ void OpenGLWindow::PollEvents()
 {
     glfwPollEvents();
 }
+glm::ivec2 OpenGLWindow::GetWindowSize() const
+{
+    int x, y;
+    glfwGetWindowSize(_window, &x, &y);
+    return glm::ivec2(x, y);
+}
 TRV2_NAMESPACE_END

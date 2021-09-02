@@ -17,5 +17,7 @@ public:
 	virtual bool IsMouseClicked(int mouse) const = 0;
 	virtual bool IsMouseDowned(int mouse) const = 0;
 	virtual bool IsMouseReleased(int mouse) const = 0;
+
+	virtual glm::vec2 GetMousePos() const = 0;
 };
 TRV2_NAMESPACE_END

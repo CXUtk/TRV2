@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <TREngine_Interfaces.h>
 #include <glad/glad.h>

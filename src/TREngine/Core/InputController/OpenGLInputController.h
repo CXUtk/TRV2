@@ -30,6 +30,8 @@ public:
 	bool IsMouseDowned(int mouse) const override { return _curMouseButtonDown[mouse]; }
 	bool IsMouseReleased(int mouse) const override { return _wasMouseButtonDown[mouse] && !_curMouseButtonDown[mouse]; }
 
+	glm::vec2 GetMousePos() const override;
+
 private:
 	GLFWwindow* _window;
 

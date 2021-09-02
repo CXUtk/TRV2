@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include <memory>
 #include <TREngine_Interfaces.h>
+#include <glm/glm.hpp>
 
 TRV2_NAMESPACE_BEGIN
 class ITRWindow
@@ -15,5 +16,7 @@ public:
 	virtual void PollEvents() = 0;
 
 	virtual const IInputController& GetInputController() const = 0;
+
+	virtual glm::ivec2 GetWindowSize() const = 0;
 };
 TRV2_NAMESPACE_END

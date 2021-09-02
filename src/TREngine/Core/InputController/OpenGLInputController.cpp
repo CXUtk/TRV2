@@ -39,4 +39,13 @@ void OpenGLInputController::ScrollWheel(glm::vec2 dir)
 {
     _scrollWheel += dir;
 }
+glm::vec2 OpenGLInputController::GetMousePos() const
+{
+    double x, y;
+    glfwGetCursorPos(_window, &x, &y);
+
+    int w, h;
+    glfwGetWindowSize(_window, &w, &h);
+    return glm::vec2(x, h - y - 1);
+}
 TRV2_NAMESPACE_END
