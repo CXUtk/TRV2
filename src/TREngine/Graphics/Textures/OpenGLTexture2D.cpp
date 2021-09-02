@@ -4,7 +4,7 @@
 #include "OpenGLTexture2D.h"
 
 TRV2_NAMESPACE_BEGIN
-OpenGLTexture2D::OpenGLTexture2D(GLuint id) : _id(id)
+OpenGLTexture2D::OpenGLTexture2D(GLuint id, int width, int height) : _id(id), _width(width), _height(height)
 {
 }
 

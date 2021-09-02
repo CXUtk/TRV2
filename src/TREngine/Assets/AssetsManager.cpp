@@ -17,6 +17,14 @@ std::shared_ptr<IShader> AssetsManager::GetShader(const std::string& name) const
 	return _shadersTable.at(name);
 }
 
+std::shared_ptr<ITexture2D> AssetsManager::GetTexture2D(const std::string& name) const
+{
+	if (_texture2DTable.find(name) == _texture2DTable.end()) {
+		throw std::exception(string_format("Cannot find texture 2d %s", name.c_str()).c_str());
+	}
+	return _texture2DTable.at(name);
+}
+
 void AssetsManager::loadBuiltinAssets()
 {
 }

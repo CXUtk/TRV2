@@ -21,7 +21,7 @@ public:
 	void End() override;
 
 	void Draw(glm::vec2 pos, glm::vec2 size, glm::vec2 origin, float rotation, const glm::vec4& color) override;
-	void Draw(const OpenGLTexture2D& texture, glm::vec2 pos, glm::vec2 size,
+	void Draw(const ITexture2D& texture, glm::vec2 pos, glm::vec2 size,
 		glm::vec2 origin, float rotation, const glm::vec4& color);
 
 private:
@@ -38,19 +38,19 @@ private:
 	std::unique_ptr<BatchVertex2D[]> _vertices;
 	std::unique_ptr<GLuint[]> _vertexIndices;
 	std::map<GLuint, int> _usedTextures;
-	std::vector<const OpenGLTexture2D*> _textureRefs;
+	std::vector<const ITexture2D*> _textureRefs;
 
 	std::unique_ptr<GLuint[]> _textureSlotsBuffer;
 
 	// 用到的Shader
-	std::shared_ptr<OpenGLShader> _spriteShaderPure;
+	std::shared_ptr<IShader> _spriteShaderPure;
 
 	// 用到的Texture
-	std::shared_ptr<OpenGLTexture2D> _whiteTexture;
+	std::shared_ptr<ITexture2D> _whiteTexture;
 
 	glm::mat4 getCurrentTransform() const;
 
-	void pushTextureQuad(const OpenGLTexture2D& texture, glm::vec2 tpos, glm::vec2 size, glm::vec2 origin, float rotation, const glm::vec4& color);
+	void pushTextureQuad(const ITexture2D& texture, glm::vec2 tpos, glm::vec2 size, glm::vec2 origin, float rotation, const glm::vec4& color);
 
 	void flushBatch();
 };

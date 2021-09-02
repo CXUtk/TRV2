@@ -21,7 +21,7 @@ std::shared_ptr<OpenGLTexture2D> trv2::OpenGLTextureLoader::CreateTexture2D(cons
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     
     stbi_image_free(data);
-    return std::make_shared<OpenGLTexture2D>(textureId);
+    return std::make_shared<OpenGLTexture2D>(textureId, width, height);
 }
 std::shared_ptr<OpenGLTexture2D> OpenGLTextureLoader::CreateTexture2D(int width, int height, unsigned char* data)
 {
@@ -33,6 +33,6 @@ std::shared_ptr<OpenGLTexture2D> OpenGLTextureLoader::CreateTexture2D(int width,
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    return std::make_shared<OpenGLTexture2D>(textureId);
+    return std::make_shared<OpenGLTexture2D>(textureId, width, height);
 }
 TRV2_NAMESPACE_END

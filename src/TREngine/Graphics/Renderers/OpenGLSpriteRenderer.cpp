@@ -91,7 +91,7 @@ void OpenGLSpriteRenderer::Draw(glm::vec2 pos, glm::vec2 size, glm::vec2 origin,
 	pushTextureQuad(trv2::cref(_whiteTexture), pos, size, origin, rotation, color);
 }
 
-void OpenGLSpriteRenderer::Draw(const OpenGLTexture2D& texture, glm::vec2 pos, glm::vec2 size, 
+void OpenGLSpriteRenderer::Draw(const ITexture2D& texture, glm::vec2 pos, glm::vec2 size,
 	glm::vec2 origin, float rotation, const glm::vec4& color)
 {
 	pushTextureQuad(texture, pos, size, origin, rotation, color);
@@ -102,9 +102,9 @@ glm::mat4 OpenGLSpriteRenderer::getCurrentTransform() const
 	return _batchStateStack.back().WorldTransform;
 }
 
-void OpenGLSpriteRenderer::pushTextureQuad(const OpenGLTexture2D& texture, glm::vec2 tpos, glm::vec2 size, glm::vec2 origin, float rotation, const glm::vec4& color)
+void OpenGLSpriteRenderer::pushTextureQuad(const ITexture2D& texture, glm::vec2 tpos, glm::vec2 size, glm::vec2 origin, float rotation, const glm::vec4& color)
 {
-	auto texId = texture.GetID();
+	auto texId = texture.GetId();
 	if (_usedTextures.find(texId) == _usedTextures.end()) {
 		if (_textureRefs.size() == _maxTextureUnits) {
 			flushBatch();

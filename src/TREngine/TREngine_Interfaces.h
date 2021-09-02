@@ -24,6 +24,7 @@ class ITRAPIUtils;
 class ITRAPIGenerator;
 class ISpriteRenderer;
 class IShader;
+class ITexture2D;
 
 // Configs
 class EngineSettings;
