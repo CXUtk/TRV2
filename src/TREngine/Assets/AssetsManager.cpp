@@ -1,7 +1,7 @@
 ﻿#include "AssetsManager.h"
 #include <Utils/Utils.h>
 #include <Assets/Loaders/OpenGLShaderLoader.h>
-
+#include <Assets/Loaders/OpenGLTextureLoader.h>
 
 TRV2_NAMESPACE_BEGIN
 AssetsManager::AssetsManager()
@@ -27,5 +27,6 @@ std::shared_ptr<ITexture2D> AssetsManager::GetTexture2D(const std::string& name)
 
 void AssetsManager::loadBuiltinAssets()
 {
+	_texture2DTable["icon"] = OpenGLTextureLoader::CreateTexture2D("Resources/Images/icon.png");
 }
 TRV2_NAMESPACE_END

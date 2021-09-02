@@ -2,7 +2,7 @@
 
 in vec2 fTexCoord;
 in vec4 fColor;
-flat in int fTexSlot;
+in float fTexSlot;
 
 out vec4 color;
 
@@ -10,5 +10,5 @@ uniform sampler2D uTextures[32];
 
 
 void main() {
-	color = texture(uTextures[fTexSlot], fTexCoord) * fColor;
+	color = texture(uTextures[int(fTexSlot)], fTexCoord) * fColor;
 }

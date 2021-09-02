@@ -17,8 +17,8 @@ public:
     void SetParameterfv2(const std::string& name, glm::vec2 value) override;
     void SetParameterfv4(const std::string& name, const glm::vec4& value) override;
     void SetParameterfm4x4(const std::string& name, const glm::mat4& value) override;
-    void SetParameterfvArray(const std::string& name, const float* data, int size);
-    void SetParameterintvArray(const std::string& name, const unsigned int* data, int size);
+    void SetParameterfvArray(const std::string& name, const float* data, int size) override;
+    void SetParameterintvArray(const std::string& name, const int* data, int size) override;
 private:
     GLuint _id;
 };

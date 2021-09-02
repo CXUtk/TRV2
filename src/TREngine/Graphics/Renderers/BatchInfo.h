@@ -27,6 +27,6 @@ struct BatchVertex2D
 
 	BatchVertex2D() = default;
 	BatchVertex2D(glm::vec2 pos, glm::vec2 texCoords, const glm::vec4& color) : Position(pos),
-		TextureCoords(texCoords), Color(color), TextureIndex(0) {}
+		TextureCoords(texCoords), Color(color), TextureIndex(0.f) {}
 };
 TRV2_NAMESPACE_END

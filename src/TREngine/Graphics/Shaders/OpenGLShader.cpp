@@ -29,8 +29,8 @@ void OpenGLShader::SetParameterfvArray(const std::string& name, const float* dat
 {
 	glUniform1fv(glGetUniformLocation(this->_id, name.c_str()), size, data);
 }
-void OpenGLShader::SetParameterintvArray(const std::string& name, const unsigned int* data, int size)
+void OpenGLShader::SetParameterintvArray(const std::string& name, const int* data, int size)
 {
-	glUniform1uiv(glGetUniformLocation(this->_id, name.c_str()), size, data);
+	glUniform1iv(glGetUniformLocation(this->_id, name.c_str()), size, data);
 }
 TRV2_NAMESPACE_END

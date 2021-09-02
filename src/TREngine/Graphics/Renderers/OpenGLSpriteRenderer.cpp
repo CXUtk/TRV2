@@ -7,6 +7,7 @@
 #include <Utils/Logging/Logger.h>
 #include <Assets/Loaders/OpenGLShaderLoader.h>
 #include <Assets/Loaders/OpenGLTextureLoader.h>
+#include <Utils/Utils.h>
 
 TRV2_NAMESPACE_BEGIN
 static const BatchVertex2D simpleQuadVertices[4] = {
@@ -31,10 +32,12 @@ OpenGLSpriteRenderer::OpenGLSpriteRenderer(const ITRGraphicsDevice* graphicsDevi
 	int whitePixel = 0xffffffff;
 	_whiteTexture = OpenGLTextureLoader::CreateTexture2D(1, 1, (unsigned char*)&whitePixel);
 
-	_textureSlotsBuffer = std::make_unique<GLuint[]>(_maxTextureUnits);
+	_textureSlotsBuffer = std::make_unique<float[]>(_maxTextureUnits);
+	_spriteShaderPure->Apply();
 	for (int i = 0; i < _maxTextureUnits; i++) {
-		_textureSlotsBuffer[i] = i;
+		_spriteShaderPure->SetParameteri1(string_format("uTextures[%d]", i).c_str(), i);
 	}
+
 
 	// 预先生成顶点index列表
 	_vertexIndices = std::make_unique<GLuint[]>(MaxIndiciesPerBatch);
@@ -55,7 +58,7 @@ OpenGLSpriteRenderer::OpenGLSpriteRenderer(const ITRGraphicsDevice* graphicsDevi
 	glBufferData(GL_ARRAY_BUFFER, sizeof(BatchVertex2D) * MaxVerticesPerBatch, nullptr, GL_DYNAMIC_DRAW);
 
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _mainEBO);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLuint) * MaxQuadsPerBatch * 6, _vertexIndices.get(), GL_STATIC_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLuint) * MaxIndiciesPerBatch, _vertexIndices.get(), GL_STATIC_DRAW);
 
 	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(BatchVertex2D), (void*)offsetof(BatchVertex2D, Position));
 	glEnableVertexAttribArray(0);
@@ -104,6 +107,10 @@ glm::mat4 OpenGLSpriteRenderer::getCurrentTransform() const
 
 void OpenGLSpriteRenderer::pushTextureQuad(const ITexture2D& texture, glm::vec2 tpos, glm::vec2 size, glm::vec2 origin, float rotation, const glm::vec4& color)
 {
+
+	if (_currentVertex == MaxVerticesPerBatch) {
+		flushBatch();
+	}
 	auto texId = texture.GetId();
 	if (_usedTextures.find(texId) == _usedTextures.end()) {
 		if (_textureRefs.size() == _maxTextureUnits) {
@@ -113,10 +120,6 @@ void OpenGLSpriteRenderer::pushTextureQuad(const ITexture2D& texture, glm::vec2 
 		_textureRefs.push_back(&texture);
 	}
 	int slotId = _usedTextures[texId];
-	if (_currentVertex == MaxVerticesPerBatch) {
-		flushBatch();
-	}
-
 	glm::mat2 transform = glm::identity<glm::mat2>();
 	if (rotation != 0.f) {
 		auto cosr = std::cos(rotation);
@@ -144,19 +147,18 @@ void OpenGLSpriteRenderer::pushTextureQuad(const ITexture2D& texture, glm::vec2 
 
 void OpenGLSpriteRenderer::flushBatch()
 {
-	_spriteShaderPure->Apply();
-	_spriteShaderPure->SetParameterfm4x4("uWorldTransform", getCurrentTransform());
-	_spriteShaderPure->SetParameterintvArray("uTextures", _textureSlotsBuffer.get(), _maxTextureUnits);
-	{
-		// 绑定纹理们
-		int slot = 0;
-		for (auto& tex : _textureRefs) {
-			tex->Bind(slot++);
-		}
 
+	{
 		int sz = _currentVertex;
 		assert(sz % 4 == 0);
 		glBindVertexArray(_mainVAO);
+		_spriteShaderPure->Apply();
+		// 绑定纹理们
+		int slots = 0;
+		for (auto& tex : _textureRefs) {
+			tex->Bind(slots++);
+		}
+		_spriteShaderPure->SetParameterfm4x4("uWorldTransform", getCurrentTransform());
 		// 以最多 MaxVerticesPerBatch 个点为单位，分批绘制线段
 		for (int i = 0; i < _currentVertex; i += MaxVerticesPerBatch) {
 

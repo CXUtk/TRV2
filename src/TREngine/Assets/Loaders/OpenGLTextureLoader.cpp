@@ -1,6 +1,7 @@
 ﻿#include "OpenGLTextureLoader.h"
 #define STB_IMAGE_IMPLEMENTATION
 #include <stbi/stb_image.h>
+#include <Utils/Utils.h>
 
 TRV2_NAMESPACE_BEGIN
 std::shared_ptr<OpenGLTexture2D> trv2::OpenGLTextureLoader::CreateTexture2D(const std::string& filePath)
@@ -8,7 +9,7 @@ std::shared_ptr<OpenGLTexture2D> trv2::OpenGLTextureLoader::CreateTexture2D(cons
     int width, height, nrChannels;
     unsigned char* data = stbi_load(filePath.c_str(), &width, &height, &nrChannels, 0);
     if (!data) {
-        throw std::exception(stbi_failure_reason());
+        throw std::exception(string_format("Cannot load texture %s: %s", filePath.c_str(), stbi_failure_reason()).c_str());
     }
     
     GLuint textureId;

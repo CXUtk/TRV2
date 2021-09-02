@@ -3,6 +3,9 @@
 #include <TREngine/Utils/Structures/Rect.h>
 #include <TREngine/Graphics/Renderers/OpenGLSpriteRenderer.h>
 #include <random>
+#include <TRGame/TRGame.h>
+#include <TREngine/TREngine.h>
+#include <TREngine/Assets/AssetsManager.h>
 
 static const glm::vec4 tempColorTable[5] = {
 	glm::vec4(0),
@@ -70,13 +73,21 @@ void GameWorld::SetTile(int x, int y, const Tile& tile)
 void GameWorld::RenderWorld(trv2::ISpriteRenderer& renderer, const trv2::RectI& renderRect)
 {
 	auto start = glm::vec2(renderRect.Position);
+	auto& assetManager = TRGame::GetInstance().GetEngine()->GetAssetsManager();
+	auto& texture = assetManager.GetTexture2D("icon");
 	for (int i = 0; i < renderRect.Size.x; i++) {
 		for (int j = 0; j < renderRect.Size.y; j++) {
 			auto coord = renderRect.Position + glm::ivec2(i, j);
 			auto startPos = glm::vec2(coord) * (float)GameWorld::TILE_SIZE;
-			auto tile = GetTile(coord.x, coord.y);
-
-			renderer.Draw(startPos, glm::vec2(TILE_SIZE), glm::vec2(0), 0.f, tempColorTable[tile.GetType()]);
+			auto& tile = GetTile(coord.x, coord.y);
+			
+		
+			if (tile.GetType() == 1) {
+				renderer.Draw(trv2::cref(texture), startPos, glm::vec2(TILE_SIZE), glm::vec2(0), 0.f, tempColorTable[tile.GetType()]);
+			}
+			else {
+				renderer.Draw(startPos, glm::vec2(TILE_SIZE), glm::vec2(0), 0.f, tempColorTable[tile.GetType()]);
+			}
 		}
 	}
 }

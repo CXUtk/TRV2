@@ -40,7 +40,7 @@ private:
 	std::map<GLuint, int> _usedTextures;
 	std::vector<const ITexture2D*> _textureRefs;
 
-	std::unique_ptr<GLuint[]> _textureSlotsBuffer;
+	std::unique_ptr<float[]> _textureSlotsBuffer;
 
 	// 用到的Shader
 	std::shared_ptr<IShader> _spriteShaderPure;
