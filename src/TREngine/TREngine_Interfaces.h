@@ -1,8 +1,7 @@
 ﻿#pragma once
 #include <memory>
 
-#define TRV2_NAMESPACE_BEGIN namespace trv2\
-{
+#define TRV2_NAMESPACE_BEGIN namespace trv2 {
 
 #define TRV2_NAMESPACE_END }
 
