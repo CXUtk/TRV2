@@ -12,7 +12,7 @@ OpenGLTexture2D::~OpenGLTexture2D()
 {
 }
 
-void OpenGLTexture2D::Bind(int slot)
+void OpenGLTexture2D::Bind(int slot) const
 {
 	glActiveTexture(GL_TEXTURE0 + slot);
 	glBindTexture(GL_TEXTURE_2D, _id);

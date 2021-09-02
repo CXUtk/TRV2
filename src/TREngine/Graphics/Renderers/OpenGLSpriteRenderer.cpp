@@ -6,7 +6,7 @@
 #include <algorithm>
 #include <Utils/Logging/Logger.h>
 #include <Assets/Loaders/OpenGLShaderLoader.h>
-
+#include <Assets/Loaders/OpenGLTextureLoader.h>
 
 TRV2_NAMESPACE_BEGIN
 static const BatchVertex2D simpleQuadVertices[4] = {
@@ -25,8 +25,16 @@ OpenGLSpriteRenderer::OpenGLSpriteRenderer(const ITRGraphicsDevice* graphicsDevi
 {
 	glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &_maxTextureUnits);
 
+	// 初始化资源
 	_spriteShaderPure = OpenGLShaderLoader::LoadOpenGLShader("Resources/Shaders/sprite2d.vert",
-			"Resources/Shaders/spritepure.frag");
+			"Resources/Shaders/sprite2d.frag");
+	int whitePixel = 0xffffffff;
+	_whiteTexture = OpenGLTextureLoader::CreateTexture2D(1, 1, (unsigned char*)&whitePixel);
+
+	_textureSlotsBuffer = std::make_unique<GLuint[]>(_maxTextureUnits);
+	for (int i = 0; i < _maxTextureUnits; i++) {
+		_textureSlotsBuffer[i] = i;
+	}
 
 	// 预先生成顶点index列表
 	_vertexIndices = std::make_unique<GLuint[]>(MaxIndiciesPerBatch);
@@ -74,19 +82,19 @@ void OpenGLSpriteRenderer::Begin(const glm::mat4& transform)
 
 void OpenGLSpriteRenderer::End()
 {
-	if (_currentVertex) flush();
+	if (_currentVertex) flushBatch();
 	_batchStateStack.pop_back();
 }
 
 void OpenGLSpriteRenderer::Draw(glm::vec2 pos, glm::vec2 size, glm::vec2 origin, float rotation, const glm::vec4& color)
 {
-	pushQuad(pos, size, origin, rotation, color);
+	pushTextureQuad(trv2::cref(_whiteTexture), pos, size, origin, rotation, color);
 }
 
 void OpenGLSpriteRenderer::Draw(const OpenGLTexture2D& texture, glm::vec2 pos, glm::vec2 size, 
 	glm::vec2 origin, float rotation, const glm::vec4& color)
 {
-
+	pushTextureQuad(texture, pos, size, origin, rotation, color);
 }
 
 glm::mat4 OpenGLSpriteRenderer::getCurrentTransform() const
@@ -94,8 +102,21 @@ glm::mat4 OpenGLSpriteRenderer::getCurrentTransform() const
 	return _batchStateStack.back().WorldTransform;
 }
 
-void OpenGLSpriteRenderer::pushQuad(glm::vec2 tpos, glm::vec2 size, glm::vec2 origin, float rotation, const glm::vec4& color)
+void OpenGLSpriteRenderer::pushTextureQuad(const OpenGLTexture2D& texture, glm::vec2 tpos, glm::vec2 size, glm::vec2 origin, float rotation, const glm::vec4& color)
 {
+	auto texId = texture.GetID();
+	if (_usedTextures.find(texId) == _usedTextures.end()) {
+		if (_textureRefs.size() == _maxTextureUnits) {
+			flushBatch();
+		}
+		_usedTextures[texId] = _textureRefs.size();
+		_textureRefs.push_back(&texture);
+	}
+	int slotId = _usedTextures[texId];
+	if (_currentVertex == MaxVerticesPerBatch) {
+		flushBatch();
+	}
+
 	glm::mat2 transform = glm::identity<glm::mat2>();
 	if (rotation != 0.f) {
 		auto cosr = std::cos(rotation);
@@ -108,22 +129,31 @@ void OpenGLSpriteRenderer::pushQuad(glm::vec2 tpos, glm::vec2 size, glm::vec2 or
 	for (int i = 0; i < 4; i++) {
 		auto pos = (simpleQuadVertices[i].Position - origin) * size;
 		auto vpos = (rotation == 0.f) ? (pos) : (transform * pos);
-		_vertices[_currentVertex].Position.x = vpos.x + tpos.x;
-		_vertices[_currentVertex].Position.y = vpos.y + tpos.y;
-		_vertices[_currentVertex].TextureCoords = simpleQuadVertices[i].TextureCoords;
-		_vertices[_currentVertex].Color = color;
+
+		auto& curV = _vertices[_currentVertex];
+		curV.Position.x = vpos.x + tpos.x;
+		curV.Position.y = vpos.y + tpos.y;
+		curV.TextureCoords = simpleQuadVertices[i].TextureCoords;
+		curV.Color = color;
+		curV.TextureIndex = slotId;
+
 		_currentVertex++;
-	}
-	if (_currentVertex >= MaxVerticesPerBatch) {
-		flush();
 	}
 }
 
-void OpenGLSpriteRenderer::flush()
+
+void OpenGLSpriteRenderer::flushBatch()
 {
 	_spriteShaderPure->Apply();
 	_spriteShaderPure->SetParameterfm4x4("uWorldTransform", getCurrentTransform());
+	_spriteShaderPure->SetParameterintvArray("uTextures", _textureSlotsBuffer.get(), _maxTextureUnits);
 	{
+		// 绑定纹理们
+		int slot = 0;
+		for (auto& tex : _textureRefs) {
+			tex->Bind(slot++);
+		}
+
 		int sz = _currentVertex;
 		assert(sz % 4 == 0);
 		glBindVertexArray(_mainVAO);
@@ -147,6 +177,9 @@ void OpenGLSpriteRenderer::flush()
 		glBindVertexArray(0);
 	}
 
+	// 缓冲区数据清空
 	_currentVertex = 0;
+	_usedTextures.clear();
+	_textureRefs.clear();
 }
 TRV2_NAMESPACE_END

@@ -12,7 +12,8 @@ public:
 	OpenGLTexture2D(GLuint id);
 	~OpenGLTexture2D();
 
-	void Bind(int slot);
+	void Bind(int slot) const;
+	GLuint GetID() const { return _id; }
 
 private:
 	GLuint _id;

@@ -8,6 +8,7 @@
 
 #include <vector>
 #include <memory>
+#include <map>
 
 TRV2_NAMESPACE_BEGIN
 class OpenGLSpriteRenderer : public ISpriteRenderer
@@ -24,6 +25,10 @@ public:
 		glm::vec2 origin, float rotation, const glm::vec4& color);
 
 private:
+	// OpenGL接口相关，常量相关
+	int _maxTextureUnits;
+
+
 	// OpenGL绘制用的
 	GLuint _mainVAO, _mainVBO, _mainEBO;
 	std::vector<BatchState> _batchStateStack;
@@ -32,15 +37,21 @@ private:
 	int _currentVertex;
 	std::unique_ptr<BatchVertex2D[]> _vertices;
 	std::unique_ptr<GLuint[]> _vertexIndices;
+	std::map<GLuint, int> _usedTextures;
+	std::vector<const OpenGLTexture2D*> _textureRefs;
+
+	std::unique_ptr<GLuint[]> _textureSlotsBuffer;
 
 	// 用到的Shader
 	std::shared_ptr<OpenGLShader> _spriteShaderPure;
 
-	// OpenGL接口相关，常量相关
-	int _maxTextureUnits;
+	// 用到的Texture
+	std::shared_ptr<OpenGLTexture2D> _whiteTexture;
 
 	glm::mat4 getCurrentTransform() const;
-	void pushQuad(glm::vec2 pos, glm::vec2 size, glm::vec2 origin, float rotation, const glm::vec4& color);
-	void flush();
+
+	void pushTextureQuad(const OpenGLTexture2D& texture, glm::vec2 tpos, glm::vec2 size, glm::vec2 origin, float rotation, const glm::vec4& color);
+
+	void flushBatch();
 };
 TRV2_NAMESPACE_END
