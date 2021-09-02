@@ -28,13 +28,21 @@ void OpenGLWindow::Initialize(const EngineSettings& config)
     }
     glfwMakeContextCurrent(_window);
     glfwSetFramebufferSizeCallback(_window, framebuffer_size_callback);
+
+    _inputController = std::make_shared<OpenGLInputController>(_window);
 }
 
 void OpenGLWindow::BeginFrame()
 {
+    _inputController->UpdateInput();
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+}
 
+void OpenGLWindow::EndFrame()
+{
+    glfwSwapBuffers(_window);
+    _inputController->ClearInput();
 }
 
 bool OpenGLWindow::ShouldClose() const
@@ -42,13 +50,14 @@ bool OpenGLWindow::ShouldClose() const
     return glfwWindowShouldClose(_window);
 }
 
-void OpenGLWindow::SwapBuffers()
-{
-    glfwSwapBuffers(_window);
-}
-
 void OpenGLWindow::PollEvents()
 {
     glfwPollEvents();
+}
+glm::ivec2 OpenGLWindow::GetWindowSize() const
+{
+    int x, y;
+    glfwGetWindowSize(_window, &x, &y);
+    return glm::ivec2(x, y);
 }
 TRV2_NAMESPACE_END

@@ -9,22 +9,34 @@
 
 
 TRV2_NAMESPACE_BEGIN
-static const Vertex2D simpleQuadVertices[4] = {
-	Vertex2D(glm::vec2(0, 0), glm::vec2(0, 0), glm::vec4(1)),
-	Vertex2D(glm::vec2(1, 0), glm::vec2(1, 0), glm::vec4(1)),
-	Vertex2D(glm::vec2(0, 1), glm::vec2(0, 1), glm::vec4(1)),
-	Vertex2D(glm::vec2(1, 1), glm::vec2(1, 1), glm::vec4(1))
+static const BatchVertex2D simpleQuadVertices[4] = {
+	BatchVertex2D(glm::vec2(0, 0), glm::vec2(0, 0), glm::vec4(1)),
+	BatchVertex2D(glm::vec2(1, 0), glm::vec2(1, 0), glm::vec4(1)),
+	BatchVertex2D(glm::vec2(0, 1), glm::vec2(0, 1), glm::vec4(1)),
+	BatchVertex2D(glm::vec2(1, 1), glm::vec2(1, 1), glm::vec4(1))
 };
 
 static const GLuint simpleQuadIndicies[6] = { 0, 1, 3, 0, 3, 2 };
-static constexpr int MaxQuadsPerBatch = 4096;
+static constexpr int MaxQuadsPerBatch = 16384;
 static constexpr int MaxVerticesPerBatch = MaxQuadsPerBatch * 4;
 static constexpr int MaxIndiciesPerBatch = MaxQuadsPerBatch * 6;
 
 OpenGLSpriteRenderer::OpenGLSpriteRenderer(const ITRGraphicsDevice* graphicsDevice)
 {
+	glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &_maxTextureUnits);
+
 	_spriteShaderPure = OpenGLShaderLoader::LoadOpenGLShader("Resources/Shaders/sprite2d.vert",
 			"Resources/Shaders/spritepure.frag");
+
+	// 预先生成顶点index列表
+	_vertexIndices = std::make_unique<GLuint[]>(MaxIndiciesPerBatch);
+	_vertices = std::make_unique<BatchVertex2D[]>(MaxVerticesPerBatch);
+	int cur = 0;
+	for (int i = 0; i < MaxVerticesPerBatch; i += 4) {
+		for (int j = 0; j < 6; j++) {
+			_vertexIndices[cur++] = i + simpleQuadIndicies[j];
+		}
+	}
 
 	glGenVertexArrays(1, &_mainVAO);
 	glGenBuffers(1, &_mainVBO);
@@ -32,31 +44,22 @@ OpenGLSpriteRenderer::OpenGLSpriteRenderer(const ITRGraphicsDevice* graphicsDevi
 
 	glBindVertexArray(_mainVAO);
 	glBindBuffer(GL_ARRAY_BUFFER, _mainVBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex2D) * MaxVerticesPerBatch, nullptr, GL_DYNAMIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(BatchVertex2D) * MaxVerticesPerBatch, nullptr, GL_DYNAMIC_DRAW);
 
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _mainEBO);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLuint) * MaxQuadsPerBatch * 6, nullptr, GL_DYNAMIC_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLuint) * MaxQuadsPerBatch * 6, _vertexIndices.get(), GL_STATIC_DRAW);
 
-	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex2D), (void*)0);
+	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(BatchVertex2D), (void*)offsetof(BatchVertex2D, Position));
 	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex2D), (void*)sizeof(glm::vec2));
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(BatchVertex2D), (void*)offsetof(BatchVertex2D, TextureCoords));
 	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex2D), (void*)(2 * sizeof(glm::vec2)));
+	glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, sizeof(BatchVertex2D), (void*)offsetof(BatchVertex2D, Color));
 	glEnableVertexAttribArray(2);
+	glVertexAttribPointer(3, 1, GL_FLOAT, GL_FALSE, sizeof(BatchVertex2D), (void*)offsetof(BatchVertex2D, TextureIndex));
+	glEnableVertexAttribArray(3);
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
-
-
-	// 预先生成顶点index列表
-	_vertexIndices = std::make_unique<GLuint[]>(MaxIndiciesPerBatch);
-	_vertices = std::make_unique<Vertex2D[]>(MaxVerticesPerBatch);
-	int cur = 0;
-	for (int i = 0; i < MaxVerticesPerBatch; i += 4) {
-		for (int j = 0; j < 6; j++) {
-			_vertexIndices[cur++] = i + simpleQuadIndicies[j];
-		}
-	}
 }
 
 OpenGLSpriteRenderer::~OpenGLSpriteRenderer()
@@ -78,6 +81,12 @@ void OpenGLSpriteRenderer::End()
 void OpenGLSpriteRenderer::Draw(glm::vec2 pos, glm::vec2 size, glm::vec2 origin, float rotation, const glm::vec4& color)
 {
 	pushQuad(pos, size, origin, rotation, color);
+}
+
+void OpenGLSpriteRenderer::Draw(const OpenGLTexture2D& texture, glm::vec2 pos, glm::vec2 size, 
+	glm::vec2 origin, float rotation, const glm::vec4& color)
+{
+
 }
 
 glm::mat4 OpenGLSpriteRenderer::getCurrentTransform() const
@@ -125,13 +134,12 @@ void OpenGLSpriteRenderer::flush()
 			glBindBuffer(GL_ARRAY_BUFFER, _mainVBO);
 			int count = std::min(sz - i, MaxVerticesPerBatch);
 			assert(count % 4 == 0);
-			glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(Vertex2D) * count, _vertices.get());
+			glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(BatchVertex2D) * count, _vertices.get());
 
 			// 顶点顺序数据
 			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _mainEBO);
 			int idxCount = count / 4 * 6;
 			assert(idxCount % 6 == 0);
-			glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, sizeof(GLuint) * idxCount, _vertexIndices.get());
 
 			// 绘制
 			glDrawElements(GL_TRIANGLES, idxCount, GL_UNSIGNED_INT, 0);

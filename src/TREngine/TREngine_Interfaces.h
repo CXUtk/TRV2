@@ -14,6 +14,7 @@ class TREngine;
 // Interfaces
 // Core
 class ITRWindow;
+class IInputController;
 
 // Assets
 class AssetsManager;
@@ -64,4 +65,8 @@ private: std::shared_ptr<type> _##privateName
 
 // 类似于Get访问器的引用形式，不过可以修改对象内容
 #define ReadonlyReferenceProperty(type, publicName, privateName) public: type& Get##publicName() { return *(_##privateName.get()); } \
+private: std::shared_ptr<type> _##privateName
+
+// 类似于Get访问器的引用形式，保证是const引用，不能修改内容
+#define ReadonlyConstReferenceProperty(type, publicName, privateName) public: const type& Get##publicName() { return trv2::cref(_##privateName); } \
 private: std::shared_ptr<type> _##privateName
