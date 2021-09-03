@@ -8,7 +8,7 @@
 #include <TREngine/Assets/AssetsManager.h>
 
 static const glm::vec4 tempColorTable[5] = {
-	glm::vec4(0),
+	glm::vec4(1),
 	glm::vec4(0.6, 0.5, 0.3, 1.0),
 	glm::vec4(0, 0, 1.0, 1.0),
 	glm::vec4(0.3, 1.0, 0.1, 1.0),
@@ -45,16 +45,16 @@ GameWorld::GameWorld(int width, int height) : _width(width), _height(height)
 			float v = glm::mix(v1, v2, extraCoord.y);
 
 			if (v > 0.7) {
-				SetTile(x, y, Tile(1));
+				SetTile(x, y, Tile(0));
 			}
 			else if(v > 0.5) {
-				SetTile(x, y, Tile(2));
+				SetTile(x, y, Tile(1));
 			}
 			else if(v > 0.3) {
-				SetTile(x, y, Tile(3));
+				SetTile(x, y, Tile(2));
 			}
 			else {
-				SetTile(x, y, Tile(4));
+				SetTile(x, y, Tile(3));
 			}
 		}
 	}
@@ -70,24 +70,26 @@ void GameWorld::SetTile(int x, int y, const Tile& tile)
 	_tiles[y * _width + x] = tile;
 }
 
+static std::string textureTable[5] = {
+	"icon",
+	"folder",
+	"font",
+	"image",
+	"map"
+};
+
 void GameWorld::RenderWorld(trv2::ISpriteRenderer& renderer, const trv2::RectI& renderRect)
 {
 	auto start = glm::vec2(renderRect.Position);
 	auto& assetManager = TRGame::GetInstance().GetEngine()->GetAssetsManager();
-	auto& texture = assetManager.GetTexture2D("icon");
 	for (int i = 0; i < renderRect.Size.x; i++) {
 		for (int j = 0; j < renderRect.Size.y; j++) {
 			auto coord = renderRect.Position + glm::ivec2(i, j);
 			auto startPos = glm::vec2(coord) * (float)GameWorld::TILE_SIZE;
 			auto& tile = GetTile(coord.x, coord.y);
-			
-		
-			if (tile.GetType() == 1) {
-				renderer.Draw(trv2::cref(texture), startPos, glm::vec2(TILE_SIZE), glm::vec2(0), 0.f, tempColorTable[tile.GetType()]);
-			}
-			else {
-				renderer.Draw(startPos, glm::vec2(TILE_SIZE), glm::vec2(0), 0.f, tempColorTable[tile.GetType()]);
-			}
+
+			auto& texture = assetManager.GetTexture2D(textureTable[tile.GetType()]);
+			renderer.Draw(trv2::cref(texture), startPos, glm::vec2(TILE_SIZE), glm::vec2(0), 0.f, tempColorTable[tile.GetType()]);
 		}
 	}
 }

@@ -43,20 +43,25 @@ void TRGame::Run()
     double minElapsedTime = 1.0 / _engine->GetEngineSetting().GetFPSCap();
     double prevTimestamp = apiUtils.GetTime();
 
-    while (!window.ShouldClose()) {
-        window.BeginFrame();
-        update();
-        draw();
-        window.EndFrame();
-        window.PollEvents();
-
-        auto elapsedTime = apiUtils.GetTime() - prevTimestamp;
-        //_logger->LogDebug("Elapsed Time: %lf, FPS: %d", elapsedTime, (int)(1.0 / elapsedTime));
-
-        while (apiUtils.GetTime() - prevTimestamp < minElapsedTime) {
+    try {
+        while (!window.ShouldClose()) {
+            window.BeginFrame();
+            update();
+            draw();
+            window.EndFrame();
             window.PollEvents();
+
+            auto elapsedTime = apiUtils.GetTime() - prevTimestamp;
+            //_logger->LogDebug("Elapsed Time: %lf, FPS: %d", elapsedTime, (int)(1.0 / elapsedTime));
+
+            while (apiUtils.GetTime() - prevTimestamp < minElapsedTime) {
+                window.PollEvents();
+            }
+            prevTimestamp = apiUtils.GetTime();
         }
-        prevTimestamp = apiUtils.GetTime();
+    }
+    catch (std::exception ex) {
+        _logger->LogError(ex.what());
     }
 }
 
