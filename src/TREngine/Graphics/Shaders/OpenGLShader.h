@@ -1,7 +1,7 @@
 ﻿#pragma once
 
 #include <TREngine_Interfaces.h>
-#include <Graphics/Interfaces/IShader.h>
+#include <Graphics/Graphics_Interfaces.h>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
@@ -10,7 +10,7 @@ TRV2_NAMESPACE_BEGIN
 class OpenGLShader : public IShader
 {
 public:
-    OpenGLShader(GLuint programID) : _id(programID) {}
+    explicit OpenGLShader(GLuint programID) : _id(programID) {}
 
     void Apply() override;
     void SetParameteri1(const std::string& name, int value) override;

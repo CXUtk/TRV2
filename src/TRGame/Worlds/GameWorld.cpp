@@ -70,13 +70,6 @@ void GameWorld::SetTile(int x, int y, const Tile& tile)
 	_tiles[y * _width + x] = tile;
 }
 
-static std::string textureTable[5] = {
-	"icon",
-	"folder",
-	"font",
-	"image",
-	"map"
-};
 
 void GameWorld::RenderWorld(trv2::ISpriteRenderer& renderer, const trv2::RectI& renderRect)
 {
@@ -88,8 +81,7 @@ void GameWorld::RenderWorld(trv2::ISpriteRenderer& renderer, const trv2::RectI& 
 			auto startPos = glm::vec2(coord) * (float)GameWorld::TILE_SIZE;
 			auto& tile = GetTile(coord.x, coord.y);
 
-			auto& texture = assetManager.GetTexture2D(textureTable[tile.GetType()]);
-			renderer.Draw(trv2::cref(texture), startPos, glm::vec2(TILE_SIZE), glm::vec2(0), 0.f, tempColorTable[tile.GetType()]);
+			renderer.Draw(startPos, glm::vec2(TILE_SIZE), glm::vec2(0), 0.f, tempColorTable[tile.GetType()]);
 		}
 	}
 }

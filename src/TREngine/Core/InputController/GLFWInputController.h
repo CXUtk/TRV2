@@ -3,19 +3,20 @@
 #include <bitset>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
-#include <TREngine_Interfaces.h>
-#include <Core/Interfaces/IInputController.h>
 #include <glm/glm.hpp>
 
+#include <TREngine_Interfaces.h>
+#include <Core/Core_Interfaces.h>
+
 TRV2_NAMESPACE_BEGIN
-class OpenGLInputController : public IInputController
+class GLFWInputController : public IInputController
 {
 public:
-	OpenGLInputController(GLFWwindow* window);
-	~OpenGLInputController();
+	GLFWInputController(GLFWwindow* window);
+	~GLFWInputController() override;
 
 	void ClearInput() override;
-    void UpdateInput() override;
+	void UpdateInput() override;
 
 	void ScrollWheel(glm::vec2 dir);
 

@@ -1,8 +1,7 @@
 ﻿#include "OpenGLSpriteRenderer.h"
 #include <glm/glm.hpp>
 #include <glm/gtx/transform.hpp>
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
+
 #include <algorithm>
 #include <Utils/Logging/Logger.h>
 #include <Assets/Loaders/OpenGLShaderLoader.h>
@@ -22,7 +21,7 @@ static constexpr int MaxQuadsPerBatch = 16384;
 static constexpr int MaxVerticesPerBatch = MaxQuadsPerBatch * 4;
 static constexpr int MaxIndiciesPerBatch = MaxQuadsPerBatch * 6;
 
-OpenGLSpriteRenderer::OpenGLSpriteRenderer(const ITRGraphicsDevice* graphicsDevice)
+OpenGLSpriteRenderer::OpenGLSpriteRenderer(const IGraphicsDevice& graphicsDevice) : _graphicsDevice(graphicsDevice)
 {
 	glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &_maxTextureUnits);
 
@@ -34,7 +33,8 @@ OpenGLSpriteRenderer::OpenGLSpriteRenderer(const ITRGraphicsDevice* graphicsDevi
 
 	_textureSlotsBuffer = std::make_unique<float[]>(_maxTextureUnits);
 	_spriteShaderPure->Apply();
-	for (int i = 0; i < _maxTextureUnits; i++) {
+	for (int i = 0; i < _maxTextureUnits; i++)
+	{
 		_spriteShaderPure->SetParameteri1(string_format("uTextures[%d]", i).c_str(), i);
 	}
 
@@ -43,8 +43,10 @@ OpenGLSpriteRenderer::OpenGLSpriteRenderer(const ITRGraphicsDevice* graphicsDevi
 	_vertexIndices = std::make_unique<GLuint[]>(MaxIndiciesPerBatch);
 	_vertices = std::make_unique<BatchVertex2D[]>(MaxVerticesPerBatch);
 	int cur = 0;
-	for (int i = 0; i < MaxVerticesPerBatch; i += 4) {
-		for (int j = 0; j < 6; j++) {
+	for (int i = 0; i < MaxVerticesPerBatch; i += 4)
+	{
+		for (int j = 0; j < 6; j++)
+		{
 			_vertexIndices[cur++] = i + simpleQuadIndicies[j];
 		}
 	}

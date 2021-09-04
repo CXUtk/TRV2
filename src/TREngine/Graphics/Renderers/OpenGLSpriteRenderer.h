@@ -1,21 +1,22 @@
 ﻿#pragma once
 #include "BatchInfo.h"
 
-#include <TREngine_Interfaces.h>
-#include <Graphics/Shaders/OpenGLShader.h>
-#include <Graphics/Interfaces/ISpriteRenderer.h>
-#include <Graphics/Textures/OpenGLTexture2D.h>
-
 #include <vector>
 #include <memory>
 #include <map>
+
+#include <TREngine_Interfaces.h>
+#include <Graphics/Graphics_Interfaces.h>
+
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
 
 TRV2_NAMESPACE_BEGIN
 class OpenGLSpriteRenderer : public ISpriteRenderer
 {
 public:
-	OpenGLSpriteRenderer(const ITRGraphicsDevice* graphicsDevice);
-	~OpenGLSpriteRenderer();
+	explicit OpenGLSpriteRenderer(const IGraphicsDevice& graphicsDevice);
+	~OpenGLSpriteRenderer() override;
 
 	void Begin(const glm::mat4& transform) override;
 	void End() override;
@@ -28,10 +29,10 @@ private:
 	// OpenGL接口相关，常量相关
 	int _maxTextureUnits;
 
-
 	// OpenGL绘制用的
 	GLuint _mainVAO, _mainVBO, _mainEBO;
 	std::vector<BatchState> _batchStateStack;
+	const IGraphicsDevice& _graphicsDevice;
 
 	// 缓存，顶点，顶点序号等
 	int _currentVertex;

@@ -4,14 +4,14 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
-#include <Graphics/Interfaces/ITexture2D.h>
+#include <Graphics/Graphics_Interfaces.h>
 
 TRV2_NAMESPACE_BEGIN
 class OpenGLTexture2D : public ITexture2D
 {
 public:
-	OpenGLTexture2D(GLuint id, int width, int height);
-	~OpenGLTexture2D();
+	explicit OpenGLTexture2D(GLuint id, int width, int height);
+	~OpenGLTexture2D() override;
 
 	void Bind(int slot) const;
 	unsigned int GetId() const override { return _id; }

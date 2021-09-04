@@ -17,13 +17,16 @@ add_library("TRV2_Engine" STATIC
 "Configs/EngineSettings.cpp"
 "Graphics/GraphicsDevices/OpenGLGraphicsDevice.cpp"
 "Utils/Logging/Logger.cpp"
-"Core/TRWindow/OpenGLWindow.cpp" 
-"Graphics/TROpenGLAPI.cpp"
 "Graphics/Renderers/OpenGLSpriteRenderer.cpp"
+"Core/GameWindow/GLFWGameWindow.cpp"
 "Assets/AssetsManager.cpp"
 "Assets/Loaders/OpenGLShaderLoader.cpp" 
 "Graphics/Shaders/OpenGLShader.cpp"
-"Core/InputController/OpenGLInputController.cpp" "Graphics/Interfaces/ITexture2D.h" "Graphics/Textures/OpenGLTexture2D.h" "Assets/Loaders/OpenGLTextureLoader.h" "Assets/Loaders/OpenGLTextureLoader.cpp" "Graphics/Textures/OpenGLTexture2D.cpp" "Assets/Builtins/HardcodeShaders.h" "Assets/Builtins/HardcodeTextures.h")
+"Core/InputController/GLFWInputController.cpp"
+"Assets/Loaders/OpenGLTextureLoader.cpp"
+"Graphics/Textures/OpenGLTexture2D.cpp"
+"Core/Initializer/GLFWInitializer.cpp"
+)
 
 
 message(STATUS "${PROJECT_SOURCE_DIR}")
@@ -35,12 +38,6 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-if ( CMAKE_COMPILER_IS_GNUCC )
-    target_compile_options("TRV2_Engine" PRIVATE "-Wall -Wextra")
-endif()
-if ( MSVC )
-    target_compile_options("TRV2_Engine" PRIVATE "/W4")
-endif()
 
 # 添加库引用（引擎和游戏只用添加一次）
 add_subdirectory("../../ext/libs/glad" "${PROJECT_BINARY_DIR}/libs/glad")

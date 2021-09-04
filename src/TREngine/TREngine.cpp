@@ -3,10 +3,11 @@
 #include <Utils/Logging/Logger.h>
 #include <Configs/EngineSettings.h>
 #include <Graphics/GraphicsDevices/OpenGLGraphicsDevice.h>
-#include <Graphics/TROpenGLAPI.h>
-#include <Core/Interfaces/ITRWindow.h>
+#include <Core/Core_Interfaces.h>
+#include <Core/Initializer/GLFWInitializer.h>
 #include <Assets/AssetsManager.h>
 #include <Utils/Structures/Rect.h>
+#include <TRApplication.h>
 
 TRV2_NAMESPACE_BEGIN
  TREngine::TREngine()
@@ -20,10 +21,13 @@ TRV2_NAMESPACE_BEGIN
  void TREngine::Initialize(int argc, char** argv)
  {
      _logger = std::make_unique<Logger>();
-     _engineSetting = std::make_shared<EngineSettings>();
+
      try {
+         loadLaunchSettings();
          loadSupportiveSystem();
          loadGraphicsSystem();
+
+         _application->Initialize(this);
      }
      catch (std::exception ex) {
          _logger->LogError("Error: %s", ex.what());
@@ -31,18 +35,48 @@ TRV2_NAMESPACE_BEGIN
      }
  }
 
+ void TREngine::Run()
+ {
+     double minElapsedTime = 1.0 / _engineSettings->GetFPSCap();
+     double prevTimestamp = GetGameTime();
+
+
+     while (!_gameWindow->ShouldClose())
+     {
+         auto currentTime = GetGameTime();
+         auto elapsed = currentTime - prevTimestamp;
+         prevTimestamp = currentTime;
+
+         _gameWindow->BeginFrame();
+
+         _application->Update(elapsed);
+         _application->Draw(elapsed);
+
+         _gameWindow->EndFrame();
+         _gameWindow->PollEvents();
+
+         auto elapsedTime = GetGameTime() - prevTimestamp;
+         while (GetGameTime() - prevTimestamp < minElapsedTime)
+         {
+             _gameWindow->PollEvents();
+         }
+     }
+
+     _application->Exit();
+ }
+
  void TREngine::LoadAllAssets()
  {
  }
 
- double TREngine::GetGameTime()
+ double TREngine::GetGameTime() const
  {
-     return _apiUtils->GetTime();
+     return _gameTimer->GetCurrentTime();
  }
 
  void TREngine::loadSupportiveSystem()
  {
-     logEngineInfo();
+ 
  }
 
  void TREngine::loadGraphicsSystem()
@@ -50,22 +84,27 @@ TRV2_NAMESPACE_BEGIN
      _logger->LogInfo("Loading graphics system");
 
      // 这里 hard code 了一下OpenGL的API，因为第一阶段项目只考虑OpenGL
-     TROpenGLAPIGenerator apiGenerator;
-     apiGenerator.Initialize(cref(_engineSetting));
+     GLFWInitializer intitializer;
+     intitializer.Initialize(cref(_engineSettings));
 
-     _graphicsDevice = apiGenerator.CreateGraphicsDevice();
-     _gameWindow = apiGenerator.CreateWindow();
-     _apiUtils = apiGenerator.CreateAPIUtils();
+     _graphicsDevice = intitializer.GetGraphicsDevice();
+     _gameWindow = intitializer.GetGameWindow();
+     _gameTimer = intitializer.GetGameTimer();
 
      _assetsManager = std::make_shared<AssetsManager>();
-     _spriteRenderer = _graphicsDevice->CreateSpriteRenderer();
  }
 
 
- void TREngine::logEngineInfo()
+ void TREngine::loadLaunchSettings()
  {
      _logger->LogInfo("TR Engine Started");
-     auto version = _engineSetting->GetVersionString();
-     _logger->LogInfo("Current Engine Version: %s", version.c_str());
+     _engineSettings = std::make_shared<EngineSettings>();
+
+     _logger->LogInfo("Current Engine Version: %s", _engineSettings->GetVersionString());
+ }
+
+ void TREngine::SetApplication(TRApplication* application)
+ {
+     _application = application;
  }
 TRV2_NAMESPACE_END

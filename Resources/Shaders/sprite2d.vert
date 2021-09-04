@@ -16,6 +16,7 @@ out float fTexSlot;
 
 void main(){
     gl_Position = uWorldTransform * vec4(vertex, 0.0, 1.0);
+
     fTexCoord = vTexCoord;
     fColor = vColor;
     fTexSlot = vTexSlot;

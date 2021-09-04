@@ -25,11 +25,11 @@ void OpenGLGraphicsDevice::Initialize(const EngineSettings& clientConfig)
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-	glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
+	glfwWindowHint(GLFW_RESIZABLE, clientConfig.IsWindowResizable() ? GLFW_TRUE : GLFW_FALSE);
 }
 
 std::shared_ptr<ISpriteRenderer> OpenGLGraphicsDevice::CreateSpriteRenderer() const
 {
-	return std::make_shared<OpenGLSpriteRenderer>(this);
+	return std::make_shared<OpenGLSpriteRenderer>(*this);
 }
 TRV2_NAMESPACE_END

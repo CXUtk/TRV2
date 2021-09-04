@@ -2,20 +2,75 @@
 #include <TREngine_Interfaces.h>
 #include <string>
 TRV2_NAMESPACE_BEGIN
-class EngineSettings
-{
+class EngineSettings {
 public:
 	EngineSettings();
 
-	// Game properties
-	ReadonlyProperty(std::string, ClientTitle, clientTitle);
-	ReadonlyProperty(std::string, VersionString, versionString);
+	/**
+	 * @brief If the window size can be changed by user
+	 * @return
+	*/
+	bool IsWindowResizable() const {
+		return _windowResizable;
+	}
 
-	// Client properties
-	ReadonlyProperty(int, ClientWidth, clientWidth);
-	ReadonlyProperty(int, ClientHeight, clientHeight);
-	ReadonlyProperty(int, FPSCap, fpsCap);
+	/**
+	 * @brief Get the title string of the startup game window
+	 * @return
+	*/
+	const char* GetWindowTitle() const {
+		return _windowTitle.c_str();
+	}
+
+	/**
+	 * @brief Get the version string of the engine
+	 * @return
+	*/
+	const char* GetVersionString() const {
+		return _versionString.c_str();
+	}
+
+	/**
+	 * @brief Get the width of the startup game window
+	 * @return
+	*/
+	int GetWindowWidth() const {
+		return _windowWidth;
+	}
+
+	/**
+	 * @brief Get the height of the startup game window
+	 * @return
+	*/
+	int GetWindowHeight() const {
+		return _windowHeight;
+	}
+
+	/**
+	 * @brief Get the maximum frames per second of the game
+	 * @return
+	*/
+	int GetFPSCap() const {
+		return _fpsCap;
+	}
+
+	/**
+	 * @brief Get the graphics API used by this engine
+	 * @return 
+	*/
+	GraphicsAPIType GetGraphicsAPIType() const {
+		return _graphicsAPIType;
+	}
 
 private:
+	// Client properties
+	bool _windowResizable;
+	std::string _windowTitle;
+	std::string _versionString;
+
+	int _windowWidth, _windowHeight;
+	int _fpsCap;
+
+	GraphicsAPIType _graphicsAPIType;
 };
 TRV2_NAMESPACE_END
