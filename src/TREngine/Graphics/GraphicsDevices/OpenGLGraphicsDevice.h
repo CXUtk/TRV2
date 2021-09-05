@@ -11,7 +11,6 @@ public:
 	OpenGLGraphicsDevice(const EngineSettings* clientConfig);
 	~OpenGLGraphicsDevice() override;
 
-	std::shared_ptr<ISpriteRenderer> CreateSpriteRenderer() const override;
 	void SetupVertexAttributes(const VertexLayout& layout) const override;
 
 	virtual IGraphicsHandle CreateVertexArray() const override;

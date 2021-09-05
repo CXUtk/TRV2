@@ -2,7 +2,7 @@
 
 #include <Utils/Logging/Logger.h>
 #include <Configs/EngineSettings.h>
-#include <Graphics/GraphicsDevices/OpenGLGraphicsDevice.h>
+#include <Graphics/Renderers/SpriteRenderer.h>
 #include <Core/Core_Interfaces.h>
 #include <Core/Initializer/GLFWInitializer.h>
 #include <Assets/AssetsManager.h>
@@ -35,31 +35,39 @@ TRV2_NAMESPACE_BEGIN
 
  void TREngine::Run()
  {
-     double minElapsedTime = 1.0 / _engineSettings->GetFPSCap();
-     double prevTimestamp = GetGameTime();
-
-
-     while (!_gameWindow->ShouldClose())
+     try
      {
-         auto currentTime = GetGameTime();
-         auto elapsed = currentTime - prevTimestamp;
-         prevTimestamp = currentTime;
+         double minElapsedTime = 1.0 / _engineSettings->GetFPSCap();
+         double prevTimestamp = GetGameTime();
 
-         _gameWindow->BeginFrame();
 
-         _application->Update(elapsed);
-         _application->Draw(elapsed);
-
-         _gameWindow->EndFrame();
-         _gameWindow->PollEvents();
-
-         while (GetGameTime() - prevTimestamp < minElapsedTime)
+         while (!_gameWindow->ShouldClose())
          {
-             _gameWindow->PollEvents();
-         }
-     }
+             auto currentTime = GetGameTime();
+             auto elapsed = currentTime - prevTimestamp;
+             prevTimestamp = currentTime;
 
-     _application->Exit();
+             _gameWindow->BeginFrame();
+             {
+                 _application->Update(elapsed);
+                 _application->Draw(elapsed);
+             }
+             _gameWindow->EndFrame();
+
+             _gameWindow->PollEvents();
+             while (GetGameTime() - prevTimestamp < minElapsedTime)
+             {
+                 _gameWindow->PollEvents();
+             }
+         }
+
+         _application->Exit();
+     }
+     catch (std::exception ex)
+     {
+         _logger->LogError("Error: %s", ex.what());
+         throw;
+     }
  }
 
  double TREngine::GetGameTime() const
@@ -104,5 +112,11 @@ TRV2_NAMESPACE_BEGIN
  {
      _application = application;
      useApplication();
+ }
+
+ std::shared_ptr<SpriteRenderer> TREngine::CreateSpriteRenderer() const
+ {
+     return std::make_shared<SpriteRenderer>(trv2::cptr(_graphicsDevice), _assetsManager->GetShader("builtin::sprite"),
+         _assetsManager->GetTexture2D("builtin::sprite"));
  }
 TRV2_NAMESPACE_END

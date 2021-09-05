@@ -8,7 +8,6 @@
 #include <GLFW/glfw3.h>
 #include <Configs/EngineSettings.h>
 #include <Assets/AssetsManager.h>
-#include <Graphics/Renderers/OpenGLSpriteRenderer.h>
 #include <Graphics/Structures/VertexLayout.h>
 
 TRV2_NAMESPACE_BEGIN
@@ -63,11 +62,6 @@ OpenGLGraphicsDevice::OpenGLGraphicsDevice(const EngineSettings* clientConfig) :
 
 OpenGLGraphicsDevice::~OpenGLGraphicsDevice()
 {
-}
-
-std::shared_ptr<ISpriteRenderer> OpenGLGraphicsDevice::CreateSpriteRenderer() const
-{
-	return std::make_shared<OpenGLSpriteRenderer>(this);
 }
 
 void OpenGLGraphicsDevice::SetupVertexAttributes(const VertexLayout& layout) const

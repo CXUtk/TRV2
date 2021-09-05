@@ -4,7 +4,7 @@
 #include <TREngine/Configs/EngineSettings.h>
 #include <TREngine/Utils/Logging/Logger.h>
 #include <TREngine/Core/Core_Interfaces.h>
-#include <TREngine/Graphics/Renderers/OpenGLSpriteRenderer.h>
+#include <TREngine/Graphics/Renderers/SpriteRenderer.h>
 #include <TREngine/Utils/Structures/Rect.h>
 
 #include <TRGame/Worlds/GameWorld.h>
@@ -46,7 +46,7 @@ void TRGame::Initialize(trv2::TREngine* engine)
     _logger = std::make_unique<trv2::Logger>();
 
     _engine = engine;
-    _spriteRenderer = _engine->GetGraphicsDevice()->CreateSpriteRenderer();
+    _spriteRenderer = _engine->CreateSpriteRenderer();
 
     logGameInfo();
     loadGameContent();

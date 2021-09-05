@@ -6,9 +6,6 @@
 TRV2_NAMESPACE_BEGIN
 // Header types
 
-constexpr int TRV2_Input_KeyCode_SIZE = 20;
-constexpr int TRV2_Input_MouseButtonCode_SIZE = 3;
-
 enum class TRV2KeyCode
 {
 	TRV2_W_KEY,
@@ -33,14 +30,18 @@ enum class TRV2KeyCode
 
 	TRV2_PLUS_KEY,
 	TRV2_MINUS_KEY,
-	TRV2_TILDE_KEY
+	TRV2_TILDE_KEY,
+
+	__COUNT,
 };
 
 enum class TRV2MouseButtonCode
 {
 	LEFT_BUTTON,
 	RIGHT_BUTTON,
-	MIDDLE_BUTTON
+	MIDDLE_BUTTON,
+
+	__COUNT,
 };
 
 // Interfaces

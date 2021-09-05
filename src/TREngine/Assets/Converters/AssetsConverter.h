@@ -4,13 +4,13 @@
 #include <string>
 #include <memory>
 TRV2_NAMESPACE_BEGIN
-class AssetsManager
+class AssetsLoader
 {
 public:
 	AssetsManager();
-	
-	IShader* GetShader(const std::string& name) const;
-	ITexture2D* GetTexture2D(const std::string& name) const;
+
+	std::shared_ptr<IShader> GetShader(const std::string& name) const;
+	std::shared_ptr<ITexture2D> GetTexture2D(const std::string& name) const;
 
 private:
 	std::map<std::string, std::shared_ptr<IShader>> _shadersTable;

@@ -17,7 +17,7 @@ add_library("TRV2_Engine" STATIC
 "Configs/EngineSettings.cpp"
 "Graphics/GraphicsDevices/OpenGLGraphicsDevice.cpp"
 "Utils/Logging/Logger.cpp"
-"Graphics/Renderers/OpenGLSpriteRenderer.cpp"
+"Graphics/Renderers/SpriteRenderer.cpp"
 "Core/GameWindow/GLFWGameWindow.cpp"
 "Assets/AssetsManager.cpp"
 "Assets/Loaders/OpenGLShaderLoader.cpp" 
@@ -26,7 +26,7 @@ add_library("TRV2_Engine" STATIC
 "Assets/Loaders/OpenGLTextureLoader.cpp"
 "Graphics/Textures/OpenGLTexture2D.cpp"
 "Core/Initializer/GLFWInitializer.cpp"
- "Graphics/Structures/VertexLayout.h" "Graphics/Structures/VertexLayout.cpp")
+"Graphics/Structures/VertexLayout.cpp" )
 
 
 message(STATUS "${PROJECT_SOURCE_DIR}")

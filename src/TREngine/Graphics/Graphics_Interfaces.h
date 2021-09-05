@@ -53,7 +53,7 @@ class IGraphicsDevice
 public:
     IGraphicsDevice(const EngineSettings* clientConfig) {}
     virtual ~IGraphicsDevice() = 0 {};
-    virtual std::shared_ptr<ISpriteRenderer> CreateSpriteRenderer() const = 0;
+
     virtual void SetupVertexAttributes(const VertexLayout& layout) const = 0;
 
     virtual IGraphicsHandle CreateVertexArray() const = 0;
@@ -82,10 +82,11 @@ public:
 /**
  * @brief Platform indenpendent shader object interface
 */
-class IShader 
+class IShader
 {
 public:
     virtual ~IShader() = 0 {};
+
     virtual void Apply() = 0;
     virtual void SetParameteri1(const std::string& name, int value) = 0;
     virtual void SetParameterfv2(const std::string& name, glm::vec2 value) = 0;
@@ -96,24 +97,6 @@ public:
 private:
 };
 
-/**
- * @brief 
-*/
-class ISpriteRenderer 
-{
-public:
-    virtual ~ISpriteRenderer() = 0 {};
-
-    virtual void Begin(const glm::mat4& transform) = 0;
-    virtual void End() = 0;
-
-    virtual void Draw(glm::vec2 pos, glm::vec2 size,
-        glm::vec2 origin, float rotation, const glm::vec4& color) = 0;
-    virtual void Draw(const ITexture2D* texture, glm::vec2 pos, glm::vec2 size,
-        glm::vec2 origin, float rotation, const glm::vec4& color) = 0;
-
-private:
-};
 
 /**
  * @brief Platform indenpendent 2d texture object interface

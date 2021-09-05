@@ -14,8 +14,9 @@ struct BatchInfo
 struct BatchState
 {
 	glm::mat4 WorldTransform;
+	bool IsBatchBegin;
 	BatchState() = default;
-	BatchState(const glm::mat4& transform) : WorldTransform(transform) {}
+	BatchState(const glm::mat4& transform) : WorldTransform(transform), IsBatchBegin(false) {}
 };
 
 struct BatchVertex2D

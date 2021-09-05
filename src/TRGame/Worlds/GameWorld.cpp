@@ -1,7 +1,7 @@
 ﻿#include "GameWorld.h"
 #include "Tile.h"
 #include <TREngine/Utils/Structures/Rect.h>
-#include <TREngine/Graphics/Renderers/OpenGLSpriteRenderer.h>
+#include <TREngine/Graphics/Renderers/SpriteRenderer.h>
 #include <random>
 #include <TRGame/TRGame.h>
 #include <TREngine/TREngine.h>
@@ -71,7 +71,7 @@ void GameWorld::SetTile(int x, int y, const Tile& tile)
 }
 
 
-void GameWorld::RenderWorld(trv2::ISpriteRenderer* renderer, const trv2::RectI& renderRect)
+void GameWorld::RenderWorld(trv2::SpriteRenderer* renderer, const trv2::RectI& renderRect)
 {
 	auto start = glm::vec2(renderRect.Position);
 	auto assetManager = TRGame::GetInstance().GetEngine()->GetAssetsManager();

@@ -38,7 +38,7 @@ private:
     trv2::TREngine* _engine;
     std::shared_ptr<trv2::Logger> _logger;
 
-    std::shared_ptr<trv2::ISpriteRenderer> _spriteRenderer;
+    std::shared_ptr<trv2::SpriteRenderer> _spriteRenderer;
     std::unique_ptr<GameWorld> _gameWorld;
     glm::vec2 _screenPosition;
 };

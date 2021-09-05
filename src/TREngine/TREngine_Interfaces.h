@@ -21,9 +21,9 @@ class AssetsManager;
 
 // Graphics
 class IGraphicsDevice;
-class ISpriteRenderer;
 class IShader;
 class ITexture2D;
+class SpriteRenderer;
 
 // Configs
 class EngineSettings;
