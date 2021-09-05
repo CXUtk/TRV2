@@ -1,10 +1,9 @@
 ﻿#pragma once
 #include <memory>
 
+// Macros
 #define TRV2_NAMESPACE_BEGIN namespace trv2 {
-
 #define TRV2_NAMESPACE_END }
-
 
 
 TRV2_NAMESPACE_BEGIN
@@ -12,16 +11,16 @@ class TREngine;
 
 // Interfaces
 // Core
-class ITRWindow;
+class TRApplication;
+class IGameWindow;
 class IInputController;
+class IGameTimer;
 
 // Assets
 class AssetsManager;
 
 // Graphics
-class ITRGraphicsDevice;
-class ITRAPIUtils;
-class ITRAPIGenerator;
+class IGraphicsDevice;
 class ISpriteRenderer;
 class IShader;
 class ITexture2D;
@@ -36,11 +35,50 @@ struct RectI;
 
 
 // Templates
-template<typename T>
+/**
+ * @brief Converts a shared pointer to a reference of object
+ * @tparam T Object Type
+ * @param ptr Target shared ponter
+ * @return reference to the object
+*/
+template<typename T> 
 T& ref(const std::shared_ptr<T>& ptr) { return static_cast<T&>(*ptr); }
 
-template<typename T>
+/**
+ * @brief Converts a shared pointer to a const reference of object
+ * @tparam T Object Type
+ * @param ptr Target shared ponter
+ * @return const reference to the object
+*/
+template<typename T> 
 const T& cref(const std::shared_ptr<T>& ptr) { return static_cast<const T&>(*ptr); }
+
+/**
+ * @brief Converts a shared pointer to a pointer of the object
+ * @tparam T Object Type
+ * @param ptr Target shared ponter
+ * @return const reference to the object
+*/
+template<typename T>
+T* ptr(const std::shared_ptr<T>& ptr) { return static_cast<T*>(ptr.get()); }
+
+
+/**
+ * @brief Converts a shared pointer to a const pointer of object
+ * @tparam T Object Type
+ * @param ptr Target shared ponter
+ * @return const reference to the object
+*/
+template<typename T>
+const T* cptr(const std::shared_ptr<T>& ptr) { return static_cast<const T*>(ptr.get()); }
+
+
+// Enums
+enum class GraphicsAPIType {
+	None,
+	OpenGL,
+	DirectX
+};
 TRV2_NAMESPACE_END
 
 
@@ -51,7 +89,7 @@ private: type _##privateName
 #define ReadonlyPropertyF(typeF, type, publicName, privateName) public: typeF Get##publicName() const { return _##privateName; } \
 private: type _##privateName
 
-// 类似于Get访问器，不过可以修改对象内容
+
 #define ReadonlySharedPtrProperty(type, publicName, privateName) public: type* Get##publicName() { return _##privateName.get(); } \
 private: std::shared_ptr<type> _##privateName
 

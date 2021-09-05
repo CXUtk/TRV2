@@ -2,17 +2,17 @@
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
-#include <Core/Interfaces/ITRWindow.h>
-#include <Core/Interfaces/IInputController.h>
-#include <Core/InputController/OpenGLInputController.h>
+#include <glm/glm.hpp>
+
+#include <Core/Core_Interfaces.h>
+#include <Core/InputController/GLFWInputController.h>
+
 TRV2_NAMESPACE_BEGIN
-class OpenGLWindow : public ITRWindow
+class GLFWGameWindow : public IGameWindow
 {
 public:
-	OpenGLWindow();
-	~OpenGLWindow();
-
-	void Initialize(const EngineSettings& config) override;
+	GLFWGameWindow(const EngineSettings* config);
+	~GLFWGameWindow() override;
 
 	void BeginFrame() override;
 	void EndFrame() override;
@@ -25,6 +25,6 @@ public:
 	glm::ivec2 GetWindowSize() const override;
 private:
 	GLFWwindow* _window;
-	std::shared_ptr<OpenGLInputController> _inputController;
+	std::shared_ptr<GLFWInputController> _inputController;
 };
 TRV2_NAMESPACE_END

@@ -1,34 +1,44 @@
 ﻿#pragma once
 #include <memory>
 #include <glm/glm.hpp>
+
 #include <TREngine/TREngine_Interfaces.h>
 #include <TRGame/TRGame_Interfaces.h>
+#include <TREngine/TRApplication.h>
 
-class TRGame
+class TRGame : public trv2::TRApplication
 {
 public:
     static TRGame& GetInstance();
-    ~TRGame();
+    ~TRGame() override;
 
-    void Initialize(int argc, char** argv);
-    void Run();
+    virtual void Initialize(trv2::TREngine* engine) override;
+    virtual void Update(double deltaTime) override;
+    virtual void Draw(double deltaTime) override;
+    virtual void Exit() override;
 
-    ReadonlyUniquePtrProperty(trv2::TREngine, Engine, engine);
-    ReadonlyUniquePtrProperty(trv2::Logger, Logger, logger);
+    const trv2::TREngine* GetEngine() const
+    {
+        return _engine;
+    }
+
+    const trv2::Logger* GetLogger() const
+    {
+        return _logger.get();
+    }
+
 private:
     TRGame();
-
-    // 核心流程
-    void update();
-    void draw();
-
 
     // Other
     void logGameInfo();
 
-    void loadEngine(int argc, char** argv);
     void loadGameContent();
 
+    trv2::TREngine* _engine;
+    std::shared_ptr<trv2::Logger> _logger;
+
+    std::shared_ptr<trv2::ISpriteRenderer> _spriteRenderer;
     std::unique_ptr<GameWorld> _gameWorld;
     glm::vec2 _screenPosition;
 };

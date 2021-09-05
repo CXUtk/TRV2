@@ -1,4 +1,5 @@
-﻿#include "OpenGLInputController.h"
+﻿#include "GLFWInputController.h"
+#include <Core/GameWindow/GLFWGameWindow.h>
 #include <vector>
 
 TRV2_NAMESPACE_BEGIN
@@ -6,7 +7,7 @@ static constexpr int GLFW_KEY_SIZE = 512;
 static std::vector<int> keyCodeMap[TRV2_Input_KeyCode_SIZE];
 static std::vector<int> mouseButtonCodeMap[TRV2_Input_MouseButtonCode_SIZE];
 
-void OpenGLInputController::initializeCodeMapping()
+void GLFWInputController::initializeCodeMapping()
 {
     keyCodeMap[(int)TRV2KeyCode::TRV2_W_KEY] = { GLFW_KEY_W };
     keyCodeMap[(int)TRV2KeyCode::TRV2_S_KEY] = { GLFW_KEY_S };
@@ -37,22 +38,21 @@ void OpenGLInputController::initializeCodeMapping()
     mouseButtonCodeMap[(int)TRV2MouseButtonCode::MIDDLE_BUTTON] = { GLFW_MOUSE_BUTTON_MIDDLE };
 }
 
-OpenGLInputController::OpenGLInputController(GLFWwindow* window) : _window(window), _scrollWheel(glm::vec2(0))
+GLFWInputController::GLFWInputController(GLFWwindow* window) : _window(window), _scrollWheel(glm::vec2(0))
 {
     initializeCodeMapping();
-    glfwSetWindowUserPointer(window, this);
     auto mouseScrollCallbackFunction = [](GLFWwindow* window, double xoffset, double yoffset) {
-        auto controller = (OpenGLInputController*)glfwGetWindowUserPointer(window);
-        controller->ScrollWheel(glm::vec2(xoffset, yoffset));
+        auto gameWindow = (GLFWGameWindow*)glfwGetWindowUserPointer(window);
+        ((GLFWInputController&)gameWindow->GetInputController()).ScrollWheel(glm::vec2(xoffset, yoffset));
     };
     glfwSetScrollCallback(_window, mouseScrollCallbackFunction);
 }
 
-OpenGLInputController::~OpenGLInputController()
+GLFWInputController::~GLFWInputController()
 {
 }
 
-void OpenGLInputController::ClearInput()
+void GLFWInputController::ClearInput()
 {
     _scrollWheel = glm::vec2(0);
 
@@ -63,7 +63,7 @@ void OpenGLInputController::ClearInput()
     _curKeysDown.reset();
 }
 
-void OpenGLInputController::UpdateInput()
+void GLFWInputController::UpdateInput()
 {
     for (int i = 0; i < TRV2_Input_MouseButtonCode_SIZE; i++) {
         for (auto code : mouseButtonCodeMap[i]) {
@@ -78,11 +78,11 @@ void OpenGLInputController::UpdateInput()
     }
 }
 
-void OpenGLInputController::ScrollWheel(glm::vec2 dir)
+void GLFWInputController::ScrollWheel(glm::vec2 dir)
 {
     _scrollWheel += dir;
 }
-glm::vec2 OpenGLInputController::GetMousePos() const
+glm::vec2 GLFWInputController::GetMousePos() const
 {
     double x, y;
     glfwGetCursorPos(_window, &x, &y);

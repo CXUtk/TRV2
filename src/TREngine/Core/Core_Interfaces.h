@@ -1,9 +1,14 @@
 ﻿#pragma once
+#include <memory>
+#include <TREngine_Interfaces.h>
 #include <glm/glm.hpp>
 
 TRV2_NAMESPACE_BEGIN
+// Header types
+
 constexpr int TRV2_Input_KeyCode_SIZE = 20;
 constexpr int TRV2_Input_MouseButtonCode_SIZE = 3;
+
 enum class TRV2KeyCode
 {
 	TRV2_W_KEY,
@@ -38,9 +43,31 @@ enum class TRV2MouseButtonCode
 	MIDDLE_BUTTON
 };
 
-class IInputController
+// Interfaces
+
+class IGameWindow 
 {
 public:
+	IGameWindow(const EngineSettings* config) {}
+	virtual ~IGameWindow() = 0 {};
+
+	virtual void BeginFrame() = 0;
+	virtual void EndFrame() = 0;
+
+	virtual bool ShouldClose() const = 0;
+	virtual void PollEvents() = 0;
+
+	virtual const IInputController& GetInputController() const = 0;
+
+	virtual glm::ivec2 GetWindowSize() const = 0;
+};
+
+// Input Controller
+class IInputController 
+{
+public:
+	virtual ~IInputController() = 0 {};
+
 	virtual void ClearInput() = 0;
 	virtual void UpdateInput() = 0;
 
@@ -55,5 +82,25 @@ public:
 	virtual bool IsMouseReleased(TRV2MouseButtonCode mouse) const = 0;
 
 	virtual glm::vec2 GetMousePos() const = 0;
+};
+
+
+class IEngineInitializer
+{
+public:
+	IEngineInitializer(const EngineSettings* settings) {}
+	virtual ~IEngineInitializer() = 0 {};
+	
+	virtual std::shared_ptr<IGraphicsDevice> GetGraphicsDevice() const = 0;
+	virtual std::shared_ptr<IGameWindow> GetGameWindow() const = 0;
+	virtual std::shared_ptr<IGameTimer> GetGameTimer() const = 0;
+};
+
+class IGameTimer
+{
+public:
+	virtual ~IGameTimer() = 0 {};
+
+	virtual double GetCurrentTime() = 0;
 };
 TRV2_NAMESPACE_END

@@ -11,11 +11,4 @@ OpenGLTexture2D::OpenGLTexture2D(GLuint id, int width, int height) : _id(id), _w
 OpenGLTexture2D::~OpenGLTexture2D()
 {
 }
-
-void OpenGLTexture2D::Bind(int slot) const
-{
-	glActiveTexture(GL_TEXTURE0 + slot);
-	glBindTexture(GL_TEXTURE_2D, _id);
-}
-
 TRV2_NAMESPACE_END

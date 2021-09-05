@@ -4,7 +4,7 @@
 #include <Utils/Utils.h>
 
 TRV2_NAMESPACE_BEGIN
-std::shared_ptr<OpenGLTexture2D> trv2::OpenGLTextureLoader::CreateTexture2D(const std::string& filePath)
+std::shared_ptr<OpenGLTexture2D> trv2::OpenGLTextureLoader::CreateTexture2DFromFile(const std::string& filePath)
 {
     int width, height, nrChannels;
     unsigned char* data = stbi_load(filePath.c_str(), &width, &height, &nrChannels, 0);
@@ -24,7 +24,7 @@ std::shared_ptr<OpenGLTexture2D> trv2::OpenGLTextureLoader::CreateTexture2D(cons
     stbi_image_free(data);
     return std::make_shared<OpenGLTexture2D>(textureId, width, height);
 }
-std::shared_ptr<OpenGLTexture2D> OpenGLTextureLoader::CreateTexture2D(int width, int height, unsigned char* data)
+std::shared_ptr<OpenGLTexture2D> OpenGLTextureLoader::CreateTexture2DFromMemory(int width, int height, unsigned char* data)
 {
     GLuint textureId;
     glGenTextures(1, &textureId);

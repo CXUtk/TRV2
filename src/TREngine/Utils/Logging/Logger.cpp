@@ -17,7 +17,7 @@ Logger::Logger()
 {
 }
 
-void Logger::LogInfo(const char* format, ...)
+void Logger::LogInfo(const char* format, ...) const
 {
 	va_list ap;
 	va_start(ap, format);
@@ -25,7 +25,7 @@ void Logger::LogInfo(const char* format, ...)
 	va_end(ap);
 }
 
-void Logger::LogWarning(const char* format, ...)
+void Logger::LogWarning(const char* format, ...) const
 {
 	va_list ap;
 	va_start(ap, format);
@@ -33,7 +33,7 @@ void Logger::LogWarning(const char* format, ...)
 	va_end(ap);
 }
 
-void Logger::LogError(const char* format, ...)
+void Logger::LogError(const char* format, ...) const
 {
 	va_list ap;
 	va_start(ap, format);
@@ -41,7 +41,7 @@ void Logger::LogError(const char* format, ...)
 	va_end(ap);
 }
 
-void Logger::LogDebug(const char* format, ...)
+void Logger::LogDebug(const char* format, ...) const
 {
 #ifdef _DEBUG
 	va_list ap;
@@ -51,7 +51,7 @@ void Logger::LogDebug(const char* format, ...)
 #endif // _DEBUG
 }
 
-void Logger::pushLog(const char* badge, const char* format, va_list ap)
+void Logger::pushLog(const char* badge, const char* format, va_list ap) const
 {
 	const std::lock_guard<std::mutex> lockGuard(_mutexLock);
 

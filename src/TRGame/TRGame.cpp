@@ -3,11 +3,9 @@
 #include <TREngine/TREngine.h>
 #include <TREngine/Configs/EngineSettings.h>
 #include <TREngine/Utils/Logging/Logger.h>
-#include <TREngine/Core/Interfaces/ITRWindow.h>
-#include <TREngine/Graphics/Interfaces/ITRAPIUtils.h>
+#include <TREngine/Core/Core_Interfaces.h>
 #include <TREngine/Graphics/Renderers/OpenGLSpriteRenderer.h>
 #include <TREngine/Utils/Structures/Rect.h>
-#include <TREngine/Core/Interfaces/IInputController.h>
 
 #include <TRGame/Worlds/GameWorld.h>
 
@@ -26,67 +24,57 @@ TRGame::~TRGame()
 {
 }
 
-void TRGame::Initialize(int argc, char** argv)
+
+TRGame::TRGame() : _screenPosition(glm::vec2(0)), _engine(nullptr)
+{
+}
+
+
+
+void TRGame::logGameInfo()
+{
+    _logger->LogInfo("TR Game Started");
+}
+
+void TRGame::loadGameContent()
+{
+    _gameWorld = std::make_unique<GameWorld>(1000, 1000);
+}
+
+void TRGame::Initialize(trv2::TREngine* engine)
 {
     _logger = std::make_unique<trv2::Logger>();
+
+    _engine = engine;
+    _spriteRenderer = _engine->GetGraphicsDevice()->CreateSpriteRenderer();
+
     logGameInfo();
-
-    loadEngine(argc, argv);
     loadGameContent();
-}
-
-void TRGame::Run()
-{
-    auto& apiUtils = _engine->GetAPIUtils();
-    auto& window = _engine->GetWindow();
-
-    double minElapsedTime = 1.0 / _engine->GetEngineSetting().GetFPSCap();
-    double prevTimestamp = apiUtils.GetTime();
-
-    try {
-        while (!window.ShouldClose()) {
-            window.BeginFrame();
-            update();
-            draw();
-            window.EndFrame();
-            window.PollEvents();
-
-            auto elapsedTime = apiUtils.GetTime() - prevTimestamp;
-            //_logger->LogDebug("Elapsed Time: %lf, FPS: %d", elapsedTime, (int)(1.0 / elapsedTime));
-
-            while (apiUtils.GetTime() - prevTimestamp < minElapsedTime) {
-                window.PollEvents();
-            }
-            prevTimestamp = apiUtils.GetTime();
-        }
-    }
-    catch (std::exception ex) {
-        _logger->LogError(ex.what());
-    }
-}
-
-TRGame::TRGame() : _screenPosition(glm::vec2(0))
-{
 }
 
 static float expV = 0;
 static float factor = 0;
 static glm::vec2 mouseDragStart;
 static glm::vec2 oldScreenPos;
-void TRGame::update()
-{
-    auto& controller = _engine->GetWindow().GetInputController();
 
-    if (controller.IsKeyDowned(trv2::TRV2KeyCode::TRV2_A_KEY)) {
+void TRGame::Update(double deltaTime)
+{
+    auto& controller = _engine->GetGameWindow()->GetInputController();
+
+    if (controller.IsKeyDowned(trv2::TRV2KeyCode::TRV2_A_KEY))
+    {
         _screenPosition.x -= 20;
     }
-    else if (controller.IsKeyDowned(trv2::TRV2KeyCode::TRV2_D_KEY)) {
+    else if (controller.IsKeyDowned(trv2::TRV2KeyCode::TRV2_D_KEY))
+    {
         _screenPosition.x += 20;
     }
-    else if (controller.IsKeyDowned(trv2::TRV2KeyCode::TRV2_W_KEY)) {
+    else if (controller.IsKeyDowned(trv2::TRV2KeyCode::TRV2_W_KEY))
+    {
         _screenPosition.y += 20;
     }
-    else if (controller.IsKeyDowned(trv2::TRV2KeyCode::TRV2_S_KEY)) {
+    else if (controller.IsKeyDowned(trv2::TRV2KeyCode::TRV2_S_KEY))
+    {
         _screenPosition.y -= 20;
     }
 
@@ -95,20 +83,22 @@ void TRGame::update()
 
     auto pos = controller.GetMousePos();
 
-    if (controller.IsMouseClicked(trv2::TRV2MouseButtonCode::LEFT_BUTTON)) {
+    if (controller.IsMouseClicked(trv2::TRV2MouseButtonCode::LEFT_BUTTON))
+    {
         mouseDragStart = controller.GetMousePos();
         oldScreenPos = _screenPosition;
     }
-    if (controller.IsMouseDowned(trv2::TRV2MouseButtonCode::LEFT_BUTTON)) {
+    if (controller.IsMouseDowned(trv2::TRV2MouseButtonCode::LEFT_BUTTON))
+    {
         auto moveDir = (controller.GetMousePos() - mouseDragStart) / factor;
         _screenPosition = oldScreenPos - moveDir;
     }
 }
 
-void TRGame::draw()
+void TRGame::Draw(double deltaTime)
 {
-    auto& window = _engine->GetWindow();
-    auto clientSize = window.GetWindowSize();
+    auto window = _engine->GetGameWindow();
+    auto clientSize = window->GetWindowSize();
 
     auto projection = glm::ortho(0.f, (float)clientSize.x,
             0.f, (float)clientSize.y);
@@ -116,10 +106,7 @@ void TRGame::draw()
     auto translation = glm::scale(glm::vec3(factor));
     translation = glm::translate(translation, glm::vec3(-_screenPosition, 0));
 
-
-    auto& spriteRenderer = _engine->GetSpriteRenderer();
-
-    spriteRenderer.Begin(projection * translation);
+    _spriteRenderer->Begin(projection * translation);
     {
         auto renderWidth = clientSize.x / factor;
         auto renderHeight = clientSize.y / factor;
@@ -135,24 +122,10 @@ void TRGame::draw()
         topRight.y = std::max(0, std::min(_gameWorld->GetHeight() - 1, topRight.y));
 
         trv2::RectI viewRect(botLeft, topRight - botLeft);
-        _gameWorld->RenderWorld(spriteRenderer, viewRect);
+        _gameWorld->RenderWorld(trv2::ptr(_spriteRenderer), viewRect);
     }
-    spriteRenderer.End();
+    _spriteRenderer->End();
 }
 
-
-void TRGame::logGameInfo()
-{
-    _logger->LogInfo("TR Game Started");
-}
-
-void TRGame::loadEngine(int argc, char** argv)
-{
-    _engine = std::make_unique<trv2::TREngine>();
-    _engine->Initialize(argc, argv);
-}
-
-void TRGame::loadGameContent()
-{
-    _gameWorld = std::make_unique<GameWorld>(1000, 1000);
-}
+void TRGame::Exit()
+{}
