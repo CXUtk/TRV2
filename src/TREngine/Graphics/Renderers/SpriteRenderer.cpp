@@ -17,7 +17,7 @@ static const BatchVertex2D simpleQuadVertices[4] = {
 	BatchVertex2D(glm::vec2(1, 1), glm::vec2(1, 1), glm::vec4(1))
 };
 
-static const GLuint simpleQuadIndicies[6] = { 0, 1, 3, 0, 3, 2 };
+static constexpr GLuint simpleQuadIndicies[6] = { 0, 1, 3, 0, 3, 2 };
 static constexpr int MaxQuadsPerBatch = 1 << 18;
 static constexpr int MaxVerticesPerBatch = MaxQuadsPerBatch * 4;
 static constexpr int MaxIndiciesPerBatch = MaxQuadsPerBatch * 6;
@@ -110,8 +110,6 @@ void SpriteRenderer::pushTextureQuad(const ITexture2D* texture, glm::vec2 tpos, 
 	{
 		flushBatch();
 	}
-	auto texId = texture->GetId();
-
 	int slotId;
 	if ((slotId = findUsedTexture(texture)) == -1)
 	{
@@ -119,6 +117,7 @@ void SpriteRenderer::pushTextureQuad(const ITexture2D* texture, glm::vec2 tpos, 
 		{
 			flushBatch();
 		}
+		slotId = _currentTextureSlots;
 		_usedTextures[_currentTextureSlots++] = texture->GetId();
 	}
 
@@ -138,11 +137,10 @@ void SpriteRenderer::pushTextureQuad(const ITexture2D* texture, glm::vec2 tpos, 
 		auto vpos = (rotation == 0.f) ? (pos) : (transform * pos);
 
 		auto& curV = _vertices[_currentVertex];
-		curV.Position.x = vpos.x + tpos.x;
-		curV.Position.y = vpos.y + tpos.y;
+		curV.Position = vpos + tpos;
 		curV.TextureCoords = simpleQuadVertices[i].TextureCoords;
 		curV.Color = color;
-		curV.TextureIndex = slotId;
+		curV.TextureIndex = (float)slotId;
 
 		_currentVertex++;
 	}

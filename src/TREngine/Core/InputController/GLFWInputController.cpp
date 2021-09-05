@@ -60,7 +60,7 @@ GLFWInputController::GLFWInputController(GLFWwindow* window) : _window(window), 
     initializeCodeMapping();
     auto mouseScrollCallbackFunction = [](GLFWwindow* window, double xoffset, double yoffset) {
         auto gameWindow = (GLFWGameWindow*)glfwGetWindowUserPointer(window);
-        ((GLFWInputController&)gameWindow->GetInputController()).ScrollWheel(glm::vec2(xoffset, yoffset));
+        ((GLFWInputController*)gameWindow->GetInputController())->ScrollWheel(glm::vec2(xoffset, yoffset));
     };
     glfwSetScrollCallback(_window, mouseScrollCallbackFunction);
 }

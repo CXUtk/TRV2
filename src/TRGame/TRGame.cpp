@@ -53,45 +53,50 @@ void TRGame::Initialize(trv2::TREngine* engine)
 }
 
 static float expV = 0;
-static float factor = 0;
+static float factor = 1;
 static glm::vec2 mouseDragStart;
 static glm::vec2 oldScreenPos;
+static glm::vec2 oldAnchorPos = glm::vec2(0);
 
 void TRGame::Update(double deltaTime)
 {
-    auto& controller = _engine->GetGameWindow()->GetInputController();
+    auto controller = _engine->GetGameWindow()->GetInputController();
 
-    if (controller.IsKeyDowned(trv2::TRV2KeyCode::TRV2_A_KEY))
+    if (controller->IsKeyDowned(trv2::TRV2KeyCode::TRV2_A_KEY))
     {
         _screenPosition.x -= 20;
     }
-    else if (controller.IsKeyDowned(trv2::TRV2KeyCode::TRV2_D_KEY))
+    else if (controller->IsKeyDowned(trv2::TRV2KeyCode::TRV2_D_KEY))
     {
         _screenPosition.x += 20;
     }
-    else if (controller.IsKeyDowned(trv2::TRV2KeyCode::TRV2_W_KEY))
+    else if (controller->IsKeyDowned(trv2::TRV2KeyCode::TRV2_W_KEY))
     {
         _screenPosition.y += 20;
     }
-    else if (controller.IsKeyDowned(trv2::TRV2KeyCode::TRV2_S_KEY))
+    else if (controller->IsKeyDowned(trv2::TRV2KeyCode::TRV2_S_KEY))
     {
         _screenPosition.y -= 20;
     }
 
-    expV += controller.GetScrollValue().y * 0.1f;
-    factor = std::exp(expV);
+    auto pos = controller->GetMousePos();
 
-    auto pos = controller.GetMousePos();
-
-    if (controller.IsMouseClicked(trv2::TRV2MouseButtonCode::LEFT_BUTTON))
+    if (controller->IsMouseClicked(trv2::TRV2MouseButtonCode::LEFT_BUTTON))
     {
-        mouseDragStart = controller.GetMousePos();
+        mouseDragStart = controller->GetMousePos();
         oldScreenPos = _screenPosition;
     }
-    if (controller.IsMouseDowned(trv2::TRV2MouseButtonCode::LEFT_BUTTON))
+    if (controller->IsMouseDowned(trv2::TRV2MouseButtonCode::LEFT_BUTTON))
     {
-        auto moveDir = (controller.GetMousePos() - mouseDragStart) / factor;
+        auto moveDir = (controller->GetMousePos() - mouseDragStart) / factor;
         _screenPosition = oldScreenPos - moveDir;
+    }
+
+    if (controller->GetScrollValue().y != 0)
+    {
+        oldAnchorPos = _screenPosition + controller->GetMousePos() / factor;
+        expV += controller->GetScrollValue().y * 0.1f;
+        factor = std::exp(expV);
     }
 }
 
@@ -99,12 +104,17 @@ void TRGame::Draw(double deltaTime)
 {
     auto window = _engine->GetGameWindow();
     auto clientSize = window->GetWindowSize();
+    auto controller = _engine->GetGameWindow()->GetInputController();
 
+    auto worldOffset = controller->GetMousePos() / factor;
     auto projection = glm::ortho(0.f, (float)clientSize.x,
             0.f, (float)clientSize.y);
 
-    auto translation = glm::scale(glm::vec3(factor));
-    translation = glm::translate(translation, glm::vec3(-_screenPosition, 0));
+    auto translation = glm::identity<glm::mat4>();
+    translation = glm::translate(translation, glm::vec3(+oldAnchorPos, 0));
+    translation = glm::scale(translation, glm::vec3(factor));
+    translation = glm::translate(translation, glm::vec3(-oldAnchorPos, 0));
+    //translation = glm::translate(translation, glm::vec3(-_screenPosition, 0));
 
     _spriteRenderer->Begin(projection * translation);
     {
@@ -121,7 +131,8 @@ void TRGame::Draw(double deltaTime)
         topRight.x = std::max(0, std::min(_gameWorld->GetWidth() - 1, topRight.x));
         topRight.y = std::max(0, std::min(_gameWorld->GetHeight() - 1, topRight.y));
 
-        trv2::RectI viewRect(botLeft, topRight - botLeft);
+        //trv2::RectI viewRect(botLeft, topRight - botLeft);
+        trv2::RectI viewRect(glm::vec2(0), glm::vec2(1000, 1000));
         _gameWorld->RenderWorld(trv2::ptr(_spriteRenderer), viewRect);
     }
     _spriteRenderer->End();

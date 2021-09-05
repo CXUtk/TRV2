@@ -58,7 +58,7 @@ public:
 	virtual bool ShouldClose() const = 0;
 	virtual void PollEvents() = 0;
 
-	virtual const IInputController& GetInputController() const = 0;
+	virtual const IInputController* GetInputController() const = 0;
 
 	virtual glm::ivec2 GetWindowSize() const = 0;
 };
