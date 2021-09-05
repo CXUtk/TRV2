@@ -4,14 +4,84 @@
 #include <TREngine_Interfaces.h>
 
 TRV2_NAMESPACE_BEGIN
+enum class BufferDataType
+{
+    FLOAT,
+    INT,
+    UNSIGNED_INT,
+    SHORT,
+    UNSIGNED_SHORT,
+    BYTE,
+    UNSIGNED_BYTE,
+    __COUNT
+};
+
+enum class BufferHint
+{
+    STATIC_DRAW,
+    DYNAMIC_DRAW,
+    __COUNT
+};
+
+enum class BufferType
+{
+    ARRAY_BUFFER,
+    INDEX_BUFFER,
+    __COUNT
+};
+
+enum class PrimitiveType
+{
+    TRIANGLE_LIST,
+    TRIANGLE_STRIP,
+    LINE_LIST,
+    LINE_STRIP,
+    POINTS,
+    __COUNT
+};
+
+
+using IGraphicsHandle = unsigned int;
+class VertexLayout;
+
+
+/**
+ * @brief Graphics device interface. Includes platform independent operations to create and draw rendering objects.
+*/
 class IGraphicsDevice
 {
 public:
+    IGraphicsDevice(const EngineSettings* clientConfig) {}
     virtual ~IGraphicsDevice() = 0 {};
-    virtual void Initialize(const EngineSettings& clientConfig) = 0;
     virtual std::shared_ptr<ISpriteRenderer> CreateSpriteRenderer() const = 0;
+    virtual void SetupVertexAttributes(const VertexLayout& layout) const = 0;
+
+    virtual IGraphicsHandle CreateVertexArray() const = 0;
+    virtual IGraphicsHandle CreateBuffer() const = 0;
+
+    virtual void CreateVertexArrays(int size, IGraphicsHandle* hOut) const = 0;
+    virtual void CreateBuffers(int size, IGraphicsHandle* hOut) const = 0;
+
+    virtual void SetBufferData(BufferType type, IGraphicsHandle handle, 
+        size_t size, const void* data, BufferHint bufferHint) const = 0;
+    virtual void ChangeBufferData(BufferType type, IGraphicsHandle handle, 
+        size_t offset, size_t size, const void* data) const = 0;
+
+    virtual void BindBuffer(BufferType type, IGraphicsHandle handle) const = 0;
+
+    virtual void BindVertexArray(IGraphicsHandle handle) const = 0;
+    virtual void UnbindVertexArray() const = 0;
+
+    virtual void BindTexture2DSlot(int slot, IGraphicsHandle textureHandle) const = 0;
+
+    virtual int GetMaxTextureSlots() const = 0;
+
+    virtual void DrawIndexedPrimitives(PrimitiveType type, size_t count, BufferDataType dataType, size_t offset) const = 0;
 };
 
+/**
+ * @brief Platform indenpendent shader object interface
+*/
 class IShader 
 {
 public:
@@ -26,6 +96,9 @@ public:
 private:
 };
 
+/**
+ * @brief 
+*/
 class ISpriteRenderer 
 {
 public:
@@ -36,12 +109,15 @@ public:
 
     virtual void Draw(glm::vec2 pos, glm::vec2 size,
         glm::vec2 origin, float rotation, const glm::vec4& color) = 0;
-    virtual void Draw(const ITexture2D& texture, glm::vec2 pos, glm::vec2 size,
+    virtual void Draw(const ITexture2D* texture, glm::vec2 pos, glm::vec2 size,
         glm::vec2 origin, float rotation, const glm::vec4& color) = 0;
 
 private:
 };
 
+/**
+ * @brief Platform indenpendent 2d texture object interface
+*/
 class ITexture2D 
 {
 public:
@@ -50,8 +126,7 @@ public:
     virtual int GetWidth() const = 0;
     virtual int GetHeight() const = 0;
 
-    virtual unsigned int GetId() const = 0;
-    virtual void Bind(int slot) const = 0;
+    virtual IGraphicsHandle GetId() const = 0;
 private:
 };
 TRV2_NAMESPACE_END

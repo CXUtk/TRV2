@@ -26,7 +26,7 @@ add_library("TRV2_Engine" STATIC
 "Assets/Loaders/OpenGLTextureLoader.cpp"
 "Graphics/Textures/OpenGLTexture2D.cpp"
 "Core/Initializer/GLFWInitializer.cpp"
-)
+ "Graphics/Structures/VertexLayout.h" "Graphics/Structures/VertexLayout.cpp")
 
 
 message(STATUS "${PROJECT_SOURCE_DIR}")
@@ -40,8 +40,12 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 
 # 添加库引用（引擎和游戏只用添加一次）
-add_subdirectory("../../ext/libs/glad" "${PROJECT_BINARY_DIR}/libs/glad")
-add_subdirectory("../../ext/libs/GLFW" "${PROJECT_BINARY_DIR}/libs/GLFW") 
+set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
+set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
+
+add_subdirectory("../../ext/libs/glad" "${PROJECT_BINARY_DIR}/libs/glad" EXCLUDE_FROM_ALL)
+add_subdirectory("../../ext/libs/GLFW" "${PROJECT_BINARY_DIR}/libs/GLFW" EXCLUDE_FROM_ALL) 
 add_subdirectory("../../ext/libs/SJson" "${PROJECT_BINARY_DIR}/libs/SJson")
 
 find_package(OpenGL REQUIRED)
@@ -53,7 +57,7 @@ message(STATUS "${PROJECT_BINARY_DIR}")
 
 # Include 目录
 include_directories("${PROJECT_SOURCE_DIR}/../../generated")
-include_directories("${PROJECT_SOURCE_DIR}/../../ext/includes")
+include_directories(SYSTEM "${PROJECT_SOURCE_DIR}/../../ext/includes")
 include_directories("${PROJECT_SOURCE_DIR}")
 
 

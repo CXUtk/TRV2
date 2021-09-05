@@ -11,10 +11,8 @@ TRV2_NAMESPACE_BEGIN
 class GLFWGameWindow : public IGameWindow
 {
 public:
-	GLFWGameWindow();
+	GLFWGameWindow(const EngineSettings* config);
 	~GLFWGameWindow() override;
-
-	void Initialize(const EngineSettings& config) override;
 
 	void BeginFrame() override;
 	void EndFrame() override;

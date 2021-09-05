@@ -29,16 +29,10 @@ add_executable("TRV2_Game"
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
-if ( CMAKE_COMPILER_IS_GNUCC )
-    target_compile_options("TRV2_Game" PRIVATE "-Wall -Wextra")
-endif()
-if ( MSVC )
-    target_compile_options("TRV2_Game" PRIVATE "/W4")
-endif()
 
 # Include 目录
-include_directories("${PROJECT_SOURCE_DIR}/generated")
-include_directories("${PROJECT_SOURCE_DIR}/ext/includes")
+include_directories(SYSTEM "${PROJECT_SOURCE_DIR}/generated")
+include_directories(SYSTEM "${PROJECT_SOURCE_DIR}/ext/includes")
 include_directories("${PROJECT_SOURCE_DIR}/src/TREngine")
 include_directories("${PROJECT_SOURCE_DIR}/src")
 
@@ -55,6 +49,8 @@ message(STATUS "${PROJECT_BINARY_DIR}")
 
 add_custom_command(TARGET "TRV2_Game" PRE_BUILD
                    COMMAND python ${PROJECT_SOURCE_DIR}/encoding.py "${TRV2_GAME_SRC_DIR}" "utf-8-sig")
+add_custom_command(TARGET "TRV2_Game" PRE_BUILD
+                   COMMAND python ${PROJECT_SOURCE_DIR}/encoding.py "${PROJECT_SOURCE_DIR}/Resources" "utf-8-sig")
 add_custom_command(TARGET "TRV2_Game" POST_BUILD
                    COMMAND python ${PROJECT_SOURCE_DIR}/build.py "${PROJECT_SOURCE_DIR}/Resources" "${PROJECT_BINARY_DIR}")
 

@@ -11,13 +11,10 @@ TRV2_NAMESPACE_BEGIN
 class TREngine
 {
 public:
-    TREngine();
+    TREngine(int argc, char** argv, TRApplication* application);
     ~TREngine();
 
-    void Initialize(int argc, char** argv);
     void SetApplication(TRApplication* application);
-
-    void LoadAllAssets();
     void Run();
 
     double GetGameTime() const;
@@ -25,41 +22,42 @@ public:
     /**
      * @brief Get the settings of engine.
     */
-    const EngineSettings& GetEngineSetting() const
+    const EngineSettings* GetEngineSetting() const
     {
-        return trv2::cref(_engineSettings);
+        return _engineSettings.get();
     }
 
     /**
      * @brief Get the graphics device.
     */
-    const IGraphicsDevice& GetGraphicsDevice() const
+    const IGraphicsDevice* GetGraphicsDevice() const
     {
-        return trv2::cref(_graphicsDevice);
+        return _graphicsDevice.get();
     }
 
     /**
      * @brief Get the game window
     */
-    const IGameWindow& GetGameWindow() const
+    const IGameWindow* GetGameWindow() const
     {
-        return trv2::cref(_gameWindow);
+        return _gameWindow.get();
     }
 
-    const AssetsManager& GetAssetsManager() const
+    const AssetsManager* GetAssetsManager() const
     {
-        return trv2::cref(_assetsManager);
+        return _assetsManager.get();
     }
 
-    const Logger& GetLogger() const
+    const Logger* GetLogger() const
     {
-        return trv2::cref(_logger);
+        return _logger.get();
     }
 private:
     // 加载函数
     void loadSupportiveSystem();
     void loadGraphicsSystem();
     void loadLaunchSettings();
+    void useApplication();
 
     std::shared_ptr<EngineSettings> _engineSettings;
     std::shared_ptr<IGraphicsDevice> _graphicsDevice;

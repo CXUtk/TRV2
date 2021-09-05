@@ -48,9 +48,8 @@ enum class TRV2MouseButtonCode
 class IGameWindow 
 {
 public:
+	IGameWindow(const EngineSettings* config) {}
 	virtual ~IGameWindow() = 0 {};
-
-	virtual void Initialize(const EngineSettings& config) = 0;
 
 	virtual void BeginFrame() = 0;
 	virtual void EndFrame() = 0;
@@ -89,9 +88,8 @@ public:
 class IEngineInitializer
 {
 public:
+	IEngineInitializer(const EngineSettings* settings) {}
 	virtual ~IEngineInitializer() = 0 {};
-
-	virtual void Initialize(const EngineSettings& settings) = 0;
 	
 	virtual std::shared_ptr<IGraphicsDevice> GetGraphicsDevice() const = 0;
 	virtual std::shared_ptr<IGameWindow> GetGameWindow() const = 0;

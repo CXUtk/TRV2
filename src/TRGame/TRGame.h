@@ -22,9 +22,9 @@ public:
         return _engine;
     }
 
-    const trv2::Logger& GetLogger() const
+    const trv2::Logger* GetLogger() const
     {
-        return trv2::cref(_logger);
+        return _logger.get();
     }
 
 private:

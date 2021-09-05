@@ -3,8 +3,8 @@
 
 TRV2_NAMESPACE_BEGIN
 /**
- * @brief The main class of TREngine.
- * Provides a variety of interfaces, function classes for games
+ * @brief The main application class used by TREngine.
+ * This class if for game logic, you can implement them by inheriting this class.
 */
 class TRApplication {
 public:

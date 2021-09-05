@@ -10,29 +10,27 @@
 #include <TRApplication.h>
 
 TRV2_NAMESPACE_BEGIN
- TREngine::TREngine()
+ TREngine::TREngine(int argc, char** argv, TRApplication* application)
  {
+    _logger = std::make_unique<Logger>();
+
+    try
+    {
+        loadLaunchSettings();
+        loadSupportiveSystem();
+        loadGraphicsSystem();
+
+        SetApplication(application);
+    }
+    catch (std::exception ex)
+    {
+        _logger->LogError("Error: %s", ex.what());
+        throw;
+    }
  }
 
  TREngine::~TREngine()
  {
- }
-
- void TREngine::Initialize(int argc, char** argv)
- {
-     _logger = std::make_unique<Logger>();
-
-     try {
-         loadLaunchSettings();
-         loadSupportiveSystem();
-         loadGraphicsSystem();
-
-         _application->Initialize(this);
-     }
-     catch (std::exception ex) {
-         _logger->LogError("Error: %s", ex.what());
-         throw;
-     }
  }
 
  void TREngine::Run()
@@ -55,7 +53,6 @@ TRV2_NAMESPACE_BEGIN
          _gameWindow->EndFrame();
          _gameWindow->PollEvents();
 
-         auto elapsedTime = GetGameTime() - prevTimestamp;
          while (GetGameTime() - prevTimestamp < minElapsedTime)
          {
              _gameWindow->PollEvents();
@@ -63,10 +60,6 @@ TRV2_NAMESPACE_BEGIN
      }
 
      _application->Exit();
- }
-
- void TREngine::LoadAllAssets()
- {
  }
 
  double TREngine::GetGameTime() const
@@ -84,8 +77,7 @@ TRV2_NAMESPACE_BEGIN
      _logger->LogInfo("Loading graphics system");
 
      // 这里 hard code 了一下OpenGL的API，因为第一阶段项目只考虑OpenGL
-     GLFWInitializer intitializer;
-     intitializer.Initialize(cref(_engineSettings));
+     GLFWInitializer intitializer(trv2::cptr(_engineSettings));
 
      _graphicsDevice = intitializer.GetGraphicsDevice();
      _gameWindow = intitializer.GetGameWindow();
@@ -103,8 +95,14 @@ TRV2_NAMESPACE_BEGIN
      _logger->LogInfo("Current Engine Version: %s", _engineSettings->GetVersionString());
  }
 
+ void TREngine::useApplication()
+ {
+     _application->Initialize(this);
+ }
+
  void TREngine::SetApplication(TRApplication* application)
  {
      _application = application;
+     useApplication();
  }
 TRV2_NAMESPACE_END

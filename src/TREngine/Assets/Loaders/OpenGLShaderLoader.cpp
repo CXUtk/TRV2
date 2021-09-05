@@ -22,7 +22,7 @@ static GLuint compileShader(const std::string& shaderCode, GLenum shaderType, co
 }
 
 
-std::shared_ptr<OpenGLShader> OpenGLShaderLoader::LoadOpenGLShader(const std::string& vertexFile, const std::string& fragmentFile)
+std::shared_ptr<OpenGLShader> OpenGLShaderLoader::CreateOpenGLShaderFromFile(const std::string& vertexFile, const std::string& fragmentFile)
 {
 	auto vertexShader = ReadAllStringFromFile(vertexFile), fragmentShader = ReadAllStringFromFile(fragmentFile);
 	auto vertex = compileShader(vertexShader, GL_VERTEX_SHADER, vertexFile);

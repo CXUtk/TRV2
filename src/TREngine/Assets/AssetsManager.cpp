@@ -27,6 +27,6 @@ std::shared_ptr<ITexture2D> AssetsManager::GetTexture2D(const std::string& name)
 
 void AssetsManager::loadBuiltinAssets()
 {
-	_texture2DTable["icon"] = OpenGLTextureLoader::CreateTexture2D("Resources/Images/icon.png");
+	_texture2DTable["icon"] = OpenGLTextureLoader::CreateTexture2DFromFile("Resources/Images/icon.png");
 }
 TRV2_NAMESPACE_END

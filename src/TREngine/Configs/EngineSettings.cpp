@@ -17,5 +17,7 @@ EngineSettings::EngineSettings()
 		TRV2_ENGINE_VERSION_TWEAK);
 
 	_graphicsAPIType = GraphicsAPIType::OpenGL;
+
+	_windowResizable = false;
 }
 TRV2_NAMESPACE_END

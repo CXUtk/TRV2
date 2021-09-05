@@ -25,7 +25,7 @@ TRGame::~TRGame()
 }
 
 
-TRGame::TRGame() : _screenPosition(glm::vec2(0))
+TRGame::TRGame() : _screenPosition(glm::vec2(0)), _engine(nullptr)
 {
 }
 
@@ -46,7 +46,7 @@ void TRGame::Initialize(trv2::TREngine* engine)
     _logger = std::make_unique<trv2::Logger>();
 
     _engine = engine;
-    _spriteRenderer = _engine->GetGraphicsDevice().CreateSpriteRenderer();
+    _spriteRenderer = _engine->GetGraphicsDevice()->CreateSpriteRenderer();
 
     logGameInfo();
     loadGameContent();
@@ -59,7 +59,7 @@ static glm::vec2 oldScreenPos;
 
 void TRGame::Update(double deltaTime)
 {
-    auto& controller = _engine->GetGameWindow().GetInputController();
+    auto& controller = _engine->GetGameWindow()->GetInputController();
 
     if (controller.IsKeyDowned(trv2::TRV2KeyCode::TRV2_A_KEY))
     {
@@ -97,8 +97,8 @@ void TRGame::Update(double deltaTime)
 
 void TRGame::Draw(double deltaTime)
 {
-    auto& window = _engine->GetGameWindow();
-    auto clientSize = window.GetWindowSize();
+    auto window = _engine->GetGameWindow();
+    auto clientSize = window->GetWindowSize();
 
     auto projection = glm::ortho(0.f, (float)clientSize.x,
             0.f, (float)clientSize.y);
@@ -106,10 +106,7 @@ void TRGame::Draw(double deltaTime)
     auto translation = glm::scale(glm::vec3(factor));
     translation = glm::translate(translation, glm::vec3(-_screenPosition, 0));
 
-
-    auto& spriteRenderer = _engine->GetGraphicsDevice().CreateSpriteRenderer();
-
-    spriteRenderer->Begin(projection * translation);
+    _spriteRenderer->Begin(projection * translation);
     {
         auto renderWidth = clientSize.x / factor;
         auto renderHeight = clientSize.y / factor;
@@ -125,9 +122,9 @@ void TRGame::Draw(double deltaTime)
         topRight.y = std::max(0, std::min(_gameWorld->GetHeight() - 1, topRight.y));
 
         trv2::RectI viewRect(botLeft, topRight - botLeft);
-        _gameWorld->RenderWorld(trv2::ref(spriteRenderer), viewRect);
+        _gameWorld->RenderWorld(trv2::ptr(_spriteRenderer), viewRect);
     }
-    spriteRenderer->End();
+    _spriteRenderer->End();
 }
 
 void TRGame::Exit()

@@ -10,10 +10,8 @@ TRV2_NAMESPACE_BEGIN
 class GLFWInitializer : public IEngineInitializer
 {
 public:
-	GLFWInitializer();
+	GLFWInitializer(const EngineSettings* config);
 	~GLFWInitializer() override;
-
-	void Initialize(const EngineSettings& config) override;
 
 	std::shared_ptr<IGraphicsDevice> GetGraphicsDevice() const override
 	{

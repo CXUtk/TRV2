@@ -7,23 +7,12 @@ static void framebuffer_size_callback(GLFWwindow* window, int width, int height)
     glViewport(0, 0, width, height);
 }
 
-GLFWGameWindow::GLFWGameWindow() : _window(nullptr)
+GLFWGameWindow::GLFWGameWindow(const EngineSettings* config) : IGameWindow(config)
 {
-}
-
-GLFWGameWindow::~GLFWGameWindow()
-{
-    if (_window) {
-        glfwDestroyWindow(_window);
-    }
-    _window = nullptr;
-}
-
-void GLFWGameWindow::Initialize(const EngineSettings& config)
-{
-    _window = glfwCreateWindow(config.GetWindowWidth(), config.GetWindowHeight(),
-        config.GetWindowTitle(), nullptr, nullptr);
-    if (!_window) {
+    _window = glfwCreateWindow(config->GetWindowWidth(), config->GetWindowHeight(),
+        config->GetWindowTitle(), nullptr, nullptr);
+    if (!_window)
+    {
         throw std::exception("Failed to create window");
     }
     glfwSetWindowUserPointer(_window, this);
@@ -32,6 +21,16 @@ void GLFWGameWindow::Initialize(const EngineSettings& config)
 
     _inputController = std::make_shared<GLFWInputController>(_window);
 }
+
+GLFWGameWindow::~GLFWGameWindow()
+{
+    if (_window) {
+        glfwDestroyWindow(_window);
+    }
+    _window = nullptr;
+    glfwTerminate();
+}
+
 
 void GLFWGameWindow::BeginFrame()
 {

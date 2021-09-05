@@ -13,7 +13,7 @@ public:
 	void SetTile(int x, int y, const Tile& tile);
 
 
-	void RenderWorld(trv2::ISpriteRenderer& renderer, const trv2::RectI& renderRect);
+	void RenderWorld(trv2::ISpriteRenderer* renderer, const trv2::RectI& renderRect);
 
 	static constexpr int TILE_SIZE = 16;
 

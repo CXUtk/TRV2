@@ -5,9 +5,7 @@
 int main(int argc, char** argv)
 {
     try {
-        trv2::TREngine engine;
-        engine.SetApplication(&TRGame::GetInstance());
-        engine.Initialize(argc, argv);
+        trv2::TREngine engine(argc, argv, &TRGame::GetInstance());
         engine.Run();
     }
     catch (std::exception ex) {
