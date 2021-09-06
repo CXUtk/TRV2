@@ -36,15 +36,15 @@ private:
 	GLFWwindow* _window;
 
 	// Keys
-	std::bitset<TRV2_Input_KeyCode_SIZE> _curKeysDown;
-	std::bitset<TRV2_Input_KeyCode_SIZE> _wasKeysDown;
+	std::bitset<(int)TRV2KeyCode::__COUNT> _curKeysDown;
+	std::bitset<(int)TRV2KeyCode::__COUNT> _wasKeysDown;
 
 	// Mouse wheel
 	glm::vec2 _scrollWheel;
 
 	// Mouse button
-	std::bitset<TRV2_Input_MouseButtonCode_SIZE> _curMouseButtonDown;
-	std::bitset<TRV2_Input_MouseButtonCode_SIZE> _wasMouseButtonDown;
+	std::bitset<(int)TRV2MouseButtonCode::__COUNT> _curMouseButtonDown;
+	std::bitset<(int)TRV2MouseButtonCode::__COUNT> _wasMouseButtonDown;
 
 
 	void initializeCodeMapping();

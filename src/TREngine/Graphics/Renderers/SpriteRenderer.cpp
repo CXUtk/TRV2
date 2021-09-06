@@ -1,12 +1,9 @@
-﻿#include "OpenGLSpriteRenderer.h"
+﻿#include "SpriteRenderer.h"
 #include <glm/glm.hpp>
 #include <glm/gtx/transform.hpp>
 
 #include <algorithm>
 #include <Utils/Logging/Logger.h>
-#include <Assets/Loaders/OpenGLShaderLoader.h>
-#include <Assets/Loaders/OpenGLTextureLoader.h>
-#include <Graphics/Structures/VertexLayout.h>
 #include <Utils/Utils.h>
 
 
@@ -18,18 +15,16 @@ static const BatchVertex2D simpleQuadVertices[4] = {
 	BatchVertex2D(glm::vec2(1, 1), glm::vec2(1, 1), glm::vec4(1))
 };
 
-static const GLuint simpleQuadIndicies[6] = { 0, 1, 3, 0, 3, 2 };
-static constexpr int MaxQuadsPerBatch = 16384;
+static constexpr unsigned int simpleQuadIndicies[6] = { 0, 1, 3, 0, 3, 2 };
+static constexpr int MaxQuadsPerBatch = 1 << 18;
 static constexpr int MaxVerticesPerBatch = MaxQuadsPerBatch * 4;
 static constexpr int MaxIndiciesPerBatch = MaxQuadsPerBatch * 6;
 
-OpenGLSpriteRenderer::OpenGLSpriteRenderer(const IGraphicsDevice* graphicsDevice) : _graphicsDevice(graphicsDevice)
+SpriteRenderer::SpriteRenderer(const IGraphicsDevice* graphicsDevice, IShaderProgram* spriteShader,
+		ITexture2D* pureTexture) : _graphicsDevice(graphicsDevice), 
+	_spriteShaderPure(spriteShader), _whiteTexture(pureTexture)
 {
-	// 初始化资源
-	_spriteShaderPure = OpenGLShaderLoader::CreateOpenGLShaderFromFile("Resources/Shaders/sprite2d.vert",
-			"Resources/Shaders/sprite2d.frag");
-	int whitePixel = 0xffffffff;
-	_whiteTexture = OpenGLTextureLoader::CreateTexture2DFromMemory(1, 1, (unsigned char*)&whitePixel);
+	_batchState.IsBatchBegin = false;
 
 	_spriteShaderPure->Apply();
 
@@ -40,12 +35,12 @@ OpenGLSpriteRenderer::OpenGLSpriteRenderer(const IGraphicsDevice* graphicsDevice
 		_spriteShaderPure->SetParameteri1(string_format("uTextures[%d]", i).c_str(), i);
 	}
 
-	_usedTextures = std::make_unique<IGraphicsHandle[]>(maxTextureSlots);
+	_usedTextures = std::make_unique<const ITexture2D*[]>(maxTextureSlots);
 	_currentTextureSlots = 0;
 
 
 	// 预先生成顶点index列表
-	_vertexIndices = std::make_unique<GLuint[]>(MaxIndiciesPerBatch);
+	_vertexIndices = std::make_unique<unsigned int[]>(MaxIndiciesPerBatch);
 	_vertices = std::make_unique<BatchVertex2D[]>(MaxVerticesPerBatch);
 	int cur = 0;
 	for (int i = 0; i < MaxVerticesPerBatch; i += 4)
@@ -63,7 +58,7 @@ OpenGLSpriteRenderer::OpenGLSpriteRenderer(const IGraphicsDevice* graphicsDevice
 	_graphicsDevice->SetBufferData(BufferType::ARRAY_BUFFER, _quadBuffers[0], 
 		sizeof(BatchVertex2D) * MaxVerticesPerBatch, nullptr, BufferHint::DYNAMIC_DRAW);
 	_graphicsDevice->SetBufferData(BufferType::INDEX_BUFFER, _quadBuffers[1],
-		sizeof(GLuint) * MaxIndiciesPerBatch, _vertexIndices.get(), BufferHint::STATIC_DRAW);
+		sizeof(unsigned int) * MaxIndiciesPerBatch, _vertexIndices.get(), BufferHint::STATIC_DRAW);
 
 	VertexLayout vertexLayout;
 	vertexLayout.Add(VertexElement(offsetof(BatchVertex2D, Position), 2, BufferDataType::FLOAT));
@@ -75,46 +70,45 @@ OpenGLSpriteRenderer::OpenGLSpriteRenderer(const IGraphicsDevice* graphicsDevice
 	_graphicsDevice->UnbindVertexArray();
 }
 
-OpenGLSpriteRenderer::~OpenGLSpriteRenderer()
+SpriteRenderer::~SpriteRenderer()
 {
 }
 
-void OpenGLSpriteRenderer::Begin(const glm::mat4& transform)
+void SpriteRenderer::Begin(const glm::mat4& transform,const BatchSettings& settings)
 {
-	_batchStateStack.push_back(BatchState(transform));
+	if (_batchState.IsBatchBegin)
+	{
+		throw std::exception("SpriteRenderer::Begin cannot be called when one is already began");
+	}
+	_batchState.IsBatchBegin = true;
+	_batchState.WorldTransform = transform;
+	_batchState.Settings = settings;
 	_currentVertex = 0;
 }
 
-void OpenGLSpriteRenderer::End()
+void SpriteRenderer::End()
 {
 	if (_currentVertex) flushBatch();
-	_batchStateStack.pop_back();
+	_batchState.IsBatchBegin = false;
 }
 
-void OpenGLSpriteRenderer::Draw(glm::vec2 pos, glm::vec2 size, glm::vec2 origin, float rotation, const glm::vec4& color)
+void SpriteRenderer::Draw(glm::vec2 pos, glm::vec2 size, glm::vec2 origin, float rotation, const glm::vec4& color)
 {
-	pushTextureQuad(trv2::cptr(_whiteTexture), pos, size, origin, rotation, color);
+	pushTextureQuad(_whiteTexture, pos, size, origin, rotation, color);
 }
 
-void OpenGLSpriteRenderer::Draw(const ITexture2D* texture, glm::vec2 pos, glm::vec2 size,
+void SpriteRenderer::Draw(const ITexture2D* texture, glm::vec2 pos, glm::vec2 size,
 	glm::vec2 origin, float rotation, const glm::vec4& color)
 {
 	pushTextureQuad(texture, pos, size, origin, rotation, color);
 }
 
-glm::mat4 OpenGLSpriteRenderer::getCurrentTransform() const
-{
-	return _batchStateStack.back().WorldTransform;
-}
-
-void OpenGLSpriteRenderer::pushTextureQuad(const ITexture2D* texture, glm::vec2 tpos, glm::vec2 size, glm::vec2 origin, float rotation, const glm::vec4& color)
+void SpriteRenderer::pushTextureQuad(const ITexture2D* texture, glm::vec2 tpos, glm::vec2 size, glm::vec2 origin, float rotation, const glm::vec4& color)
 {
 	if (_currentVertex == MaxVerticesPerBatch)
 	{
 		flushBatch();
 	}
-	auto texId = texture->GetId();
-
 	int slotId;
 	if ((slotId = findUsedTexture(texture)) == -1)
 	{
@@ -122,7 +116,8 @@ void OpenGLSpriteRenderer::pushTextureQuad(const ITexture2D* texture, glm::vec2 
 		{
 			flushBatch();
 		}
-		_usedTextures[_currentTextureSlots++] = texture->GetId();
+		slotId = _currentTextureSlots;
+		_usedTextures[_currentTextureSlots++] = texture;
 	}
 
 	glm::mat2 transform = glm::identity<glm::mat2>();
@@ -141,29 +136,33 @@ void OpenGLSpriteRenderer::pushTextureQuad(const ITexture2D* texture, glm::vec2 
 		auto vpos = (rotation == 0.f) ? (pos) : (transform * pos);
 
 		auto& curV = _vertices[_currentVertex];
-		curV.Position.x = vpos.x + tpos.x;
-		curV.Position.y = vpos.y + tpos.y;
+		curV.Position = vpos + tpos;
 		curV.TextureCoords = simpleQuadVertices[i].TextureCoords;
 		curV.Color = color;
-		curV.TextureIndex = slotId;
+		curV.TextureIndex = (float)slotId;
 
 		_currentVertex++;
 	}
 }
 
 
-void OpenGLSpriteRenderer::flushBatch()
+void SpriteRenderer::flushBatch()
 {
 	int vertexCount = _currentVertex;
 	assert(vertexCount % 4 == 0);
 
-	_graphicsDevice->BindVertexArray(_quadVAO);
+	if (_batchState.Settings.SpriteSortMode == SpriteSortMode::Texture) {
+		std::sort(_vertices.get(), _vertices.get() + vertexCount, [](const trv2::BatchVertex2D& v, const trv2::BatchVertex2D& u) {
+			return v.TextureIndex < u.TextureIndex;
+			});
+	}
 
+	_graphicsDevice->BindVertexArray(_quadVAO);
 	_spriteShaderPure->Apply();
 	// 绑定纹理们
 	bindTextures();
 
-	_spriteShaderPure->SetParameterfm4x4("uWorldTransform", getCurrentTransform());
+	_spriteShaderPure->SetParameterfm4x4("uWorldTransform", _batchState.WorldTransform);
 	// 以最多 MaxVerticesPerBatch 个点为单位，分批绘制线段
 	for (int i = 0; i < _currentVertex; i += MaxVerticesPerBatch)
 	{
@@ -187,7 +186,7 @@ void OpenGLSpriteRenderer::flushBatch()
 	_currentTextureSlots = 0;
 }
 
-void OpenGLSpriteRenderer::bindTextures() const
+void SpriteRenderer::bindTextures() const
 {
 	for (int i = 0; i < _currentTextureSlots; i++)
 	{
@@ -195,11 +194,11 @@ void OpenGLSpriteRenderer::bindTextures() const
 	}
 }
 
-int OpenGLSpriteRenderer::findUsedTexture(const ITexture2D* texture) const
+int SpriteRenderer::findUsedTexture(const ITexture2D* texture) const
 {
 	for (int i = 0; i < _currentTextureSlots; i++)
 	{
-		if (_usedTextures[i] == texture->GetId())
+		if (_usedTextures[i]->GetId() == texture->GetId())
 		{
 			return i;
 		}

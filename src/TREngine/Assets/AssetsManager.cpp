@@ -1,6 +1,7 @@
 ﻿#include "AssetsManager.h"
 #include <Utils/Utils.h>
-#include <Assets/Loaders/OpenGLShaderLoader.h>
+#include <Assets/ResourceConvert/OpenGLRawShader.h>
+#include <Graphics/Shaders/OpenGLShaderProgram.h>
 #include <Assets/Loaders/OpenGLTextureLoader.h>
 
 TRV2_NAMESPACE_BEGIN
@@ -9,24 +10,33 @@ AssetsManager::AssetsManager()
 	loadBuiltinAssets();
 }
 
-std::shared_ptr<IShader> AssetsManager::GetShader(const std::string& name) const
+IShaderProgram* AssetsManager::GetShader(const std::string& name) const
 {
 	if (_shadersTable.find(name) == _shadersTable.end()) {
 		throw std::exception(string_format("Cannot find shader %s", name.c_str()).c_str());
 	}
-	return _shadersTable.at(name);
+	return trv2::ptr(_shadersTable.at(name));
 }
 
-std::shared_ptr<ITexture2D> AssetsManager::GetTexture2D(const std::string& name) const
+ITexture2D* AssetsManager::GetTexture2D(const std::string& name) const
 {
 	if (_texture2DTable.find(name) == _texture2DTable.end()) {
 		throw std::exception(string_format("Cannot find texture 2d %s", name.c_str()).c_str());
 	}
-	return _texture2DTable.at(name);
+	return trv2::ptr(_texture2DTable.at(name));
 }
 
 void AssetsManager::loadBuiltinAssets()
 {
-	_texture2DTable["icon"] = OpenGLTextureLoader::CreateTexture2DFromFile("Resources/Images/icon.png");
+	auto vs = std::make_shared<OpenGLRawShader>(ReadAllStringFromFile("Resources/Shaders/sprite2d.vert").c_str(), ShaderType::VERTEX_SHADER, "sprite2d.vert");
+	auto fs = std::make_shared<OpenGLRawShader>(ReadAllStringFromFile("Resources/Shaders/sprite2d.frag").c_str(), ShaderType::FRAGMENT_SHADER, "sprite2d.frag");
+	_shadersTable["builtin::sprite"] = std::make_shared<OpenGLShaderProgram>(vs, fs);
+
+	int whitePixel = 0xffffffff;
+	_texture2DTable["builtin::sprite"] = OpenGLTextureLoader::CreateTexture2DFromMemory(1, 1, (unsigned char*)&whitePixel);
+}
+void AssetsManager::loadTexture2D()
+{
+
 }
 TRV2_NAMESPACE_END

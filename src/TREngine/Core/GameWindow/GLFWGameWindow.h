@@ -20,7 +20,7 @@ public:
 	bool ShouldClose() const override;
 	void PollEvents() override;
 
-	const IInputController& GetInputController() const override { return trv2::cref(_inputController); }
+	const IInputController* GetInputController() const override { return trv2::cptr(_inputController); }
 
 	glm::ivec2 GetWindowSize() const override;
 private:

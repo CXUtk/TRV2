@@ -13,7 +13,7 @@ public:
 	explicit OpenGLTexture2D(GLuint id, int width, int height);
 	~OpenGLTexture2D() override;
 
-	IGraphicsHandle GetId() const override { return _id; }
+	ITextureHandle GetId() const override { return _id; }
 
 	int GetWidth() const override { return _width; }
 	int GetHeight() const override { return _height; }

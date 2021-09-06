@@ -5,12 +5,18 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
+#include <vector>
 
 TRV2_NAMESPACE_BEGIN
-class OpenGLShader : public IShader
+class OpenGLShaderProgram : public IShaderProgram
 {
 public:
-    explicit OpenGLShader(GLuint programID) : _id(programID) {}
+    explicit OpenGLShaderProgram(std::shared_ptr<IRawShader> vertexShader, std::shared_ptr<IRawShader> fragmentShader);
+    explicit OpenGLShaderProgram(const std::vector<std::shared_ptr<IRawShader>>& shaders);
+
+    virtual ~OpenGLShaderProgram() override;
+
+    virtual IShaderProgramHandle GetHandle() const override { return _handle; }
 
     void Apply() override;
     void SetParameteri1(const std::string& name, int value) override;
@@ -20,7 +26,7 @@ public:
     void SetParameterfvArray(const std::string& name, const float* data, int size) override;
     void SetParameterintvArray(const std::string& name, const int* data, int size) override;
 private:
-    GLuint _id;
+    IShaderProgramHandle _handle;
 };
 TRV2_NAMESPACE_END
 //

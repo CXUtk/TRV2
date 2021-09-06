@@ -14,7 +14,17 @@ public:
     TREngine(int argc, char** argv, TRApplication* application);
     ~TREngine();
 
+    /**
+     * @brief Manually set current application instance
+     * @param application The application instance to run
+    */
     void SetApplication(TRApplication* application);
+
+    std::shared_ptr<SpriteRenderer> CreateSpriteRenderer() const;
+
+    /**
+     * @brief Run the application, or start the game
+    */
     void Run();
 
     double GetGameTime() const;
@@ -42,12 +52,18 @@ public:
     {
         return _gameWindow.get();
     }
-
+    
+    /**
+     * @brief Get the assets manager
+    */
     const AssetsManager* GetAssetsManager() const
     {
         return _assetsManager.get();
     }
 
+    /**
+     * @brief Get logger
+    */
     const Logger* GetLogger() const
     {
         return _logger.get();
@@ -57,6 +73,7 @@ private:
     void loadSupportiveSystem();
     void loadGraphicsSystem();
     void loadLaunchSettings();
+    void loadResources();
     void useApplication();
 
     std::shared_ptr<EngineSettings> _engineSettings;

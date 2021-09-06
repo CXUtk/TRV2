@@ -6,27 +6,29 @@
 #include <TREngine_Interfaces.h>
 #include <Graphics/Graphics_Interfaces.h>
 #include <Graphics/Structures/BatchInfo.h>
+#include <Graphics/Structures/VertexLayout.h>
 
 TRV2_NAMESPACE_BEGIN
-class OpenGLSpriteRenderer : public ISpriteRenderer
+class SpriteRenderer
 {
 public:
-	explicit OpenGLSpriteRenderer(const IGraphicsDevice* graphicsDevice);
-	~OpenGLSpriteRenderer() override;
+	explicit SpriteRenderer(const IGraphicsDevice* graphicsDevice, IShaderProgram * spriteShader,
+		ITexture2D * pureTexture);
+	~SpriteRenderer();
 
-	void Begin(const glm::mat4& transform) override;
-	void End() override;
+	void Begin(const glm::mat4& transform, const BatchSettings& settings);
+	void End();
 
-	void Draw(glm::vec2 pos, glm::vec2 size, glm::vec2 origin, float rotation, const glm::vec4& color) override;
+	void Draw(glm::vec2 pos, glm::vec2 size, glm::vec2 origin, float rotation, const glm::vec4& color);
 	void Draw(const ITexture2D* texture, glm::vec2 pos, glm::vec2 size,
-		glm::vec2 origin, float rotation, const glm::vec4& color) override;
+		glm::vec2 origin, float rotation, const glm::vec4& color);
 
 private:
 	// OpenGL绘制用的
-	IGraphicsHandle _quadVAO;
-	IGraphicsHandle _quadBuffers[2];
+	IVertexBufferHandle _quadVAO;
+	IVertexBufferHandle _quadBuffers[2];
 
-	std::vector<BatchState> _batchStateStack;
+	BatchState _batchState;
 	const IGraphicsDevice* _graphicsDevice;
 
 	// 缓存，顶点，顶点序号等
@@ -35,22 +37,18 @@ private:
 	std::unique_ptr<unsigned int[]> _vertexIndices;
 
 	int _currentTextureSlots;
-	std::unique_ptr<IGraphicsHandle[]> _usedTextures;
+	std::unique_ptr<const ITexture2D*[]> _usedTextures;
 
 
 	// 用到的Shader
-	std::shared_ptr<IShader> _spriteShaderPure;
+	IShaderProgram* _spriteShaderPure;
 
 	// 用到的Texture
-	std::shared_ptr<ITexture2D> _whiteTexture;
+	ITexture2D* _whiteTexture;
 
-	
-	glm::mat4 getCurrentTransform() const;
 
 	void pushTextureQuad(const ITexture2D* texture, glm::vec2 tpos, glm::vec2 size, glm::vec2 origin, float rotation, const glm::vec4& color);
-
 	void flushBatch();
-	
 	int findUsedTexture(const ITexture2D* texture) const;
 	void bindTextures() const;
 };

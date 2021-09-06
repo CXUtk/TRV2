@@ -11,28 +11,27 @@ public:
 	OpenGLGraphicsDevice(const EngineSettings* clientConfig);
 	~OpenGLGraphicsDevice() override;
 
-	std::shared_ptr<ISpriteRenderer> CreateSpriteRenderer() const override;
 	void SetupVertexAttributes(const VertexLayout& layout) const override;
 
-	virtual IGraphicsHandle CreateVertexArray() const override;
-	virtual IGraphicsHandle CreateBuffer() const override;
+	virtual IVertexBufferHandle CreateVertexArray() const override;
+	virtual IVertexBufferHandle CreateBuffer() const override;
 
-	virtual void CreateVertexArrays(int size, IGraphicsHandle* hOut) const override;
-	virtual void CreateBuffers(int size, IGraphicsHandle* hOut) const override;
+	virtual void CreateVertexArrays(int size, IVertexBufferHandle* hOut) const override;
+	virtual void CreateBuffers(int size, IVertexBufferHandle* hOut) const override;
 
-	virtual void SetBufferData(BufferType type, IGraphicsHandle handle, size_t size,
+	virtual void SetBufferData(BufferType type, IVertexBufferHandle handle, size_t size,
 		const void* data, BufferHint bufferHint) const override;
-	virtual void ChangeBufferData(BufferType type, IGraphicsHandle handle,
+	virtual void ChangeBufferData(BufferType type, IVertexBufferHandle handle,
 		size_t offset, size_t size, const void* data) const override;
 
-	virtual void BindBuffer(BufferType type, IGraphicsHandle handle) const override;
+	virtual void BindBuffer(BufferType type, IVertexBufferHandle handle) const override;
 
-	virtual void BindVertexArray(IGraphicsHandle handle) const override;
+	virtual void BindVertexArray(IVertexBufferHandle handle) const override;
 	virtual void UnbindVertexArray() const override;
 
 	virtual void DrawIndexedPrimitives(PrimitiveType type, size_t count, BufferDataType dataType, size_t offset) const override;
 
-	virtual void BindTexture2DSlot(int slot, IGraphicsHandle textureHandle) const override;
+	virtual void BindTexture2DSlot(int slot, const ITexture2D* textureHandle) const override;
 
 	virtual int GetMaxTextureSlots() const override { return _MaxTextureSlotCanUse; }
 private:
