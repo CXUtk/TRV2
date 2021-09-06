@@ -16,6 +16,7 @@ constexpr std::array<unsigned int, T> generateShaderTypeMapper()
     M[(int)ShaderType::VERTEX_SHADER] = GL_VERTEX_SHADER;
     M[(int)ShaderType::FRAGMENT_SHADER] = GL_FRAGMENT_SHADER;
     M[(int)ShaderType::GEOMETRY_SHADER] = GL_GEOMETRY_SHADER;
+    M[(int)ShaderType::COMPUTE_SHADER] = GL_COMPUTE_SHADER;
     return M;
 }
 

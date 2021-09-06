@@ -56,6 +56,9 @@ TRV2_NAMESPACE_BEGIN
              _gameWindow->EndFrame();
 
              _gameWindow->PollEvents();
+
+             double t = GetGameTime() - prevTimestamp;
+             _logger->LogInfo("%lf, %d\n", t, (int)(1 / t));
              while (GetGameTime() - prevTimestamp < minElapsedTime)
              {
                  _gameWindow->PollEvents();

@@ -1,6 +1,6 @@
 ﻿#include "AssetsManager.h"
 #include <Utils/Utils.h>
-#include <Assets/ResourceConvert/OpenGLRawShader.h>
+#include <Graphics/Shaders/OpenGLRawShader.h>
 #include <Graphics/Shaders/OpenGLShaderProgram.h>
 #include <Assets/Loaders/OpenGLTextureLoader.h>
 

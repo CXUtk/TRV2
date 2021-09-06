@@ -9,6 +9,7 @@
 #include <Configs/EngineSettings.h>
 #include <Assets/AssetsManager.h>
 #include <Graphics/Structures/VertexLayout.h>
+#include <thread>
 
 TRV2_NAMESPACE_BEGIN
 template<int T>
@@ -107,8 +108,10 @@ void OpenGLGraphicsDevice::SetBufferData(BufferType type, IVertexBufferHandle ha
 
 void OpenGLGraphicsDevice::ChangeBufferData(BufferType type, IVertexBufferHandle handle, size_t offset, size_t size, const void* data) const
 {
-	glBindBuffer(BufferTypeMapper[(int)type], handle);
-	glBufferSubData(BufferTypeMapper[(int)type], offset, size, data);
+	auto target = BufferTypeMapper[(int)type];
+	glBindBuffer(target, handle);
+
+	glBufferSubData(target, offset, size, data);
 }
 
 void OpenGLGraphicsDevice::BindBuffer(BufferType type, IVertexBufferHandle handle) const

@@ -7,6 +7,7 @@
 #include <Utils/Utils.h>
 
 
+
 TRV2_NAMESPACE_BEGIN
 static const BatchVertex2D simpleQuadVertices[4] = {
 	BatchVertex2D(glm::vec2(0, 0), glm::vec2(0, 0), glm::vec4(1)),
@@ -169,6 +170,7 @@ void SpriteRenderer::flushBatch()
 		// 顶点数据输送
 		int count = std::min(vertexCount - i, MaxVerticesPerBatch);
 		assert(count % 4 == 0);
+
 		_graphicsDevice->ChangeBufferData(BufferType::ARRAY_BUFFER, _quadBuffers[0],
 			0, sizeof(BatchVertex2D) * count, _vertices.get());
 
