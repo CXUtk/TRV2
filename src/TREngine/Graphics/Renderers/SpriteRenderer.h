@@ -12,7 +12,7 @@ TRV2_NAMESPACE_BEGIN
 class SpriteRenderer
 {
 public:
-	explicit SpriteRenderer(const IGraphicsDevice* graphicsDevice, IShader * spriteShader,
+	explicit SpriteRenderer(const IGraphicsDevice* graphicsDevice, IShaderProgram * spriteShader,
 		ITexture2D * pureTexture);
 	~SpriteRenderer();
 
@@ -25,8 +25,8 @@ public:
 
 private:
 	// OpenGL绘制用的
-	IGraphicsHandle _quadVAO;
-	IGraphicsHandle _quadBuffers[2];
+	IVertexBufferHandle _quadVAO;
+	IVertexBufferHandle _quadBuffers[2];
 
 	BatchState _batchState;
 	const IGraphicsDevice* _graphicsDevice;
@@ -37,11 +37,11 @@ private:
 	std::unique_ptr<unsigned int[]> _vertexIndices;
 
 	int _currentTextureSlots;
-	std::unique_ptr<IGraphicsHandle[]> _usedTextures;
+	std::unique_ptr<const ITexture2D*[]> _usedTextures;
 
 
 	// 用到的Shader
-	IShader* _spriteShaderPure;
+	IShaderProgram* _spriteShaderPure;
 
 	// 用到的Texture
 	ITexture2D* _whiteTexture;

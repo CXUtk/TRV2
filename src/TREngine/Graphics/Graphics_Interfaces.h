@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include <string>
+#include <vector>
 #include <glm/glm.hpp>
 #include <TREngine_Interfaces.h>
 
@@ -41,7 +42,11 @@ enum class PrimitiveType
 };
 
 
-using IGraphicsHandle = unsigned int;
+using IVertexBufferHandle = unsigned int;
+using IShaderHandle = unsigned int;
+using IShaderProgramHandle = unsigned int;
+using ITextureHandle = unsigned int;
+
 class VertexLayout;
 
 
@@ -54,38 +59,113 @@ public:
     IGraphicsDevice(const EngineSettings* clientConfig) {}
     virtual ~IGraphicsDevice() = 0 {};
 
+    /**
+     * @brief Set vertex attributes for current binding vertex array object
+     * @param layout The vertex layout used for this vertex array buffer
+    */
     virtual void SetupVertexAttributes(const VertexLayout& layout) const = 0;
 
-    virtual IGraphicsHandle CreateVertexArray() const = 0;
-    virtual IGraphicsHandle CreateBuffer() const = 0;
+    /**
+     * @brief Create a new vertex array object
+     * @return The handle to that vertex array
+    */
+    virtual IVertexBufferHandle CreateVertexArray() const = 0;
 
-    virtual void CreateVertexArrays(int size, IGraphicsHandle* hOut) const = 0;
-    virtual void CreateBuffers(int size, IGraphicsHandle* hOut) const = 0;
+    /**
+     * @brief Create a new buffer object
+     * @return The handle to that vertex buffer
+    */
+    virtual IVertexBufferHandle CreateBuffer() const = 0;
 
-    virtual void SetBufferData(BufferType type, IGraphicsHandle handle, 
+    /**
+     * @brief Create multiple vertex arrays
+     * @param size The number of vertex arrays to create
+     * @param hOut Handler array to store those objects
+    */
+    virtual void CreateVertexArrays(int size, IVertexBufferHandle* hOut) const = 0;
+
+    /**
+     * @brief Create multiple vertex buffers
+     * @param size The number of vertex buffers to create
+     * @param hOut Handler array to store those objects
+    */
+    virtual void CreateBuffers(int size, IVertexBufferHandle* hOut) const = 0;
+
+    /**
+     * @brief Bind the buffer object and set its size
+     * @param type Type of the buffer object
+     * @param handle Handle to the buffer object
+     * @param size Size of the buffer
+     * @param data Data source to initialize this buffer, nullptr if you don't want to initialize
+     * @param bufferHint Hint to this buffer. @see BufferHint
+    */
+    virtual void SetBufferData(BufferType type, IVertexBufferHandle handle,
         size_t size, const void* data, BufferHint bufferHint) const = 0;
-    virtual void ChangeBufferData(BufferType type, IGraphicsHandle handle, 
+
+    /**
+     * @brief Subsitute the data in given buffer object
+     * @param type Type of the buffer object
+     * @param handle Handle to the buffer object
+     * @param offset Copy starting offset of this action
+     * @param size Size of the data
+     * @param data Data source that will be copied to this buffer
+    */
+    virtual void ChangeBufferData(BufferType type, IVertexBufferHandle handle,
         size_t offset, size_t size, const void* data) const = 0;
 
-    virtual void BindBuffer(BufferType type, IGraphicsHandle handle) const = 0;
+    /**
+     * @brief Bind the buffer to current context
+     * @param type Type of the buffer
+     * @param handle Handle of the buffer object
+    */
+    virtual void BindBuffer(BufferType type, IVertexBufferHandle handle) const = 0;
 
-    virtual void BindVertexArray(IGraphicsHandle handle) const = 0;
+    /**
+     * @brief Bind the vertex array object to current context
+     * @param handle Handle of the vertex array object
+    */
+    virtual void BindVertexArray(IVertexBufferHandle handle) const = 0;
+
+    /**
+     * @brief Unbind current vertex array object from context
+    */
     virtual void UnbindVertexArray() const = 0;
 
-    virtual void BindTexture2DSlot(int slot, IGraphicsHandle textureHandle) const = 0;
+    /**
+     * @brief Bind a texture 2d object to current context
+     * @param slot Texture slot in graphics device
+     * @param textureHandle 
+    */
+    virtual void BindTexture2DSlot(int slot, const ITexture2D* texture) const = 0;
 
+    /**
+     * @brief Get maximum texture slot number in this graphics device
+     * @return 
+    */
     virtual int GetMaxTextureSlots() const = 0;
 
+    /**
+     * @brief Draw primitives using indexed buffer from current context
+     * @param type Type of the primitives
+     * @param count Number of such primitives
+     * @param dataType Data type of indicies
+     * @param offset Starting offset of the drawing buffer
+    */
     virtual void DrawIndexedPrimitives(PrimitiveType type, size_t count, BufferDataType dataType, size_t offset) const = 0;
 };
 
 /**
  * @brief Platform indenpendent shader object interface
 */
-class IShader
+class IShaderProgram
 {
 public:
-    virtual ~IShader() = 0 {};
+    IShaderProgram(const std::shared_ptr<IRawShader>& vertexShader, const std::shared_ptr<IRawShader>& fragmentShader) {}
+    IShaderProgram(const std::vector<std::shared_ptr<IRawShader>>& shaders) {}
+
+    virtual ~IShaderProgram() = 0 {};
+
+    virtual IShaderProgramHandle GetHandle() const = 0;
 
     virtual void Apply() = 0;
     virtual void SetParameteri1(const std::string& name, int value) = 0;
@@ -109,7 +189,7 @@ public:
     virtual int GetWidth() const = 0;
     virtual int GetHeight() const = 0;
 
-    virtual IGraphicsHandle GetId() const = 0;
+    virtual ITextureHandle GetId() const = 0;
 private:
 };
 TRV2_NAMESPACE_END

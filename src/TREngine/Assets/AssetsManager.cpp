@@ -9,7 +9,7 @@ AssetsManager::AssetsManager()
 	loadBuiltinAssets();
 }
 
-IShader* AssetsManager::GetShader(const std::string& name) const
+IShaderProgram* AssetsManager::GetShader(const std::string& name) const
 {
 	if (_shadersTable.find(name) == _shadersTable.end()) {
 		throw std::exception(string_format("Cannot find shader %s", name.c_str()).c_str());

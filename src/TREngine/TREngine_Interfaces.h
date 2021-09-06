@@ -18,10 +18,11 @@ class IGameTimer;
 
 // Assets
 class AssetsManager;
+class IRawShader;
 
 // Graphics
 class IGraphicsDevice;
-class IShader;
+class IShaderProgram;
 class ITexture2D;
 class SpriteRenderer;
 

@@ -19,6 +19,7 @@ TRV2_NAMESPACE_BEGIN
         loadLaunchSettings();
         loadSupportiveSystem();
         loadGraphicsSystem();
+        loadResources();
 
         SetApplication(application);
     }
@@ -90,8 +91,6 @@ TRV2_NAMESPACE_BEGIN
      _graphicsDevice = intitializer.GetGraphicsDevice();
      _gameWindow = intitializer.GetGameWindow();
      _gameTimer = intitializer.GetGameTimer();
-
-     _assetsManager = std::make_shared<AssetsManager>();
  }
 
 
@@ -118,5 +117,10 @@ TRV2_NAMESPACE_BEGIN
  {
      return std::make_shared<SpriteRenderer>(trv2::cptr(_graphicsDevice), _assetsManager->GetShader("builtin::sprite"),
          _assetsManager->GetTexture2D("builtin::sprite"));
+ }
+
+ void TREngine::loadResources()
+ {
+     _assetsManager = std::make_shared<AssetsManager>();
  }
 TRV2_NAMESPACE_END

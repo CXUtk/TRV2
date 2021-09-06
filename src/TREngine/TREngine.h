@@ -73,6 +73,7 @@ private:
     void loadSupportiveSystem();
     void loadGraphicsSystem();
     void loadLaunchSettings();
+    void loadResources();
     void useApplication();
 
     std::shared_ptr<EngineSettings> _engineSettings;

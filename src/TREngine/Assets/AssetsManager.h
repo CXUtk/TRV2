@@ -9,11 +9,11 @@ class AssetsManager
 public:
 	AssetsManager();
 	
-	IShader* GetShader(const std::string& name) const;
+	IShaderProgram* GetShader(const std::string& name) const;
 	ITexture2D* GetTexture2D(const std::string& name) const;
 
 private:
-	std::map<std::string, std::shared_ptr<IShader>> _shadersTable;
+	std::map<std::string, std::shared_ptr<IShaderProgram>> _shadersTable;
 	std::map<std::string, std::shared_ptr<ITexture2D>> _texture2DTable;
 
 	void loadBuiltinAssets();
