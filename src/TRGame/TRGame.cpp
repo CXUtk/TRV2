@@ -38,8 +38,15 @@ void TRGame::logGameInfo()
 
 void TRGame::loadGameContent()
 {
-    _gameWorld = std::make_unique<GameWorld>(1000, 1000);
+    _gameWorld = std::make_unique<GameWorld>(100, 100);
 }
+
+static float expV = 0;
+static float factor = 1.0;
+static glm::vec2 mouseDragStart;
+static glm::vec2 oldScreenPos;
+static glm::vec2 oldAnchorPos = glm::vec2(0);
+static glm::mat4 P, V;
 
 void TRGame::Initialize(trv2::TREngine* engine)
 {
@@ -50,17 +57,23 @@ void TRGame::Initialize(trv2::TREngine* engine)
 
     logGameInfo();
     loadGameContent();
+
+    auto controller = _engine->GetGameWindow()->GetInputController();
+    auto window = _engine->GetGameWindow();
+    auto clientSize = window->GetWindowSize();
+
+    P = glm::ortho(0.f, (float)clientSize.x,
+        0.f, (float)clientSize.y);
+    V = glm::identity<glm::mat4>();
 }
 
-static float expV = 0;
-static float factor = 1;
-static glm::vec2 mouseDragStart;
-static glm::vec2 oldScreenPos;
-static glm::vec2 oldAnchorPos = glm::vec2(0);
+
 
 void TRGame::Update(double deltaTime)
 {
     auto controller = _engine->GetGameWindow()->GetInputController();
+    auto window = _engine->GetGameWindow();
+    auto clientSize = window->GetWindowSize();
 
     if (controller->IsKeyDowned(trv2::TRV2KeyCode::TRV2_A_KEY))
     {
@@ -94,9 +107,19 @@ void TRGame::Update(double deltaTime)
 
     if (controller->GetScrollValue().y != 0)
     {
-        oldAnchorPos = _screenPosition + controller->GetMousePos() / factor;
         expV += controller->GetScrollValue().y * 0.1f;
         factor = std::exp(expV);
+        auto unproject = glm::inverse(P * V);
+
+        auto mousePos = controller->GetMousePos() / glm::vec2(clientSize) * 2.f - glm::vec2(1.f);
+        auto worldPos = glm::vec2(unproject * glm::vec4(mousePos, 0, 1));
+        oldAnchorPos = worldPos;
+        printf("%lf %lf\n", worldPos.x, worldPos.y);
+
+        V = glm::identity<glm::mat4>();
+        V = glm::translate(V, glm::vec3(+worldPos, 0));
+        V = glm::scale(V, glm::vec3(factor));
+        V = glm::translate(V, glm::vec3(-worldPos, 0));
     }
 }
 
@@ -106,17 +129,13 @@ void TRGame::Draw(double deltaTime)
     auto clientSize = window->GetWindowSize();
     auto controller = _engine->GetGameWindow()->GetInputController();
 
-    auto worldOffset = controller->GetMousePos() / factor;
-    auto projection = glm::ortho(0.f, (float)clientSize.x,
-            0.f, (float)clientSize.y);
+    auto unproject = glm::inverse(P * V);
 
-    auto translation = glm::identity<glm::mat4>();
-    translation = glm::translate(translation, glm::vec3(+oldAnchorPos, 0));
-    translation = glm::scale(translation, glm::vec3(factor));
-    translation = glm::translate(translation, glm::vec3(-oldAnchorPos, 0));
-    //translation = glm::translate(translation, glm::vec3(-_screenPosition, 0));
-
-    _spriteRenderer->Begin(projection * translation);
+    auto mousePos = controller->GetMousePos() / glm::vec2(clientSize) * 2.f - glm::vec2(1.f);
+    auto worldPos = glm::vec2(unproject * glm::vec4(mousePos, 0, 1));
+    //oldAnchorPos = worldPos;
+    printf("%lf %lf\n", worldPos.x, worldPos.y);
+    _spriteRenderer->Begin(P * V);
     {
         auto renderWidth = clientSize.x / factor;
         auto renderHeight = clientSize.y / factor;
@@ -132,8 +151,10 @@ void TRGame::Draw(double deltaTime)
         topRight.y = std::max(0, std::min(_gameWorld->GetHeight() - 1, topRight.y));
 
         //trv2::RectI viewRect(botLeft, topRight - botLeft);
-        trv2::RectI viewRect(glm::vec2(0), glm::vec2(1000, 1000));
+        trv2::RectI viewRect(glm::vec2(0), glm::vec2(100, 100));
         _gameWorld->RenderWorld(trv2::ptr(_spriteRenderer), viewRect);
+
+        _spriteRenderer->Draw(glm::vec2((int)(worldPos.x / 16) * 16, (int)(worldPos.y / 16) * 16), glm::vec2(16), glm::vec2(0), 0.f, glm::vec4(1, 0, 0, 1));
     }
     _spriteRenderer->End();
 }
