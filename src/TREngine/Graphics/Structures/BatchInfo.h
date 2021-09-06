@@ -11,13 +11,29 @@ struct BatchInfo
 	BatchInfo(glm::vec2 pos, glm::vec2 size, const glm::vec4& color) : Position(pos), Size(size), Color(color) {}
 };
 
+enum class SpriteSortMode
+{
+	Deferred,
+	FrontToBack,
+	BackToFront,
+	Texture,
+};
+
+struct BatchSettings
+{
+	SpriteSortMode SpriteSortMode;
+};
+
 struct BatchState
 {
 	glm::mat4 WorldTransform;
 	bool IsBatchBegin;
+	BatchSettings Settings;
 	BatchState() = default;
-	BatchState(const glm::mat4& transform) : WorldTransform(transform), IsBatchBegin(false) {}
 };
+
+
+
 
 struct BatchVertex2D
 {

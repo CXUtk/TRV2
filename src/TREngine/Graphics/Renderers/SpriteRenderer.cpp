@@ -76,7 +76,7 @@ SpriteRenderer::~SpriteRenderer()
 {
 }
 
-void SpriteRenderer::Begin(const glm::mat4& transform)
+void SpriteRenderer::Begin(const glm::mat4& transform,const BatchSettings& settings)
 {
 	if (_batchState.IsBatchBegin)
 	{
@@ -84,6 +84,7 @@ void SpriteRenderer::Begin(const glm::mat4& transform)
 	}
 	_batchState.IsBatchBegin = true;
 	_batchState.WorldTransform = transform;
+	_batchState.Settings = settings;
 	_currentVertex = 0;
 }
 
@@ -152,8 +153,13 @@ void SpriteRenderer::flushBatch()
 	int vertexCount = _currentVertex;
 	assert(vertexCount % 4 == 0);
 
-	_graphicsDevice->BindVertexArray(_quadVAO);
+	if (_batchState.Settings.SpriteSortMode == SpriteSortMode::Texture) {
+		std::sort(_vertices.get(), _vertices.get() + vertexCount, [](const trv2::BatchVertex2D& v, const trv2::BatchVertex2D& u) {
+			return v.TextureIndex < u.TextureIndex;
+			});
+	}
 
+	_graphicsDevice->BindVertexArray(_quadVAO);
 	_spriteShaderPure->Apply();
 	// 绑定纹理们
 	bindTextures();
