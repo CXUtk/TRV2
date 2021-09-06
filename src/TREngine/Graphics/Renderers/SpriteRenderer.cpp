@@ -200,7 +200,7 @@ int SpriteRenderer::findUsedTexture(const ITexture2D* texture) const
 {
 	for (int i = 0; i < _currentTextureSlots; i++)
 	{
-		if (_usedTextures[i]->GetId() == texture->GetId())
+		if (_usedTextures[i]->GetHandle() == texture->GetHandle())
 		{
 			return i;
 		}

@@ -189,6 +189,7 @@ private:
 };
 
 
+
 /**
  * @brief Platform indenpendent 2d texture object interface
 */
@@ -200,7 +201,7 @@ public:
     virtual int GetWidth() const = 0;
     virtual int GetHeight() const = 0;
 
-    virtual ITextureHandle GetId() const = 0;
+    virtual ITextureHandle GetHandle() const = 0;
 private:
 };
 

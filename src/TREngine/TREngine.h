@@ -11,6 +11,7 @@ TRV2_NAMESPACE_BEGIN
 class TREngine
 {
 public:
+    static const TREngine* GetInstance() { return _instance; }
     TREngine(int argc, char** argv, TRApplication* application);
     ~TREngine();
 
@@ -40,7 +41,7 @@ public:
     /**
      * @brief Get the graphics device.
     */
-    const IGraphicsDevice* GetGraphicsDevice() const
+    IGraphicsDevice* GetGraphicsDevice() const
     {
         return _graphicsDevice.get();
     }
@@ -84,5 +85,7 @@ private:
     std::shared_ptr<IGameTimer> _gameTimer;
 
     TRApplication* _application;
+
+    static const TREngine* _instance;
 };
 TRV2_NAMESPACE_END

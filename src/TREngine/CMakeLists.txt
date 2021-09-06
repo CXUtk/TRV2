@@ -23,7 +23,7 @@ add_library("TRV2_Engine" STATIC
  
 "Graphics/Shaders/OpenGLShaderProgram.cpp"
 "Core/InputController/GLFWInputController.cpp"
-"Assets/Loaders/OpenGLTextureLoader.cpp"
+
 "Graphics/Textures/OpenGLTexture2D.cpp"
 "Core/Initializer/GLFWInitializer.cpp"
 "Graphics/Structures/VertexLayout.cpp"

@@ -10,8 +10,11 @@
 #include <TRApplication.h>
 
 TRV2_NAMESPACE_BEGIN
+const TREngine* TREngine::_instance = nullptr;
+
  TREngine::TREngine(int argc, char** argv, TRApplication* application)
  {
+    _instance = this;
     _logger = std::make_unique<Logger>();
 
     try

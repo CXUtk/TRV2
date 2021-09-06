@@ -51,7 +51,7 @@ static constexpr auto DataTypeToGLMapper = generateDataTypeMapper<(int)BufferDat
 static constexpr auto BufferTypeMapper = generateBufferTypeMapper<(int)BufferType::__COUNT>();
 static constexpr auto DrawPrimitivesTypeMapper = generatePrimitiveTypeMapper<(int)PrimitiveType::__COUNT>();
 
-void OpenGLGraphicsDevice::initializeConstants()
+void OpenGLGraphicsDevice::initializeConstants() 
 {
 	glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &_MaxTextureSlotCanUse);
 }
@@ -135,6 +135,6 @@ void OpenGLGraphicsDevice::DrawIndexedPrimitives(PrimitiveType type, size_t coun
 void OpenGLGraphicsDevice::BindTexture2DSlot(int slot, const ITexture2D* texture) const
 {
 	glActiveTexture(GL_TEXTURE0 + slot);
-	glBindTexture(GL_TEXTURE_2D, texture->GetId());
+	glBindTexture(GL_TEXTURE_2D, texture->GetHandle());
 }
 TRV2_NAMESPACE_END
