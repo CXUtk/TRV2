@@ -1,10 +1,10 @@
-#pragma once
+﻿#pragma once
 #include <TREngine_Interfaces.h>
 #include <Assets/Assets_Interfaces.h>
 #include <string>
 
 TRV2_NAMESPACE_BEGIN
-class OpenGLRawShader : IRawShader
+class OpenGLRawShader : public IRawShader
 {
 public:
 	OpenGLRawShader(const char* code, ShaderType shaderType, const char* fileName);

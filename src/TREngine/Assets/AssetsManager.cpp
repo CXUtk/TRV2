@@ -1,6 +1,7 @@
 ﻿#include "AssetsManager.h"
 #include <Utils/Utils.h>
-#include <Assets/Loaders/OpenGLShaderLoader.h>
+#include <Assets/ResourceConvert/OpenGLRawShader.h>
+#include <Graphics/Shaders/OpenGLShaderProgram.h>
 #include <Assets/Loaders/OpenGLTextureLoader.h>
 
 TRV2_NAMESPACE_BEGIN
@@ -27,8 +28,9 @@ ITexture2D* AssetsManager::GetTexture2D(const std::string& name) const
 
 void AssetsManager::loadBuiltinAssets()
 {
-	_shadersTable["builtin::sprite"] = OpenGLShaderLoader::CreateOpenGLShaderFromFile("Resources/Shaders/sprite2d.vert",
-			"Resources/Shaders/sprite2d.frag");
+	auto vs = std::make_shared<OpenGLRawShader>(ReadAllStringFromFile("Resources/Shaders/sprite2d.vert").c_str(), ShaderType::VERTEX_SHADER, "sprite2d.vert");
+	auto fs = std::make_shared<OpenGLRawShader>(ReadAllStringFromFile("Resources/Shaders/sprite2d.frag").c_str(), ShaderType::FRAGMENT_SHADER, "sprite2d.frag");
+	_shadersTable["builtin::sprite"] = std::make_shared<OpenGLShaderProgram>(vs, fs);
 
 	int whitePixel = 0xffffffff;
 	_texture2DTable["builtin::sprite"] = OpenGLTextureLoader::CreateTexture2DFromMemory(1, 1, (unsigned char*)&whitePixel);

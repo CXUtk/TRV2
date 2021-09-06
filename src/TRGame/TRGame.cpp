@@ -133,7 +133,7 @@ void TRGame::Draw(double deltaTime)
     auto controller = _engine->GetGameWindow()->GetInputController();
 
     trv2::BatchSettings setting;
-    setting.SpriteSortMode = trv2::SpriteSortMode::Texture;
+    setting.SpriteSortMode = trv2::SpriteSortMode::Deferred;
     _spriteRenderer->Begin(_projection, setting);
     {
         // calculate draw rect

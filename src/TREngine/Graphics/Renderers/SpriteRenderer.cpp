@@ -4,8 +4,6 @@
 
 #include <algorithm>
 #include <Utils/Logging/Logger.h>
-#include <Assets/Loaders/OpenGLShaderLoader.h>
-#include <Assets/Loaders/OpenGLTextureLoader.h>
 #include <Utils/Utils.h>
 
 
@@ -17,12 +15,12 @@ static const BatchVertex2D simpleQuadVertices[4] = {
 	BatchVertex2D(glm::vec2(1, 1), glm::vec2(1, 1), glm::vec4(1))
 };
 
-static constexpr GLuint simpleQuadIndicies[6] = { 0, 1, 3, 0, 3, 2 };
+static constexpr unsigned int simpleQuadIndicies[6] = { 0, 1, 3, 0, 3, 2 };
 static constexpr int MaxQuadsPerBatch = 1 << 18;
 static constexpr int MaxVerticesPerBatch = MaxQuadsPerBatch * 4;
 static constexpr int MaxIndiciesPerBatch = MaxQuadsPerBatch * 6;
 
-SpriteRenderer::SpriteRenderer(const IGraphicsDevice* graphicsDevice, IShader* spriteShader,
+SpriteRenderer::SpriteRenderer(const IGraphicsDevice* graphicsDevice, IShaderProgram* spriteShader,
 		ITexture2D* pureTexture) : _graphicsDevice(graphicsDevice), 
 	_spriteShaderPure(spriteShader), _whiteTexture(pureTexture)
 {
@@ -37,12 +35,12 @@ SpriteRenderer::SpriteRenderer(const IGraphicsDevice* graphicsDevice, IShader* s
 		_spriteShaderPure->SetParameteri1(string_format("uTextures[%d]", i).c_str(), i);
 	}
 
-	_usedTextures = std::make_unique<IGraphicsHandle[]>(maxTextureSlots);
+	_usedTextures = std::make_unique<const ITexture2D*[]>(maxTextureSlots);
 	_currentTextureSlots = 0;
 
 
 	// 预先生成顶点index列表
-	_vertexIndices = std::make_unique<GLuint[]>(MaxIndiciesPerBatch);
+	_vertexIndices = std::make_unique<unsigned int[]>(MaxIndiciesPerBatch);
 	_vertices = std::make_unique<BatchVertex2D[]>(MaxVerticesPerBatch);
 	int cur = 0;
 	for (int i = 0; i < MaxVerticesPerBatch; i += 4)
@@ -60,7 +58,7 @@ SpriteRenderer::SpriteRenderer(const IGraphicsDevice* graphicsDevice, IShader* s
 	_graphicsDevice->SetBufferData(BufferType::ARRAY_BUFFER, _quadBuffers[0], 
 		sizeof(BatchVertex2D) * MaxVerticesPerBatch, nullptr, BufferHint::DYNAMIC_DRAW);
 	_graphicsDevice->SetBufferData(BufferType::INDEX_BUFFER, _quadBuffers[1],
-		sizeof(GLuint) * MaxIndiciesPerBatch, _vertexIndices.get(), BufferHint::STATIC_DRAW);
+		sizeof(unsigned int) * MaxIndiciesPerBatch, _vertexIndices.get(), BufferHint::STATIC_DRAW);
 
 	VertexLayout vertexLayout;
 	vertexLayout.Add(VertexElement(offsetof(BatchVertex2D, Position), 2, BufferDataType::FLOAT));
@@ -119,7 +117,7 @@ void SpriteRenderer::pushTextureQuad(const ITexture2D* texture, glm::vec2 tpos, 
 			flushBatch();
 		}
 		slotId = _currentTextureSlots;
-		_usedTextures[_currentTextureSlots++] = texture->GetId();
+		_usedTextures[_currentTextureSlots++] = texture;
 	}
 
 	glm::mat2 transform = glm::identity<glm::mat2>();
@@ -200,7 +198,7 @@ int SpriteRenderer::findUsedTexture(const ITexture2D* texture) const
 {
 	for (int i = 0; i < _currentTextureSlots; i++)
 	{
-		if (_usedTextures[i] == texture->GetId())
+		if (_usedTextures[i]->GetId() == texture->GetId())
 		{
 			return i;
 		}

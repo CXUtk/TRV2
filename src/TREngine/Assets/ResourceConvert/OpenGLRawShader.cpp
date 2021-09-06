@@ -21,7 +21,7 @@ constexpr std::array<unsigned int, T> generateShaderTypeMapper()
 
 static constexpr auto ShaderTypeMapper = generateShaderTypeMapper<(size_t)ShaderType::__COUNT>();
 
-trv2::OpenGLRawShader::OpenGLRawShader(const char* code, ShaderType shaderType, const char* fileName) : IRawShader(code, shaderType, fileName)
+trv2::OpenGLRawShader::OpenGLRawShader(const char* code, ShaderType shaderType, const char* fileName) : IRawShader(code, shaderType, fileName), _type(shaderType), _fileName(fileName)
 {
     GLuint id = glCreateShader(ShaderTypeMapper[(int)shaderType]);
     glShaderSource(id, 1, &code, nullptr);

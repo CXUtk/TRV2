@@ -11,7 +11,7 @@ TRV2_NAMESPACE_BEGIN
 class OpenGLShaderProgram : public IShaderProgram
 {
 public:
-    explicit OpenGLShaderProgram(const std::shared_ptr<IRawShader>& vertexShader, const std::shared_ptr<IRawShader>& fragmentShader);
+    explicit OpenGLShaderProgram(std::shared_ptr<IRawShader> vertexShader, std::shared_ptr<IRawShader> fragmentShader);
     explicit OpenGLShaderProgram(const std::vector<std::shared_ptr<IRawShader>>& shaders);
 
     virtual ~OpenGLShaderProgram() override;
