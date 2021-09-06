@@ -110,16 +110,15 @@ void TRGame::Update(double deltaTime)
         expV += controller->GetScrollValue().y * 0.1f;
         factor = std::exp(expV);
         auto unproject = glm::inverse(P * V);
-
+        
+        auto mouseScreen = controller->GetMousePos();
         auto mousePos = controller->GetMousePos() / glm::vec2(clientSize) * 2.f - glm::vec2(1.f);
         auto worldPos = glm::vec2(unproject * glm::vec4(mousePos, 0, 1));
         oldAnchorPos = worldPos;
         printf("%lf %lf\n", worldPos.x, worldPos.y);
 
-        V = glm::identity<glm::mat4>();
-        V = glm::translate(V, glm::vec3(+worldPos, 0));
-        V = glm::scale(V, glm::vec3(factor));
-        V = glm::translate(V, glm::vec3(-worldPos, 0));
+        P = glm::ortho(oldAnchorPos.x - mouseScreen.x / factor, oldAnchorPos.x + (clientSize.x - mouseScreen.x) / factor,
+            oldAnchorPos.y - mouseScreen.y / factor, oldAnchorPos.y + (clientSize.y - mouseScreen.y) / factor);
     }
 }
 
