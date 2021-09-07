@@ -14,20 +14,16 @@
 #include <glm/gtx/transform.hpp>
 
 
-TRGame& TRGame::GetInstance()
-{
-    static TRGame game;
-    return game;
-}
-
+TRGame* TRGame::_instance = nullptr;
 
 TRGame::~TRGame()
 {
 }
 
 
-TRGame::TRGame() :  _engine(nullptr)
+TRGame::TRGame() : _projection(glm::identity<glm::mat4>()), _screenRect(),  _engine(nullptr)
 {
+    _instance = this;
     _expScale = 0.f;
     _mouseDragStart = glm::vec2(0);
     _oldScreenPos = glm::vec2(0);

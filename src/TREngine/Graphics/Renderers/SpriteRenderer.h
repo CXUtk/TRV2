@@ -16,15 +16,42 @@ public:
 		ITexture2D * pureTexture);
 	~SpriteRenderer();
 
+	/**
+	 * @brief Begin a drawing batch
+	 * @param transform The transform matrix of this drawing batch
+	 * @param settings The settings of this drawing batch
+	*/
 	void Begin(const glm::mat4& transform, const BatchSettings& settings);
+
+	/**
+	 * @brief End current drawing batch and flush the batch to graphics device
+	*/
 	void End();
 
+	/**
+	 * @brief Push a sprite drawing task to batch list. This drawing task will use default texture.
+	 * @param pos Bottom-right starting point of this quad
+	 * @param size Size of this quad
+	 * @param origin The transformation center of this quad
+	 * @param rotation Rotation of this quad
+	 * @param color Color of this sprite (multiply with original texture)
+	*/
 	void Draw(glm::vec2 pos, glm::vec2 size, glm::vec2 origin, float rotation, const glm::vec4& color);
+
+	/**
+	 * @brief Push a sprite drawing task to batch list
+	 * @param texture The texture to draw
+	 * @param pos Bottom-right starting point of this quad
+	 * @param size Size of the quad
+	 * @param origin The transformation center of this quad
+	 * @param rotation Rotation of this quad
+	 * @param color Color of this sprite (multiply with original texture)
+	*/
 	void Draw(const ITexture2D* texture, glm::vec2 pos, glm::vec2 size,
 		glm::vec2 origin, float rotation, const glm::vec4& color);
 
 private:
-	// OpenGL绘制用的
+	// 绘制用的
 	IVertexBufferHandle _quadVAO;
 	IVertexBufferHandle _quadBuffers[2];
 

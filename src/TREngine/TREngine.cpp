@@ -61,7 +61,7 @@ const TREngine* TREngine::_instance = nullptr;
              _gameWindow->PollEvents();
 
              double t = GetGameTime() - prevTimestamp;
-             _logger->LogInfo("%lf, %d\n", t, (int)(1 / t));
+             //_logger->LogInfo("%lf, %d\n", t, (int)(1 / t));
              while (GetGameTime() - prevTimestamp < minElapsedTime)
              {
                  _gameWindow->PollEvents();

@@ -10,7 +10,8 @@
 class TRGame : public trv2::TRApplication
 {
 public:
-    static TRGame& GetInstance();
+    static TRGame* GetInstance() { return _instance; }
+    TRGame();
     ~TRGame() override;
 
     virtual void Initialize(trv2::TREngine* engine) override;
@@ -29,12 +30,11 @@ public:
     }
 
 private:
-    TRGame();
-
     // Other
     void logGameInfo();
 
     void loadGameContent();
+
 
     trv2::TREngine* _engine;
     std::shared_ptr<trv2::Logger> _logger;
@@ -47,4 +47,7 @@ private:
     float _expScale;
     glm::vec2 _mouseDragStart;
     glm::vec2 _oldScreenPos;
+
+
+    static TRGame* _instance;
 };

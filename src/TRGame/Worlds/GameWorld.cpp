@@ -74,7 +74,7 @@ void GameWorld::SetTile(int x, int y, const Tile& tile)
 void GameWorld::RenderWorld(trv2::SpriteRenderer* renderer, const trv2::RectI& renderRect)
 {
 	auto start = glm::vec2(renderRect.Position);
-	auto assetManager = TRGame::GetInstance().GetEngine()->GetAssetsManager();
+	auto assetManager = TRGame::GetInstance()->GetEngine()->GetAssetsManager();
 	for (int i = 0; i < renderRect.Size.x; i++) {
 		for (int j = 0; j < renderRect.Size.y; j++) {
 			auto coord = renderRect.Position + glm::ivec2(i, j);
