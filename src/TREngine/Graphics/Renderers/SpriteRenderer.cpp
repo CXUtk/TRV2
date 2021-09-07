@@ -21,7 +21,7 @@ static constexpr int MaxQuadsPerBatch = 1 << 18;
 static constexpr int MaxVerticesPerBatch = MaxQuadsPerBatch * 4;
 static constexpr int MaxIndiciesPerBatch = MaxQuadsPerBatch * 6;
 
-SpriteRenderer::SpriteRenderer(const IGraphicsDevice* graphicsDevice, IShaderProgram* spriteShader,
+SpriteRenderer::SpriteRenderer(IGraphicsDevice* graphicsDevice, IShaderProgram* spriteShader,
 		ITexture2D* pureTexture) : _graphicsDevice(graphicsDevice), 
 	_spriteShaderPure(spriteShader), _whiteTexture(pureTexture)
 {

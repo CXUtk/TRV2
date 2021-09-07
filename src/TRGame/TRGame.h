@@ -19,12 +19,12 @@ public:
     virtual void Draw(double deltaTime) override;
     virtual void Exit() override;
 
-    const trv2::TREngine* GetEngine() const
+    trv2::TREngine* GetEngine()
     {
         return _engine;
     }
 
-    const trv2::Logger* GetLogger() const
+    trv2::Logger* GetLogger() const
     {
         return _logger.get();
     }

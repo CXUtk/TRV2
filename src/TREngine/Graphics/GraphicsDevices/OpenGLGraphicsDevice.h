@@ -11,29 +11,29 @@ public:
 	OpenGLGraphicsDevice(const EngineSettings* clientConfig);
 	~OpenGLGraphicsDevice() override;
 
-	void SetupVertexAttributes(const VertexLayout& layout) const override;
+	void SetupVertexAttributes(const VertexLayout& layout) override;
 
-	virtual IVertexBufferHandle CreateVertexArray() const override;
-	virtual IVertexBufferHandle CreateBuffer() const override;
+	virtual IVertexBufferHandle CreateVertexArray() override;
+	virtual IVertexBufferHandle CreateBuffer() override;
 
-	virtual void CreateVertexArrays(int size, IVertexBufferHandle* hOut) const override;
-	virtual void CreateBuffers(int size, IVertexBufferHandle* hOut) const override;
+	virtual void CreateVertexArrays(int size, IVertexBufferHandle* hOut) override;
+	virtual void CreateBuffers(int size, IVertexBufferHandle* hOut) override;
 
 	virtual void SetBufferData(BufferType type, IVertexBufferHandle handle, size_t size,
-		const void* data, BufferHint bufferHint) const override;
+		const void* data, BufferHint bufferHint) override;
 	virtual void ChangeBufferData(BufferType type, IVertexBufferHandle handle,
-		size_t offset, size_t size, const void* data) const override;
+		size_t offset, size_t size, const void* data) override;
 
-	virtual void BindBuffer(BufferType type, IVertexBufferHandle handle) const override;
+	virtual void BindBuffer(BufferType type, IVertexBufferHandle handle) override;
 
-	virtual void BindVertexArray(IVertexBufferHandle handle) const override;
-	virtual void UnbindVertexArray() const override;
+	virtual void BindVertexArray(IVertexBufferHandle handle) override;
+	virtual void UnbindVertexArray() override;
 
-	virtual void DrawIndexedPrimitives(PrimitiveType type, size_t count, BufferDataType dataType, size_t offset) const override;
+	virtual void DrawIndexedPrimitives(PrimitiveType type, size_t count, BufferDataType dataType, size_t offset) override;
 
-	virtual void BindTexture2DSlot(int slot, const ITexture2D* textureHandle) const override;
+	virtual void BindTexture2DSlot(int slot, const ITexture2D* textureHandle) override;
 
-	virtual int GetMaxTextureSlots() const override { return _MaxTextureSlotCanUse; }
+	virtual int GetMaxTextureSlots() override { return _MaxTextureSlotCanUse; }
 private:
 	void initializeConstants();
 

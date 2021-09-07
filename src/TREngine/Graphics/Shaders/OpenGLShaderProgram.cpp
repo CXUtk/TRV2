@@ -7,7 +7,8 @@ TRV2_NAMESPACE_BEGIN
 static const int MAX_BUFFSIZE = 1024;
 static char infoLog[MAX_BUFFSIZE];
 
-OpenGLShaderProgram::OpenGLShaderProgram(std::shared_ptr<IRawShader> vertexShader, std::shared_ptr<IRawShader> fragmentShader) : IShaderProgram(vertexShader, fragmentShader)
+OpenGLShaderProgram::OpenGLShaderProgram(const std::shared_ptr<IRawShader>& vertexShader, 
+    const std::shared_ptr<IRawShader>& fragmentShader) : IShaderProgram(vertexShader, fragmentShader)
 {
     GLuint id = glCreateProgram();
     glAttachShader(id, vertexShader->GetHandle());

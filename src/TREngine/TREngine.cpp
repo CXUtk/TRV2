@@ -10,7 +10,7 @@
 #include <TRApplication.h>
 
 TRV2_NAMESPACE_BEGIN
-const TREngine* TREngine::_instance = nullptr;
+TREngine* TREngine::_instance = nullptr;
 
  TREngine::TREngine(int argc, char** argv, TRApplication* application)
  {
@@ -119,9 +119,9 @@ const TREngine* TREngine::_instance = nullptr;
      useApplication();
  }
 
- std::shared_ptr<SpriteRenderer> TREngine::CreateSpriteRenderer() const
+ std::shared_ptr<SpriteRenderer> TREngine::CreateSpriteRenderer()
  {
-     return std::make_shared<SpriteRenderer>(trv2::cptr(_graphicsDevice), _assetsManager->GetShader("builtin::sprite"),
+     return std::make_shared<SpriteRenderer>(trv2::ptr(_graphicsDevice), _assetsManager->GetShader("builtin::sprite"),
          _assetsManager->GetTexture2D("builtin::sprite"));
  }
 

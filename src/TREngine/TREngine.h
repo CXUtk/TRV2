@@ -11,7 +11,7 @@ TRV2_NAMESPACE_BEGIN
 class TREngine
 {
 public:
-    static const TREngine* GetInstance() { return _instance; }
+    static TREngine* GetInstance() { return _instance; }
     TREngine(int argc, char** argv, TRApplication* application);
     ~TREngine();
 
@@ -21,7 +21,7 @@ public:
     */
     void SetApplication(TRApplication* application);
 
-    std::shared_ptr<SpriteRenderer> CreateSpriteRenderer() const;
+    std::shared_ptr<SpriteRenderer> CreateSpriteRenderer();
 
     /**
      * @brief Run the application, or start the game
@@ -33,7 +33,7 @@ public:
     /**
      * @brief Get the settings of engine.
     */
-    EngineSettings* GetEngineSetting() const
+    EngineSettings* GetEngineSetting()
     {
         return _engineSettings.get();
     }
@@ -41,7 +41,7 @@ public:
     /**
      * @brief Get the graphics device.
     */
-    IGraphicsDevice* GetGraphicsDevice() const
+    IGraphicsDevice* GetGraphicsDevice()
     {
         return _graphicsDevice.get();
     }
@@ -49,7 +49,7 @@ public:
     /**
      * @brief Get the game window
     */
-    IGameWindow* GetGameWindow() const
+    IGameWindow* GetGameWindow()
     {
         return _gameWindow.get();
     }
@@ -57,7 +57,7 @@ public:
     /**
      * @brief Get the assets manager
     */
-    AssetsManager* GetAssetsManager() const
+    AssetsManager* GetAssetsManager()
     {
         return _assetsManager.get();
     }
@@ -65,7 +65,7 @@ public:
     /**
      * @brief Get logger
     */
-    Logger* GetLogger() const
+    Logger* GetLogger()
     {
         return _logger.get();
     }
@@ -86,6 +86,6 @@ private:
 
     TRApplication* _application;
 
-    static const TREngine* _instance;
+    static TREngine* _instance;
 };
 TRV2_NAMESPACE_END
