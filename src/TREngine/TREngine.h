@@ -33,7 +33,7 @@ public:
     /**
      * @brief Get the settings of engine.
     */
-    const EngineSettings* GetEngineSetting() const
+    EngineSettings* GetEngineSetting() const
     {
         return _engineSettings.get();
     }
@@ -49,7 +49,7 @@ public:
     /**
      * @brief Get the game window
     */
-    const IGameWindow* GetGameWindow() const
+    IGameWindow* GetGameWindow() const
     {
         return _gameWindow.get();
     }
@@ -57,7 +57,7 @@ public:
     /**
      * @brief Get the assets manager
     */
-    const AssetsManager* GetAssetsManager() const
+    AssetsManager* GetAssetsManager() const
     {
         return _assetsManager.get();
     }
@@ -65,7 +65,7 @@ public:
     /**
      * @brief Get logger
     */
-    const Logger* GetLogger() const
+    Logger* GetLogger() const
     {
         return _logger.get();
     }
