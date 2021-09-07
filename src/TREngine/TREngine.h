@@ -2,8 +2,13 @@
 #include <TREngine_Interfaces.h>
 #include <memory>
 #include <glm/glm.hpp>
-
+#include <Graphics/Shaders/OpenGLRawShader.h>
+#include <Graphics/Shaders/OpenGLShaderProgram.h>
+#include <Graphics/Textures/OpenGLTexture2D.h>
 TRV2_NAMESPACE_BEGIN
+
+
+
 /**
  * @brief The main class of TREngine.
  * Provides a variety of interfaces, function classes for games
@@ -57,7 +62,7 @@ public:
     /**
      * @brief Get the assets manager
     */
-    AssetsManager* GetAssetsManager()
+    AssetsManager<OpenGLAPI>* GetAssetsManager()
     {
         return _assetsManager.get();
     }
@@ -80,7 +85,7 @@ private:
     std::shared_ptr<EngineSettings> _engineSettings;
     std::shared_ptr<IGraphicsDevice> _graphicsDevice;
     std::shared_ptr<IGameWindow> _gameWindow;
-    std::shared_ptr<AssetsManager> _assetsManager;
+    std::shared_ptr<AssetsManager<OpenGLAPI>> _assetsManager;
     std::shared_ptr<Logger> _logger;
     std::shared_ptr<IGameTimer> _gameTimer;
 

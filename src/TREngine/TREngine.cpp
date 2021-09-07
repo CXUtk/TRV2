@@ -127,6 +127,6 @@ TREngine* TREngine::_instance = nullptr;
 
  void TREngine::loadResources()
  {
-     _assetsManager = std::make_shared<AssetsManager>();
+     _assetsManager = std::make_shared<AssetsManager<OpenGLAPI>>();
  }
 TRV2_NAMESPACE_END

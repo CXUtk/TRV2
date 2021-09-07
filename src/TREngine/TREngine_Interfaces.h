@@ -17,6 +17,7 @@ class IInputController;
 class IGameTimer;
 
 // Assets
+template<typename _API>
 class AssetsManager;
 class IRawShader;
 
@@ -80,6 +81,17 @@ enum class GraphicsAPIType {
 	OpenGL,
 	DirectX
 };
+class OpenGLShaderProgram;
+class OpenGLRawShader;
+class OpenGLTexture2D;
+class OpenGLAPI
+{
+public:
+	using IShaderProgramHandler = OpenGLShaderProgram;
+	using IRawShaderHandler = OpenGLRawShader;
+	using ITexture2DHandler = OpenGLTexture2D;
+};
+
 TRV2_NAMESPACE_END
 
 
