@@ -1,14 +1,17 @@
 ﻿#pragma once
-#include <TREngine_Interfaces.h>
 #include <map>
 #include <string>
 #include <memory>
+#include <Utils/Utils.hpp>
+#include <Core.hpp>
+
 TRV2_NAMESPACE_BEGIN
+
 class AssetsManager
 {
 public:
 	AssetsManager();
-	
+
 	IShaderProgram* GetShader(const std::string& name) const;
 	ITexture2D* GetTexture2D(const std::string& name) const;
 

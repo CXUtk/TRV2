@@ -1,15 +1,15 @@
-﻿#include "OpenGLGraphicsDevice.h"
+﻿#include "OpenGLGraphicsDevice.hpp"
 
-
-#include <exception>
-#include <array>
-#include <TREngine.h>
 #include <glad/glad.h>
-#include <GLFW/glfw3.h>
-#include <Configs/EngineSettings.h>
-#include <Assets/AssetsManager.h>
-#include <Graphics/Structures/VertexLayout.h>
+#include <array>
 #include <thread>
+#include <exception>
+
+#include <TREngine.hpp>
+#include <Configs/EngineSettings.hpp>
+#include <Graphics/Structures/VertexLayout.hpp>
+#include <Graphics/Textures/OpenGLTexture2D.hpp>
+
 
 TRV2_NAMESPACE_BEGIN
 template<int T>
@@ -56,7 +56,7 @@ void OpenGLGraphicsDevice::initializeConstants()
 	glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &_MaxTextureSlotCanUse);
 }
 
-OpenGLGraphicsDevice::OpenGLGraphicsDevice(const EngineSettings* clientConfig) : IGraphicsDevice(clientConfig)
+OpenGLGraphicsDevice::OpenGLGraphicsDevice(const EngineSettings& clientConfig)
 {
 	initializeConstants();
 }
@@ -65,7 +65,7 @@ OpenGLGraphicsDevice::~OpenGLGraphicsDevice()
 {
 }
 
-void OpenGLGraphicsDevice::SetupVertexAttributes(const VertexLayout& layout) const
+void OpenGLGraphicsDevice::SetupVertexAttributes(const VertexLayout& layout)
 {
 	auto& elements = layout.GetVertexElements();
 	int counter = 0;
@@ -77,36 +77,39 @@ void OpenGLGraphicsDevice::SetupVertexAttributes(const VertexLayout& layout) con
 		++counter;
 	}
 }
-IVertexBufferHandle OpenGLGraphicsDevice::CreateVertexArray() const
+
+IVertexBufferHandle OpenGLGraphicsDevice::CreateVertexArray()
 {
 	GLuint vertexArray;
 	glGenVertexArrays(1, &vertexArray);
 	return vertexArray;
 }
-IVertexBufferHandle OpenGLGraphicsDevice::CreateBuffer() const
+
+IVertexBufferHandle OpenGLGraphicsDevice::CreateBuffer()
 {
 	GLuint buffer;
 	glGenBuffers(1, &buffer);
 	return buffer;
 }
-void OpenGLGraphicsDevice::CreateVertexArrays(int size, IVertexBufferHandle* hOut) const
+
+void OpenGLGraphicsDevice::CreateVertexArrays(int size, IVertexBufferHandle* hOut)
 {
 	glGenVertexArrays(size, hOut);
 }
 
-void OpenGLGraphicsDevice::CreateBuffers(int size, IVertexBufferHandle* hOut) const
+void OpenGLGraphicsDevice::CreateBuffers(int size, IVertexBufferHandle* hOut) 
 {
 	glGenBuffers(size, hOut);
 }
 
-void OpenGLGraphicsDevice::SetBufferData(BufferType type, IVertexBufferHandle handle, size_t size, const void* data, BufferHint bufferHint) const
+void OpenGLGraphicsDevice::SetBufferData(BufferType type, IVertexBufferHandle handle, size_t size, const void* data, BufferHint bufferHint)
 {
 	glBindBuffer(BufferTypeMapper[(int)type], handle);
 	glBufferData(BufferTypeMapper[(int)type], size, data, 
 		(bufferHint == BufferHint::DYNAMIC_DRAW) ? GL_DYNAMIC_DRAW : GL_STATIC_DRAW);
 }
 
-void OpenGLGraphicsDevice::ChangeBufferData(BufferType type, IVertexBufferHandle handle, size_t offset, size_t size, const void* data) const
+void OpenGLGraphicsDevice::ChangeBufferData(BufferType type, IVertexBufferHandle handle, size_t offset, size_t size, const void* data)
 {
 	auto target = BufferTypeMapper[(int)type];
 	glBindBuffer(target, handle);
@@ -114,25 +117,27 @@ void OpenGLGraphicsDevice::ChangeBufferData(BufferType type, IVertexBufferHandle
 	glBufferSubData(target, offset, size, data);
 }
 
-void OpenGLGraphicsDevice::BindBuffer(BufferType type, IVertexBufferHandle handle) const
+void OpenGLGraphicsDevice::BindBuffer(BufferType type, IVertexBufferHandle handle)
 {
 	glBindBuffer(BufferTypeMapper[(int)type], handle);
 }
 
-void OpenGLGraphicsDevice::BindVertexArray(IVertexBufferHandle handle) const
+void OpenGLGraphicsDevice::BindVertexArray(IVertexBufferHandle handle)
 {
 	glBindVertexArray(handle);
 }
 
-void OpenGLGraphicsDevice::UnbindVertexArray() const
+void OpenGLGraphicsDevice::UnbindVertexArray()
 {
 	glBindVertexArray(0);
 }
-void OpenGLGraphicsDevice::DrawIndexedPrimitives(PrimitiveType type, size_t count, BufferDataType dataType, size_t offset) const
+
+void OpenGLGraphicsDevice::DrawIndexedPrimitives(PrimitiveType type, size_t count, BufferDataType dataType, size_t offset)
 {
 	glDrawElements(DrawPrimitivesTypeMapper[(int)type], count, DataTypeToGLMapper[(int)dataType], (void*) offset);
 }
-void OpenGLGraphicsDevice::BindTexture2DSlot(int slot, const ITexture2D* texture) const
+
+void OpenGLGraphicsDevice::BindTexture2DSlot(int slot, const ITexture2D* texture)
 {
 	glActiveTexture(GL_TEXTURE0 + slot);
 	glBindTexture(GL_TEXTURE_2D, texture->GetHandle());

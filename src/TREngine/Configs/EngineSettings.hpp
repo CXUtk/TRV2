@@ -1,6 +1,7 @@
 ﻿#pragma once
-#include <TREngine_Interfaces.h>
+#include <TREngine_Interfaces.hpp>
 #include <string>
+
 TRV2_NAMESPACE_BEGIN
 class EngineSettings {
 public:
@@ -54,14 +55,6 @@ public:
 		return _fpsCap;
 	}
 
-	/**
-	 * @brief Get the graphics API used by this engine
-	 * @return 
-	*/
-	GraphicsAPIType GetGraphicsAPIType() const {
-		return _graphicsAPIType;
-	}
-
 private:
 	// Client properties
 	bool _windowResizable;
@@ -70,7 +63,5 @@ private:
 
 	int _windowWidth, _windowHeight;
 	int _fpsCap;
-
-	GraphicsAPIType _graphicsAPIType;
 };
 TRV2_NAMESPACE_END

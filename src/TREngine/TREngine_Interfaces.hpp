@@ -1,29 +1,19 @@
 ﻿#pragma once
 #include <memory>
 
-// Macros
 #define TRV2_NAMESPACE_BEGIN namespace trv2 {
 #define TRV2_NAMESPACE_END }
 
-
 TRV2_NAMESPACE_BEGIN
+template<typename _API, typename _Platform>
 class TREngine;
 
 // Interfaces
 // Core
 class TRApplication;
-class IGameWindow;
-class IInputController;
-class IGameTimer;
 
 // Assets
 class AssetsManager;
-class IRawShader;
-
-// Graphics
-class IGraphicsDevice;
-class IShaderProgram;
-class ITexture2D;
 class SpriteRenderer;
 
 // Configs
@@ -80,6 +70,18 @@ enum class GraphicsAPIType {
 	OpenGL,
 	DirectX
 };
+
+enum class PlatformType
+{
+	GLFW,
+	WINDOWS,
+};
+
+
+
+// Global interface
+
+
 TRV2_NAMESPACE_END
 
 

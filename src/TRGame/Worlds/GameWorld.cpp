@@ -1,11 +1,12 @@
-﻿#include "GameWorld.h"
-#include "Tile.h"
-#include <TREngine/Utils/Structures/Rect.h>
-#include <TREngine/Graphics/Renderers/SpriteRenderer.h>
+﻿#include "GameWorld.hpp"
+#include "Tile.hpp"
+
+#include <TREngine/Utils/Structures/Rect.hpp>
+#include <TREngine/Graphics/Renderers/SpriteRenderer.hpp>
 #include <random>
-#include <TRGame/TRGame.h>
-#include <TREngine/TREngine.h>
-#include <TREngine/Assets/AssetsManager.h>
+#include <TRGame/TRGame.hpp>
+#include <TREngine/TREngine.hpp>
+#include <TREngine/Assets/AssetsManager.hpp>
 
 static const glm::vec4 tempColorTable[5] = {
 	glm::vec4(1),
@@ -74,7 +75,7 @@ void GameWorld::SetTile(int x, int y, const Tile& tile)
 void GameWorld::RenderWorld(trv2::SpriteRenderer* renderer, const trv2::RectI& renderRect)
 {
 	auto start = glm::vec2(renderRect.Position);
-	auto assetManager = TRGame::GetInstance().GetEngine()->GetAssetsManager();
+	auto assetManager = TRGame::GetInstance()->GetEngine()->GetAssetsManager();
 	for (int i = 0; i < renderRect.Size.x; i++) {
 		for (int j = 0; j < renderRect.Size.y; j++) {
 			auto coord = renderRect.Position + glm::ivec2(i, j);

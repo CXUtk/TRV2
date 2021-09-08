@@ -1,12 +1,10 @@
-﻿#include "GLFWInputController.h"
-#include <Core/GameWindow/GLFWGameWindow.h>
+﻿#include "GLFWInputController.hpp"
+
 #include <array>
 #include <vector>
 
 TRV2_NAMESPACE_BEGIN
 static constexpr int GLFW_KEY_SIZE = 512;
-
-
 
 template<int T>
 std::array<std::vector<int>, T> generateKeyCodeMapper()
@@ -55,12 +53,14 @@ void GLFWInputController::initializeCodeMapping()
 {
 }
 
-GLFWInputController::GLFWInputController(GLFWwindow* window) : _window(window), _scrollWheel(glm::vec2(0))
+GLFWInputController::GLFWInputController(GLFWwindow* window, const EngineSettings& settings)
+    : _window(window), _scrollWheel(glm::vec2(0))
 {
+    glfwSetWindowUserPointer(_window, this);
     initializeCodeMapping();
-    auto mouseScrollCallbackFunction = [](GLFWwindow* window, double xoffset, double yoffset) {
-        auto gameWindow = (GLFWGameWindow*)glfwGetWindowUserPointer(window);
-        ((GLFWInputController*)gameWindow->GetInputController())->ScrollWheel(glm::vec2(xoffset, yoffset));
+    auto mouseScrollCallbackFunction = [](GLFWwindow* rawWindow, double xoffset, double yoffset) {
+        auto controller = (GLFWInputController*)glfwGetWindowUserPointer(rawWindow);
+        controller->ScrollWheel(glm::vec2(xoffset, yoffset));
     };
     glfwSetScrollCallback(_window, mouseScrollCallbackFunction);
 }

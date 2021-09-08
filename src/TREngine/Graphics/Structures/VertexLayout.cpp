@@ -1,4 +1,4 @@
-﻿#include "VertexLayout.h"
+﻿#include "VertexLayout.hpp"
 TRV2_NAMESPACE_BEGIN
 VertexLayout::VertexLayout() : _size(0)
 {

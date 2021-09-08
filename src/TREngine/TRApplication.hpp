@@ -1,5 +1,5 @@
 ﻿#pragma once
-#include <TREngine_Interfaces.h>
+#include <Core.hpp>
 
 TRV2_NAMESPACE_BEGIN
 /**
@@ -14,7 +14,7 @@ public:
 	 * @brief Initialization of the application after the engine is ready
 	 * @param engine The instance of game engine
 	*/
-	virtual void Initialize(TREngine* engine) = 0;
+	virtual void Initialize(IEngine* engine) = 0;
 
 	/**
 	 * @brief Specify how to update each frame, execute once per frame

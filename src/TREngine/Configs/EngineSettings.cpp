@@ -1,6 +1,9 @@
-﻿#include "EngineSettings.h"
-#include <CompileTimeConfig_Engine.h>
-#include <Utils/Utils.h>
+﻿#pragma once
+#include "EngineSettings.hpp"
+
+#include <CompileTimeConfig_Engine.hpp>
+#include <Utils/Utils.hpp>
+
 
 TRV2_NAMESPACE_BEGIN
 EngineSettings::EngineSettings()
@@ -15,8 +18,6 @@ EngineSettings::EngineSettings()
 		TRV2_ENGINE_VERSION_MINOR,
 		TRV2_ENGINE_VERSION_PATCH,
 		TRV2_ENGINE_VERSION_TWEAK);
-
-	_graphicsAPIType = GraphicsAPIType::OpenGL;
 
 	_windowResizable = false;
 }

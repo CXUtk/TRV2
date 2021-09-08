@@ -8,7 +8,7 @@ project ("TRV2_Engine" VERSION 0.2.0.0)
 # 指定版本号的配置文件
 configure_file(
     "${PROJECT_SOURCE_DIR}/Configs/CompileTimeConfig.h.in"
-    "${PROJECT_SOURCE_DIR}/../../generated/CompileTimeConfig_Engine.h"
+    "${PROJECT_SOURCE_DIR}/../../generated/CompileTimeConfig_Engine.hpp"
 )
 
 # 包含子项目。
@@ -18,16 +18,15 @@ add_library("TRV2_Engine" STATIC
 "Graphics/GraphicsDevices/OpenGLGraphicsDevice.cpp"
 "Utils/Logging/Logger.cpp"
 "Graphics/Renderers/SpriteRenderer.cpp"
-"Core/GameWindow/GLFWGameWindow.cpp"
+"Platform/GameWindow/GLFWGameWindow.cpp"
 "Assets/AssetsManager.cpp"
- 
 "Graphics/Shaders/OpenGLShaderProgram.cpp"
-"Core/InputController/GLFWInputController.cpp"
-
+"Platform/InputController/GLFWInputController.cpp"
 "Graphics/Textures/OpenGLTexture2D.cpp"
-"Core/Initializer/GLFWInitializer.cpp"
 "Graphics/Structures/VertexLayout.cpp"
-"Graphics/Shaders/OpenGLRawShader.cpp")
+"Graphics/Shaders/OpenGLRawShader.cpp"
+"Platform/GLFWPlatform.cpp"
+"Graphics/OpenGLGraphicsAPI.cpp")
 
 
 message(STATUS "${PROJECT_SOURCE_DIR}")

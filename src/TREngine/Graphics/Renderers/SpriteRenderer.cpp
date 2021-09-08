@@ -1,12 +1,14 @@
-﻿#include "SpriteRenderer.h"
+﻿#include "SpriteRenderer.hpp"
+
 #include <glm/glm.hpp>
 #include <glm/gtx/transform.hpp>
-
 #include <algorithm>
-#include <Utils/Logging/Logger.h>
-#include <Utils/Utils.h>
 
-
+#include <Utils/Logging/Logger.hpp>
+#include <Utils/Utils.hpp>
+#include <Graphics/Textures/OpenGLTexture2D.hpp>
+#include <Graphics/GraphicsDevices/OpenGLGraphicsDevice.hpp>
+#include <Graphics/Shaders/OpenGLShaderProgram.hpp>
 
 TRV2_NAMESPACE_BEGIN
 static const BatchVertex2D simpleQuadVertices[4] = {
@@ -21,7 +23,7 @@ static constexpr int MaxQuadsPerBatch = 1 << 18;
 static constexpr int MaxVerticesPerBatch = MaxQuadsPerBatch * 4;
 static constexpr int MaxIndiciesPerBatch = MaxQuadsPerBatch * 6;
 
-SpriteRenderer::SpriteRenderer(const IGraphicsDevice* graphicsDevice, IShaderProgram* spriteShader,
+SpriteRenderer::SpriteRenderer(IGraphicsDevice* graphicsDevice, IShaderProgram* spriteShader,
 		ITexture2D* pureTexture) : _graphicsDevice(graphicsDevice), 
 	_spriteShaderPure(spriteShader), _whiteTexture(pureTexture)
 {
