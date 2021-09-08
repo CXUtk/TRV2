@@ -1,8 +1,7 @@
-﻿#include "OpenGLShaderProgram.h"
+﻿#include "OpenGLShaderProgram.hpp"
 #include <glm/gtc/type_ptr.hpp>
-#include <Assets/Assets_Interfaces.h>
-#include <Graphics/Shaders/OpenGLRawShader.h>
-#include <Utils/Utils.h>
+#include <Graphics/Shaders/OpenGLRawShader.hpp>
+#include <Utils/Utils.hpp>
 
 TRV2_NAMESPACE_BEGIN
 static const int MAX_BUFFSIZE = 1024;

@@ -1,11 +1,10 @@
 ﻿#pragma once
-
-#include <TREngine_Interfaces.h>
-#include <Graphics/Graphics_Interfaces.h>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 #include <vector>
+
+#include <Graphics/Graphics_Interfaces.hpp>
 #include <Core.hpp>
 
 TRV2_NAMESPACE_BEGIN

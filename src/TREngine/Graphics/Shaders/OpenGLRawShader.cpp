@@ -1,7 +1,8 @@
-﻿#include "OpenGLRawShader.h"
+﻿#include "OpenGLRawShader.hpp"
+
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
-#include <Utils/Utils.h>
+#include <Utils/Utils.hpp>
 #include <array>
 
 TRV2_NAMESPACE_BEGIN

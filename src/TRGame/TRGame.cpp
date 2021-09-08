@@ -1,16 +1,16 @@
-﻿#include "TRGame.h"
+﻿#include "TRGame.hpp"
 
-#include <TREngine/TREngine.h>
-#include <TREngine/Graphics/Renderers/SpriteRenderer.h>
-#include <TREngine/Utils/Structures/Rect.h>
+#include <TREngine/TREngine.hpp>
+#include <TREngine/Graphics/Renderers/SpriteRenderer.hpp>
+#include <TREngine/Utils/Structures/Rect.hpp>
 
 #include <Platform/Platform_Interfaces.hpp>
 
-#include <Platform/GameTimer/GLFWGameTimer.h>
-#include <Platform/GameWindow/GLFWGameWindow.h>
-#include <Platform/InputController/GLFWInputController.h>
+#include <Platform/GameTimer/GLFWGameTimer.hpp>
+#include <Platform/GameWindow/GLFWGameWindow.hpp>
+#include <Platform/InputController/GLFWInputController.hpp>
 
-#include <TRGame/Worlds/GameWorld.h>
+#include <TRGame/Worlds/GameWorld.hpp>
 
 #include <glm/gtx/transform.hpp>
 

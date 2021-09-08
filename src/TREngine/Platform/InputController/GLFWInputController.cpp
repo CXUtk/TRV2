@@ -1,11 +1,10 @@
-﻿#include "GLFWInputController.h"
+﻿#include "GLFWInputController.hpp"
+
 #include <array>
 #include <vector>
 
 TRV2_NAMESPACE_BEGIN
 static constexpr int GLFW_KEY_SIZE = 512;
-
-
 
 template<int T>
 std::array<std::vector<int>, T> generateKeyCodeMapper()

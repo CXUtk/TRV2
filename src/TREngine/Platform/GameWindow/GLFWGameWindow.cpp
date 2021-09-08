@@ -1,5 +1,5 @@
-﻿#include "GLFWGameWindow.h"
-#include <Configs/EngineSettings.h>
+﻿#include "GLFWGameWindow.hpp"
+#include <Configs/EngineSettings.hpp>
 
 TRV2_NAMESPACE_BEGIN
 static void framebuffer_size_callback(GLFWwindow* window, int width, int height)

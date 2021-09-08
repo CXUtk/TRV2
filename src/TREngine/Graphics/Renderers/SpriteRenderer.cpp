@@ -1,13 +1,14 @@
-﻿#include "SpriteRenderer.h"
+﻿#include "SpriteRenderer.hpp"
+
 #include <glm/glm.hpp>
 #include <glm/gtx/transform.hpp>
-
 #include <algorithm>
-#include <Utils/Logging/Logger.h>
-#include <Utils/Utils.h>
-#include <Graphics/Textures/OpenGLTexture2D.h>
-#include <Graphics/GraphicsDevices/OpenGLGraphicsDevice.h>
-#include <Graphics/Shaders/OpenGLShaderProgram.h>
+
+#include <Utils/Logging/Logger.hpp>
+#include <Utils/Utils.hpp>
+#include <Graphics/Textures/OpenGLTexture2D.hpp>
+#include <Graphics/GraphicsDevices/OpenGLGraphicsDevice.hpp>
+#include <Graphics/Shaders/OpenGLShaderProgram.hpp>
 
 TRV2_NAMESPACE_BEGIN
 static const BatchVertex2D simpleQuadVertices[4] = {

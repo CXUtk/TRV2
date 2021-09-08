@@ -1,12 +1,12 @@
 ﻿#pragma once
 #include "GLFWPlatform.hpp"
-#include <Configs/EngineSettings.h>
+#include <Configs/EngineSettings.hpp>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
-#include <Platform/GameTimer/GLFWGameTimer.h>
-#include <Platform/GameWindow/GLFWGameWindow.h>
-#include <Platform/InputController/GLFWInputController.h>
+#include <Platform/GameTimer/GLFWGameTimer.hpp>
+#include <Platform/GameWindow/GLFWGameWindow.hpp>
+#include <Platform/InputController/GLFWInputController.hpp>
 
 
 TRV2_NAMESPACE_BEGIN

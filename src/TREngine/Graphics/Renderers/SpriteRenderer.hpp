@@ -3,12 +3,12 @@
 #include <memory>
 #include <map>
 
-#include <TREngine_Interfaces.h>
+#include <TREngine_Interfaces.hpp>
 #include <Core.hpp>
 
-#include <Graphics/Graphics_Interfaces.h>
-#include <Graphics/Structures/BatchInfo.h>
-#include <Graphics/Structures/VertexLayout.h>
+#include <Graphics/Graphics_Interfaces.hpp>
+#include <Graphics/Structures/BatchInfo.hpp>
+#include <Graphics/Structures/VertexLayout.hpp>
 
 TRV2_NAMESPACE_BEGIN
 class SpriteRenderer

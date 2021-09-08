@@ -1,10 +1,11 @@
-﻿#include "GameWorld.h"
-#include "Tile.h"
-#include <TREngine/Utils/Structures/Rect.h>
-#include <TREngine/Graphics/Renderers/SpriteRenderer.h>
+﻿#include "GameWorld.hpp"
+#include "Tile.hpp"
+
+#include <TREngine/Utils/Structures/Rect.hpp>
+#include <TREngine/Graphics/Renderers/SpriteRenderer.hpp>
 #include <random>
-#include <TRGame/TRGame.h>
-#include <TREngine/TREngine.h>
+#include <TRGame/TRGame.hpp>
+#include <TREngine/TREngine.hpp>
 #include <TREngine/Assets/AssetsManager.hpp>
 
 static const glm::vec4 tempColorTable[5] = {

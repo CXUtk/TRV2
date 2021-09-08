@@ -3,8 +3,8 @@
 #include <GLFW/glfw3.h>
 
 #include "OpenGLGraphicsAPI.hpp"
-#include <Configs/EngineSettings.h>
-#include <Graphics/GraphicsDevices/OpenGLGraphicsDevice.h>
+#include <Configs/EngineSettings.hpp>
+#include <Graphics/GraphicsDevices/OpenGLGraphicsDevice.hpp>
 
 
 TRV2_NAMESPACE_BEGIN

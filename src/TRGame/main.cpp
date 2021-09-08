@@ -1,11 +1,11 @@
 ﻿#define _CRTDBG_MAP_ALLOC
-#include <TRGame/TRGame.h>
-#include <TREngine/TREngine.h>
+#include <TRGame/TRGame.hpp>
+#include <TREngine/TREngine.hpp>
 #include <cstdio>
 
-#include <Platform/GameTimer/GLFWGameTimer.h>
-#include <Platform/GameWindow/GLFWGameWindow.h>
-#include <Platform/InputController/GLFWInputController.h>
+#include <Platform/GameTimer/GLFWGameTimer.hpp>
+#include <Platform/GameWindow/GLFWGameWindow.hpp>
+#include <Platform/InputController/GLFWInputController.hpp>
 
 int main(int argc, char** argv)
 {

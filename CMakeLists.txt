@@ -15,7 +15,7 @@ message(STATUS "${PROJECT_BINARY_DIR}")
 # 指定版本号的配置文件
 configure_file(
     "${TRV2_GAME_SRC_DIR}/Configs/CompileTimeConfig.h.in"
-    "${PROJECT_SOURCE_DIR}/generated/CompileTimeConfig_Game.h"
+    "${PROJECT_SOURCE_DIR}/generated/CompileTimeConfig_Game.hpp"
 )
 
 # 包含子项目。

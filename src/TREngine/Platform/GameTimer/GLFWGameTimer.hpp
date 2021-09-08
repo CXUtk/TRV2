@@ -1,7 +1,8 @@
 ﻿#pragma once
-#include <TREngine_Interfaces.h>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+
+#include <TREngine_Interfaces.hpp>
 
 TRV2_NAMESPACE_BEGIN
 class GLFWGameTimer

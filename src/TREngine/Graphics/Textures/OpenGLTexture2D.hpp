@@ -2,10 +2,10 @@
 
 #include <string>
 
-#include <TREngine_Interfaces.h>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
+
 #include <Core.hpp>
 
 TRV2_NAMESPACE_BEGIN

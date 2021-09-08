@@ -5,9 +5,9 @@
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 
-#include <TREngine_Interfaces.h>
+#include <TREngine_Interfaces.hpp>
 #include <Platform/Platform_Interfaces.hpp>
-#include <TREngine/Configs/EngineSettings.h>
+#include <TREngine/Configs/EngineSettings.hpp>
 
 TRV2_NAMESPACE_BEGIN
 class GLFWInputController

@@ -1,14 +1,14 @@
-﻿#include "OpenGLGraphicsDevice.h"
+﻿#include "OpenGLGraphicsDevice.hpp"
 
 #include <glad/glad.h>
 #include <array>
 #include <thread>
 #include <exception>
 
-#include <TREngine.h>
-#include <Configs/EngineSettings.h>
-#include <Graphics/Structures/VertexLayout.h>
-#include <Graphics/Textures/OpenGLTexture2D.h>
+#include <TREngine.hpp>
+#include <Configs/EngineSettings.hpp>
+#include <Graphics/Structures/VertexLayout.hpp>
+#include <Graphics/Textures/OpenGLTexture2D.hpp>
 
 
 TRV2_NAMESPACE_BEGIN

@@ -1,11 +1,12 @@
-﻿#include <cstdio>
+﻿#include "Logger.hpp"
+
+#include <cstdio>
 #include <cstdarg>
 #include <iostream>
 #include <iomanip>
 #include <ctime>
 #include <sstream>
 
-#include "Logger.h"
 
 TRV2_NAMESPACE_BEGIN
 static const char* infoBadge = "[INFO]";

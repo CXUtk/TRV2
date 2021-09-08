@@ -1,5 +1,5 @@
 ﻿#pragma once
-#include <TREngine_Interfaces.h>
+#include <Core.hpp>
 
 TRV2_NAMESPACE_BEGIN
 /**

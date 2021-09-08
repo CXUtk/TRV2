@@ -1,6 +1,5 @@
 ﻿#pragma once
-#include <Core.hpp>
-#include <Assets/Assets_Interfaces.h>
+#include <Graphics/Graphics_Interfaces.hpp>
 #include <string>
 
 TRV2_NAMESPACE_BEGIN

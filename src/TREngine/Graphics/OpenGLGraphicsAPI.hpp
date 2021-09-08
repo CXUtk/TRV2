@@ -1,5 +1,5 @@
 ﻿#pragma once
-#include <TREngine_Interfaces.h>
+#include <TREngine_Interfaces.hpp>
 //#include <Graphics/GraphicsDevices/OpenGLGraphicsDevice.h>
 //#include <Graphics/Shaders/OpenGLRawShader.h>
 //#include <Graphics/Shaders/OpenGLShaderProgram.h>

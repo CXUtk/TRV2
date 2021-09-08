@@ -1,5 +1,5 @@
 ﻿#pragma once
-#include <TREngine_Interfaces.h>
+#include <TREngine_Interfaces.hpp>
 
 TRV2_NAMESPACE_BEGIN
 class GLFWGameWindow;

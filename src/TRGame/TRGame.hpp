@@ -3,9 +3,9 @@
 #include <glm/glm.hpp>
 
 #include <TREngine/Core.hpp>
-#include <TRGame/TRGame_Interfaces.h>
-#include <TREngine/TRApplication.h>
-#include <TREngine/Utils/Structures/Rect.h>
+#include <TRGame/TRGame_Interfaces.hpp>
+#include <TREngine/TRApplication.hpp>
+#include <TREngine/Utils/Structures/Rect.hpp>
 
 
 class TRGame : public trv2::TRApplication

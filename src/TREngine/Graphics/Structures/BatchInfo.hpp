@@ -1,5 +1,5 @@
 ﻿#pragma once
-#include <TREngine_Interfaces.h>
+#include <Core.hpp>
 #include <glm/glm.hpp>
 
 TRV2_NAMESPACE_BEGIN
@@ -31,8 +31,6 @@ struct BatchState
 	BatchSettings Settings;
 	BatchState() = default;
 };
-
-
 
 
 struct BatchVertex2D

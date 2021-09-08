@@ -1,8 +1,8 @@
 ﻿#pragma once
 #include <memory>
-#include <TREngine_Interfaces.h>
+#include <TREngine_Interfaces.hpp>
 #include <glm/glm.hpp>
-#include <TREngine.h>
+#include <TREngine.hpp>
 
 TRV2_NAMESPACE_BEGIN
 // Header types

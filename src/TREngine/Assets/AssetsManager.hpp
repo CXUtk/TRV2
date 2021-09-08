@@ -2,9 +2,9 @@
 #include <map>
 #include <string>
 #include <memory>
-#include <TREngine_Interfaces.h>
-#include <Utils/Utils.h>
+#include <Utils/Utils.hpp>
 #include <Core.hpp>
+
 TRV2_NAMESPACE_BEGIN
 
 class AssetsManager

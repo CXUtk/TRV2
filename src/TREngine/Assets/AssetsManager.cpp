@@ -1,11 +1,11 @@
 ﻿#include "AssetsManager.hpp"
-#include <Utils/Utils.h>
-#include <TREngine.h>
-#include <Graphics/Graphics_Interfaces.h>
-#include <Graphics/GraphicsDevices/OpenGLGraphicsDevice.h>
-#include <Graphics/Shaders/OpenGLRawShader.h>
-#include <Graphics/Shaders/OpenGLShaderProgram.h>
-#include <Graphics/Textures/OpenGLTexture2D.h>
+#include <Utils/Utils.hpp>
+#include <TREngine.hpp>
+#include <Graphics/Graphics_Interfaces.hpp>
+#include <Graphics/GraphicsDevices/OpenGLGraphicsDevice.hpp>
+#include <Graphics/Shaders/OpenGLRawShader.hpp>
+#include <Graphics/Shaders/OpenGLShaderProgram.hpp>
+#include <Graphics/Textures/OpenGLTexture2D.hpp>
 
 TRV2_NAMESPACE_BEGIN
 

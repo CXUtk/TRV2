@@ -1,5 +1,5 @@
 ﻿#pragma once
-#include "TREngine_Interfaces.h"
+#include "TREngine_Interfaces.hpp"
 #include <Platform/GLFWPlatform.hpp>
 #include <Graphics/OpenGLGraphicsAPI.hpp>
 

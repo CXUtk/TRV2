@@ -1,10 +1,10 @@
 ﻿#pragma once
 #include <memory>
 #include <glm/glm.hpp>
-#include <Utils/Logging/Logger.h>
-#include <Configs/EngineSettings.h>
+#include <Utils/Logging/Logger.hpp>
+#include <Configs/EngineSettings.hpp>
 #include <Assets/AssetsManager.hpp>
-#include <Graphics/Renderers/SpriteRenderer.h>
+#include <Graphics/Renderers/SpriteRenderer.hpp>
 
 TRV2_NAMESPACE_BEGIN
 /**

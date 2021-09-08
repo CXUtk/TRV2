@@ -8,7 +8,7 @@ project ("TRV2_Engine" VERSION 0.2.0.0)
 # 指定版本号的配置文件
 configure_file(
     "${PROJECT_SOURCE_DIR}/Configs/CompileTimeConfig.h.in"
-    "${PROJECT_SOURCE_DIR}/../../generated/CompileTimeConfig_Engine.h"
+    "${PROJECT_SOURCE_DIR}/../../generated/CompileTimeConfig_Engine.hpp"
 )
 
 # 包含子项目。

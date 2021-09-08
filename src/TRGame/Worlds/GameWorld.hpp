@@ -1,8 +1,8 @@
 ﻿#pragma once
 
-#include <TREngine/TREngine_Interfaces.h>
+#include <TREngine/TREngine_Interfaces.hpp>
 #include <memory>
-#include "Tile.h"
+#include "Tile.hpp"
 
 class GameWorld
 {

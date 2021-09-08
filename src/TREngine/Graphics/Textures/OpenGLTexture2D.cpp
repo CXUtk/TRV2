@@ -1,11 +1,12 @@
 ﻿#pragma once
 
-#include <TREngine_Interfaces.h>
-#include "OpenGLTexture2D.h"
-
 #define STB_IMAGE_IMPLEMENTATION
 #include <stbi/stb_image.h>
-#include <Utils/Utils.h>
+
+#include <TREngine_Interfaces.hpp>
+#include "OpenGLTexture2D.hpp"
+#include <Utils/Utils.hpp>
+
 
 TRV2_NAMESPACE_BEGIN
 OpenGLTexture2D::OpenGLTexture2D(IGraphicsDevice* device, ITextureHandle handle) : 
