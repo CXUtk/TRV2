@@ -1,17 +1,16 @@
 ﻿#pragma once
 #include <TREngine_Interfaces.h>
-#include <Core/Core_Interfaces.h>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
 TRV2_NAMESPACE_BEGIN
-class GLFWGameTimer : public IGameTimer
+class GLFWGameTimer
 {
 public:
 	GLFWGameTimer() {}
-	~GLFWGameTimer() override {}
+	~GLFWGameTimer() {}
 
-	double GetCurrentTime() override
+	double GetCurrentTime()
 	{
 		return glfwGetTime();
 	}

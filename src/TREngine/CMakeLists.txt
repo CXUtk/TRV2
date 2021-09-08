@@ -18,14 +18,15 @@ add_library("TRV2_Engine" STATIC
 "Graphics/GraphicsDevices/OpenGLGraphicsDevice.cpp"
 "Utils/Logging/Logger.cpp"
 "Graphics/Renderers/SpriteRenderer.cpp"
-"Core/GameWindow/GLFWGameWindow.cpp"
+"Platform/GameWindow/GLFWGameWindow.cpp"
 "Assets/AssetsManager.cpp"
 "Graphics/Shaders/OpenGLShaderProgram.cpp"
-"Core/InputController/GLFWInputController.cpp"
+"Platform/InputController/GLFWInputController.cpp"
 "Graphics/Textures/OpenGLTexture2D.cpp"
-"Core/Initializer/GLFWInitializer.cpp"
 "Graphics/Structures/VertexLayout.cpp"
-"Graphics/Shaders/OpenGLRawShader.cpp")
+"Graphics/Shaders/OpenGLRawShader.cpp"
+"Platform/GLFWPlatform.cpp"
+"Graphics/OpenGLGraphicsAPI.cpp")
 
 
 message(STATUS "${PROJECT_SOURCE_DIR}")

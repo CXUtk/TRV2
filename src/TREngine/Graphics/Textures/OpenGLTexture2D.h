@@ -1,13 +1,15 @@
 ﻿#pragma once
 
+#include <string>
+
 #include <TREngine_Interfaces.h>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
-#include <Graphics/Graphics_Interfaces.h>
+#include <Core.hpp>
 
 TRV2_NAMESPACE_BEGIN
-class OpenGLTexture2D : public ITexture2D
+class OpenGLTexture2D
 {
 public:
 	/**
@@ -33,12 +35,12 @@ public:
 	*/
 	OpenGLTexture2D(IGraphicsDevice* device, const std::string& fileName);
 
-	~OpenGLTexture2D() override;
+	~OpenGLTexture2D();
 
-	ITextureHandle GetHandle() const override { return _handle; }
+	ITextureHandle GetHandle() const { return _handle; }
 
-	int GetWidth() const override { return _width; }
-	int GetHeight() const override { return _height; }
+	int GetWidth() const { return _width; }
+	int GetHeight() const { return _height; }
 
 private:
 	ITextureHandle _handle;

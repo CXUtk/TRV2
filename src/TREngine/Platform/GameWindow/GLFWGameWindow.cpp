@@ -7,19 +7,16 @@ static void framebuffer_size_callback(GLFWwindow* window, int width, int height)
     glViewport(0, 0, width, height);
 }
 
-GLFWGameWindow::GLFWGameWindow(const EngineSettings* config) : IGameWindow(config)
+GLFWGameWindow::GLFWGameWindow(const EngineSettings& config)
 {
-    _window = glfwCreateWindow(config->GetWindowWidth(), config->GetWindowHeight(),
-        config->GetWindowTitle(), nullptr, nullptr);
+    _window = glfwCreateWindow(config.GetWindowWidth(), config.GetWindowHeight(),
+        config.GetWindowTitle(), nullptr, nullptr);
     if (!_window)
     {
         throw std::exception("Failed to create window");
     }
-    glfwSetWindowUserPointer(_window, this);
     glfwMakeContextCurrent(_window);
     glfwSetFramebufferSizeCallback(_window, framebuffer_size_callback);
-
-    _inputController = std::make_shared<GLFWInputController>(_window);
 }
 
 GLFWGameWindow::~GLFWGameWindow()
@@ -34,7 +31,6 @@ GLFWGameWindow::~GLFWGameWindow()
 
 void GLFWGameWindow::BeginFrame()
 {
-    _inputController->UpdateInput();
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
@@ -42,7 +38,6 @@ void GLFWGameWindow::BeginFrame()
 void GLFWGameWindow::EndFrame()
 {
     glfwSwapBuffers(_window);
-    _inputController->ClearInput();
 }
 
 bool GLFWGameWindow::ShouldClose() const

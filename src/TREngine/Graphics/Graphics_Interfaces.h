@@ -2,7 +2,7 @@
 #include <string>
 #include <vector>
 #include <glm/glm.hpp>
-#include <TREngine_Interfaces.h>
+#include <Core.hpp>
 
 TRV2_NAMESPACE_BEGIN
 enum class BufferDataType
@@ -52,23 +52,19 @@ enum class ShaderType
 	__COUNT,
 };
 
-
-using IVertexBufferHandle = unsigned int;
-using IShaderHandle = unsigned int;
-using IShaderProgramHandle = unsigned int;
-using ITextureHandle = unsigned int;
-
 class VertexLayout;
 
 
 /**
  * @brief Graphics device interface. Includes platform independent operations to create and draw rendering objects.
 */
-class IGraphicsDevice
+template<typename _API>
+class _GraphicsDevice_Base
 {
 public:
-	IGraphicsDevice(const EngineSettings* clientConfig) {}
-	virtual ~IGraphicsDevice() = 0 {};
+	using ITexture2D = typename _API::_Texture2D_Type;
+
+	virtual ~_GraphicsDevice_Base() = 0 {};
 
 	/**
 	 * @brief Set vertex attributes for current binding vertex array object
@@ -168,13 +164,15 @@ public:
 /**
  * @brief Platform indenpendent shader object interface
 */
-class IShaderProgram
+template<typename _API>
+class _ShaderProgram_Base
 {
 public:
-	IShaderProgram(const std::shared_ptr<IRawShader>& vertexShader, const std::shared_ptr<IRawShader>& fragmentShader) {}
-	IShaderProgram(const std::vector<std::shared_ptr<IRawShader>>& shaders) {}
+	using RawShader = typename _API::_RawShader_Type;
+	_ShaderProgram_Base(const std::shared_ptr<RawShader>& vertexShader, const std::shared_ptr<RawShader>& fragmentShader) {}
+	_ShaderProgram_Base(const std::vector<std::shared_ptr<RawShader>>& shaders) {}
 
-	virtual ~IShaderProgram() = 0 {};
+	virtual ~_ShaderProgram_Base() = 0 {};
 
 	virtual IShaderProgramHandle GetHandle() const = 0;
 
@@ -193,10 +191,13 @@ private:
 /**
  * @brief Platform indenpendent 2d texture object interface
 */
-class ITexture2D
+template<typename _API>
+class _Texture2D_Base
 {
 public:
-	virtual ~ITexture2D() = 0 {};
+	using IGraphicsDevice = typename _API::_GraphicsDevice_Type;
+
+	virtual ~_Texture2D_Base() = 0 {};
 
 	virtual int GetWidth() const = 0;
 	virtual int GetHeight() const = 0;
@@ -208,11 +209,14 @@ private:
 /**
  * @brief Compiled shaders, components of final ShaderProgram object
 */
-class IRawShader
+template<typename _API>
+class _RawShader_Base
 {
 public:
-	IRawShader(const char* code, ShaderType shaderType, const char* fileName) {}
-	virtual ~IRawShader() = 0 {}
+	using IGraphicsDevice = typename _API::_GraphicsDevice_Type;
+
+	_RawShader_Base(const char* code, ShaderType shaderType, const char* fileName) {}
+	virtual ~_RawShader_Base() = 0 {}
 
 	virtual IShaderHandle GetHandle() const = 0;
 	virtual ShaderType GetShaderType() const = 0;

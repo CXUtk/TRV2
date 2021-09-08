@@ -6,25 +6,26 @@
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 #include <vector>
+#include <Core.hpp>
 
 TRV2_NAMESPACE_BEGIN
-class OpenGLShaderProgram : public IShaderProgram
+class OpenGLShaderProgram
 {
 public:
     explicit OpenGLShaderProgram(const std::shared_ptr<IRawShader>& vertexShader, const std::shared_ptr<IRawShader>& fragmentShader);
     explicit OpenGLShaderProgram(const std::vector<std::shared_ptr<IRawShader>>& shaders);
 
-    virtual ~OpenGLShaderProgram() override;
+    virtual ~OpenGLShaderProgram();
 
-    virtual IShaderProgramHandle GetHandle() const override { return _handle; }
+    virtual IShaderProgramHandle GetHandle() const { return _handle; }
 
-    void Apply() override;
-    void SetParameteri1(const std::string& name, int value) override;
-    void SetParameterfv2(const std::string& name, glm::vec2 value) override;
-    void SetParameterfv4(const std::string& name, const glm::vec4& value) override;
-    void SetParameterfm4x4(const std::string& name, const glm::mat4& value) override;
-    void SetParameterfvArray(const std::string& name, const float* data, int size) override;
-    void SetParameterintvArray(const std::string& name, const int* data, int size) override;
+    void Apply();
+    void SetParameteri1(const std::string& name, int value);
+    void SetParameterfv2(const std::string& name, glm::vec2 value);
+    void SetParameterfv4(const std::string& name, const glm::vec4& value);
+    void SetParameterfm4x4(const std::string& name, const glm::mat4& value);
+    void SetParameterfvArray(const std::string& name, const float* data, int size);
+    void SetParameterintvArray(const std::string& name, const int* data, int size);
 private:
     IShaderProgramHandle _handle;
 };

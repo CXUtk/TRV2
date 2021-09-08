@@ -2,10 +2,11 @@
 #include <memory>
 #include <glm/glm.hpp>
 
-#include <TREngine/TREngine_Interfaces.h>
+#include <TREngine/Core.hpp>
 #include <TRGame/TRGame_Interfaces.h>
 #include <TREngine/TRApplication.h>
 #include <TREngine/Utils/Structures/Rect.h>
+
 
 class TRGame : public trv2::TRApplication
 {
@@ -14,12 +15,12 @@ public:
     TRGame();
     ~TRGame() override;
 
-    virtual void Initialize(trv2::TREngine* engine) override;
+    virtual void Initialize(trv2::IEngine* engine) override;
     virtual void Update(double deltaTime) override;
     virtual void Draw(double deltaTime) override;
     virtual void Exit() override;
 
-    trv2::TREngine* GetEngine()
+    trv2::IEngine* GetEngine()
     {
         return _engine;
     }
@@ -32,14 +33,12 @@ public:
 private:
     // Other
     void logGameInfo();
-
     void loadGameContent();
 
-
-    trv2::TREngine* _engine;
+    trv2::IEngine* _engine;
     std::shared_ptr<trv2::Logger> _logger;
 
-    std::shared_ptr<trv2::SpriteRenderer> _spriteRenderer;
+    trv2::SpriteRenderer* _spriteRenderer;
     std::unique_ptr<GameWorld> _gameWorld;
     
     trv2::Rect _screenRect;
@@ -47,7 +46,6 @@ private:
     float _expScale;
     glm::vec2 _mouseDragStart;
     glm::vec2 _oldScreenPos;
-
 
     static TRGame* _instance;
 };

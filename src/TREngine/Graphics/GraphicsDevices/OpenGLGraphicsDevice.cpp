@@ -1,15 +1,15 @@
 ﻿#include "OpenGLGraphicsDevice.h"
 
-
-#include <exception>
-#include <array>
-#include <TREngine.h>
 #include <glad/glad.h>
-#include <GLFW/glfw3.h>
-#include <Configs/EngineSettings.h>
-#include <Assets/AssetsManager.h>
-#include <Graphics/Structures/VertexLayout.h>
+#include <array>
 #include <thread>
+#include <exception>
+
+#include <TREngine.h>
+#include <Configs/EngineSettings.h>
+#include <Graphics/Structures/VertexLayout.h>
+#include <Graphics/Textures/OpenGLTexture2D.h>
+
 
 TRV2_NAMESPACE_BEGIN
 template<int T>
@@ -56,7 +56,7 @@ void OpenGLGraphicsDevice::initializeConstants()
 	glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &_MaxTextureSlotCanUse);
 }
 
-OpenGLGraphicsDevice::OpenGLGraphicsDevice(const EngineSettings* clientConfig) : IGraphicsDevice(clientConfig)
+OpenGLGraphicsDevice::OpenGLGraphicsDevice(const EngineSettings& clientConfig)
 {
 	initializeConstants();
 }

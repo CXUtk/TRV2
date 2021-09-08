@@ -3,6 +3,10 @@
 #include <TREngine/TREngine.h>
 #include <cstdio>
 
+#include <Platform/GameTimer/GLFWGameTimer.h>
+#include <Platform/GameWindow/GLFWGameWindow.h>
+#include <Platform/InputController/GLFWInputController.h>
+
 int main(int argc, char** argv)
 {
     _CrtMemState sOld;
@@ -11,7 +15,7 @@ int main(int argc, char** argv)
     _CrtMemCheckpoint(&sOld); //take a snapshot
     try {
         TRGame game;
-        trv2::TREngine engine(argc, argv, &game);
+        trv2::IEngine engine(argc, argv, &game);
         engine.Run();
     }
     catch (std::exception ex) {

@@ -1,15 +1,16 @@
 ﻿#include "TRGame.h"
 
 #include <TREngine/TREngine.h>
-#include <TREngine/Configs/EngineSettings.h>
-#include <TREngine/Utils/Logging/Logger.h>
-#include <TREngine/Core/Core_Interfaces.h>
 #include <TREngine/Graphics/Renderers/SpriteRenderer.h>
 #include <TREngine/Utils/Structures/Rect.h>
-#include <TREngine/Graphics/Structures/BatchInfo.h>
+
+#include <Platform/Platform_Interfaces.hpp>
+
+#include <Platform/GameTimer/GLFWGameTimer.h>
+#include <Platform/GameWindow/GLFWGameWindow.h>
+#include <Platform/InputController/GLFWInputController.h>
 
 #include <TRGame/Worlds/GameWorld.h>
-
 
 #include <glm/gtx/transform.hpp>
 
@@ -42,17 +43,17 @@ void TRGame::loadGameContent()
 }
 
 
-void TRGame::Initialize(trv2::TREngine* engine)
+void TRGame::Initialize(trv2::IEngine* engine)
 {
     _logger = std::make_unique<trv2::Logger>();
 
     _engine = engine;
-    _spriteRenderer = _engine->CreateSpriteRenderer();
+    _spriteRenderer = _engine->GetSpriteRenderer();
 
     logGameInfo();
     loadGameContent();
 
-    auto controller = _engine->GetGameWindow()->GetInputController();
+    auto controller = _engine->GetInputController();
     auto window = _engine->GetGameWindow();
     auto clientSize = window->GetWindowSize();
 
@@ -66,7 +67,7 @@ void TRGame::Initialize(trv2::TREngine* engine)
 
 void TRGame::Update(double deltaTime)
 {
-    auto controller = _engine->GetGameWindow()->GetInputController();
+    auto controller = _engine->GetInputController();
     auto window = _engine->GetGameWindow();
     auto clientSize = window->GetWindowSize();
 
@@ -126,7 +127,7 @@ void TRGame::Draw(double deltaTime)
 {
     auto window = _engine->GetGameWindow();
     auto clientSize = window->GetWindowSize();
-    auto controller = _engine->GetGameWindow()->GetInputController();
+    auto controller = _engine->GetInputController();
 
     trv2::BatchSettings setting;
     setting.SpriteSortMode = trv2::SpriteSortMode::Deferred;
@@ -143,7 +144,7 @@ void TRGame::Draw(double deltaTime)
         topRight.y = std::max(0, std::min(_gameWorld->GetHeight() - 1, topRight.y));
 
         trv2::RectI viewRect(botLeft, topRight - botLeft);
-        _gameWorld->RenderWorld(trv2::ptr(_spriteRenderer), viewRect);
+        _gameWorld->RenderWorld(_spriteRenderer, viewRect);
 
         //_spriteRenderer->Draw(glm::vec2((int)(worldPos.x / 16) * 16, (int)(worldPos.y / 16) * 16), glm::vec2(16), glm::vec2(0), 0.f, glm::vec4(1, 0, 0, 1));
     }

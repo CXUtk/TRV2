@@ -4,6 +4,8 @@
 #include <map>
 
 #include <TREngine_Interfaces.h>
+#include <Core.hpp>
+
 #include <Graphics/Graphics_Interfaces.h>
 #include <Graphics/Structures/BatchInfo.h>
 #include <Graphics/Structures/VertexLayout.h>

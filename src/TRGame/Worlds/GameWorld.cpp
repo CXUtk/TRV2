@@ -5,7 +5,7 @@
 #include <random>
 #include <TRGame/TRGame.h>
 #include <TREngine/TREngine.h>
-#include <TREngine/Assets/AssetsManager.h>
+#include <TREngine/Assets/AssetsManager.hpp>
 
 static const glm::vec4 tempColorTable[5] = {
 	glm::vec4(1),

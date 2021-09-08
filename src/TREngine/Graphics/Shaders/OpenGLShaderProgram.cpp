@@ -1,14 +1,15 @@
 ﻿#include "OpenGLShaderProgram.h"
 #include <glm/gtc/type_ptr.hpp>
 #include <Assets/Assets_Interfaces.h>
+#include <Graphics/Shaders/OpenGLRawShader.h>
 #include <Utils/Utils.h>
 
 TRV2_NAMESPACE_BEGIN
 static const int MAX_BUFFSIZE = 1024;
 static char infoLog[MAX_BUFFSIZE];
 
-OpenGLShaderProgram::OpenGLShaderProgram(const std::shared_ptr<IRawShader>& vertexShader, 
-    const std::shared_ptr<IRawShader>& fragmentShader) : IShaderProgram(vertexShader, fragmentShader)
+OpenGLShaderProgram::OpenGLShaderProgram(const std::shared_ptr<IRawShader>& vertexShader,
+    const std::shared_ptr<IRawShader>& fragmentShader)
 {
     GLuint id = glCreateProgram();
     glAttachShader(id, vertexShader->GetHandle());
@@ -24,7 +25,7 @@ OpenGLShaderProgram::OpenGLShaderProgram(const std::shared_ptr<IRawShader>& vert
     }
     _handle = id;
 }
-OpenGLShaderProgram::OpenGLShaderProgram(const std::vector<std::shared_ptr<IRawShader>>& shaders) : IShaderProgram(shaders)
+OpenGLShaderProgram::OpenGLShaderProgram(const std::vector<std::shared_ptr<IRawShader>>& shaders)
 {
     GLuint id = glCreateProgram();
     for (auto& shader : shaders)

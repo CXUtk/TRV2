@@ -5,8 +5,9 @@
 #include <algorithm>
 #include <Utils/Logging/Logger.h>
 #include <Utils/Utils.h>
-
-
+#include <Graphics/Textures/OpenGLTexture2D.h>
+#include <Graphics/GraphicsDevices/OpenGLGraphicsDevice.h>
+#include <Graphics/Shaders/OpenGLShaderProgram.h>
 
 TRV2_NAMESPACE_BEGIN
 static const BatchVertex2D simpleQuadVertices[4] = {
