@@ -9,24 +9,10 @@ TRV2_NAMESPACE_BEGIN
 static constexpr int MAX_BUFFSIZE = 1024;
 static char infoLog[MAX_BUFFSIZE];
 
-template<size_t T>
-constexpr std::array<unsigned int, T> generateShaderTypeMapper()
-{
-    std::array<unsigned int, T> M{ 0 };
-
-    M[(int)ShaderType::VERTEX_SHADER] = GL_VERTEX_SHADER;
-    M[(int)ShaderType::FRAGMENT_SHADER] = GL_FRAGMENT_SHADER;
-    M[(int)ShaderType::GEOMETRY_SHADER] = GL_GEOMETRY_SHADER;
-    M[(int)ShaderType::COMPUTE_SHADER] = GL_COMPUTE_SHADER;
-    return M;
-}
-
-static constexpr auto ShaderTypeMapper = generateShaderTypeMapper<(size_t)ShaderType::__COUNT>();
-
 trv2::OpenGLRawShader::OpenGLRawShader(const char* code, ShaderType shaderType, const char* fileName) : 
     _type(shaderType), _fileName(fileName)
 {
-    GLuint id = glCreateShader(ShaderTypeMapper[(int)shaderType]);
+    GLuint id = glCreateShader(_OpenGLAPI::MapShaderType(shaderType));
     glShaderSource(id, 1, &code, nullptr);
     glCompileShader(id);
 

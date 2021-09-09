@@ -6,47 +6,58 @@
 #include <TREngine_Interfaces.hpp>
 #include "OpenGLTexture2D.hpp"
 #include <Utils/Utils.hpp>
+#include <array>
 
 
 TRV2_NAMESPACE_BEGIN
-OpenGLTexture2D::OpenGLTexture2D(IGraphicsDevice* device, ITextureHandle handle) : 
-    _graphicsDevice(device), _handle(handle)
-{
-    glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_WIDTH, &_width);
-    glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_HEIGHT, &_height);
-}
 
 OpenGLTexture2D::OpenGLTexture2D(IGraphicsDevice* device, int width, int height, unsigned char* data) :
-    _graphicsDevice(device), _width(width), _height(height)
+    OpenGLTexture2D(device, width, height, data, PixelFormat::RGB, PixelFormat::RGBA, EngineDataType::UNSIGNED_BYTE, TextureParameters())
 {
-    glGenTextures(1, &_handle);
-    glBindTexture(GL_TEXTURE_2D, _handle);
-
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
-
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 }
 
-OpenGLTexture2D::OpenGLTexture2D(IGraphicsDevice* device, const std::string& fileName) : _graphicsDevice(device)
+OpenGLTexture2D::OpenGLTexture2D(IGraphicsDevice* device, const std::string& fileName)
 {
-    int nrChannels;
-    unsigned char* data = stbi_load(fileName.c_str(), &_width, &_height, &nrChannels, 0);
+    int width, height, nrChannels;
+    unsigned char* data = stbi_load(fileName.c_str(), &width, &height, &nrChannels, 0);
     if (!data)
     {
         throw std::exception(string_format("Cannot load texture %s: %s", fileName.c_str(), stbi_failure_reason()).c_str());
     }
-    glGenTextures(1, &_handle);
-    glBindTexture(GL_TEXTURE_2D, _handle);
+    genNewTexture2D(device, width, height, data, PixelFormat::RGB, PixelFormat::RGBA, EngineDataType::UNSIGNED_BYTE, TextureParameters());
+    stbi_image_free(data);
+}
 
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, _width, _height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
-
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+OpenGLTexture2D::OpenGLTexture2D(IGraphicsDevice* device, int width, int height, unsigned char* data,
+    PixelFormat internalFormat, PixelFormat srcFormat, EngineDataType dataType, const TextureParameters& parameters)
+{
+    genNewTexture2D(device, width, height, data, internalFormat, srcFormat, dataType, parameters);
 }
 
 OpenGLTexture2D::~OpenGLTexture2D()
 {
     glDeleteTextures(1, &_handle);
+}
+
+void OpenGLTexture2D::genNewTexture2D(IGraphicsDevice* device, int width, int height, unsigned char* data,
+    PixelFormat internalFormat, PixelFormat srcFormat, EngineDataType dataType, const TextureParameters& parameters)
+{
+    _graphicsDevice = device;
+    _width = width;
+    _height = height;
+    _parameters = parameters;
+
+    glGenTextures(1, &_handle);
+    glBindTexture(GL_TEXTURE_2D, _handle);
+
+    glTexImage2D(GL_TEXTURE_2D, 0, _OpenGLAPI::MapPixelFormat(internalFormat), width, height, 0, _OpenGLAPI::MapPixelFormat(srcFormat), GL_UNSIGNED_BYTE, data);
+
+    auto sampleMethod = _OpenGLAPI::MapTextureSampleMethod(parameters.SampleMethod);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, sampleMethod[0]);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, sampleMethod[1]);
+
+    auto warpMethod = _OpenGLAPI::MapTextureWarpMethod(parameters.TextureWarpMethod);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, warpMethod);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, warpMethod);
 }
 TRV2_NAMESPACE_END

@@ -1,5 +1,7 @@
 ﻿#pragma once
 #include <TREngine_Interfaces.hpp>
+#include <Graphics/Graphics_Interfaces.hpp>
+#include <array>
 //#include <Graphics/GraphicsDevices/OpenGLGraphicsDevice.h>
 //#include <Graphics/Shaders/OpenGLRawShader.h>
 //#include <Graphics/Shaders/OpenGLShaderProgram.h>
@@ -27,9 +29,17 @@ public:
 
 	_GraphicsDevice_Type* GetGraphicsDevice() const { return _graphicsDevice.get(); }
 
+	static int MapTextureWarpMethod(TextureWarpMethod warpMethod); 
+	static std::array<int, 2> MapTextureSampleMethod(TextureSampleMethod sampleMethod); 
+	static int MapPixelFormat(PixelFormat format);
+	static int MapShaderType(ShaderType type);
+	static int MapDataType(EngineDataType type);
+	static int MapBufferType(BufferType type);
+	static int MapDrawPrimitivesType(PrimitiveType type);
 private:
 	std::shared_ptr<_GraphicsDevice_Type> _graphicsDevice;
 };
 
 using _G_API = _OpenGLAPI;
+
 TRV2_NAMESPACE_END

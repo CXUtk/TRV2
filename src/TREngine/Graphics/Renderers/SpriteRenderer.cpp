@@ -64,10 +64,10 @@ SpriteRenderer::SpriteRenderer(IGraphicsDevice* graphicsDevice, IShaderProgram* 
 		sizeof(unsigned int) * MaxIndiciesPerBatch, _vertexIndices.get(), BufferHint::STATIC_DRAW);
 
 	VertexLayout vertexLayout;
-	vertexLayout.Add(VertexElement(offsetof(BatchVertex2D, Position), 2, BufferDataType::FLOAT));
-	vertexLayout.Add(VertexElement(offsetof(BatchVertex2D, TextureCoords), 2, BufferDataType::FLOAT));
-	vertexLayout.Add(VertexElement(offsetof(BatchVertex2D, Color), 4, BufferDataType::FLOAT));
-	vertexLayout.Add(VertexElement(offsetof(BatchVertex2D, TextureIndex), 1, BufferDataType::FLOAT));
+	vertexLayout.Add(VertexElement(offsetof(BatchVertex2D, Position), 2, EngineDataType::FLOAT));
+	vertexLayout.Add(VertexElement(offsetof(BatchVertex2D, TextureCoords), 2, EngineDataType::FLOAT));
+	vertexLayout.Add(VertexElement(offsetof(BatchVertex2D, Color), 4, EngineDataType::FLOAT));
+	vertexLayout.Add(VertexElement(offsetof(BatchVertex2D, TextureIndex), 1, EngineDataType::FLOAT));
 	_graphicsDevice->SetupVertexAttributes(vertexLayout);
 
 	_graphicsDevice->UnbindVertexArray();
@@ -181,7 +181,7 @@ void SpriteRenderer::flushBatch()
 		assert(idxCount % 6 == 0);
 
 		// 绘制
-		_graphicsDevice->DrawIndexedPrimitives(PrimitiveType::TRIANGLE_LIST, idxCount, BufferDataType::UNSIGNED_INT, 0);
+		_graphicsDevice->DrawIndexedPrimitives(PrimitiveType::TRIANGLE_LIST, idxCount, EngineDataType::UNSIGNED_INT, 0);
 	}
 	_graphicsDevice->UnbindVertexArray();
 
