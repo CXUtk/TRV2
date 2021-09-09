@@ -7,9 +7,9 @@ struct VertexElement
 {
     int Offset;
     int NumberOfElements;
-    BufferDataType DataType;
+    EngineDataType DataType;
 
-    VertexElement(int offset, int size, BufferDataType dataType) : Offset(offset), NumberOfElements(size),
+    VertexElement(int offset, int size, EngineDataType dataType) : Offset(offset), NumberOfElements(size),
         DataType(dataType)
     {
 

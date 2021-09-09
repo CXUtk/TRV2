@@ -13,7 +13,7 @@ configure_file(
 
 # 包含子项目。
 add_library("TRV2_Engine" STATIC
-"TREngine.cpp"
+
 "Configs/EngineSettings.cpp"
 "Graphics/GraphicsDevices/OpenGLGraphicsDevice.cpp"
 "Utils/Logging/Logger.cpp"

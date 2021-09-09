@@ -6,6 +6,7 @@ public:
 	Tile(int type) :_type(type) {}
 	~Tile() {}
 
-	ReadonlyProperty(int, Type, type);
+	int GetType() const { return _type; }
 private:
+	int _type;
 };

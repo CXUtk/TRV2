@@ -13,22 +13,22 @@ void VertexLayout::Add(const VertexElement& element)
 	int baseSize = 0;
 	switch (element.DataType)
 	{
-	case BufferDataType::BYTE:
+	case EngineDataType::BYTE:
 	{
 		baseSize = 1;
 		break;
 	}
-	case BufferDataType::SHORT:
+	case EngineDataType::SHORT:
 	{
 		baseSize = 2;
 		break;
 	}
-	case BufferDataType::FLOAT:
+	case EngineDataType::FLOAT:
 	{
 		baseSize = 4;
 		break;
 	}
-	case BufferDataType::INT:
+	case EngineDataType::INT:
 	{
 		baseSize = 4;
 		break;

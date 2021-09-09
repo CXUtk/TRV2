@@ -7,6 +7,8 @@
 
 #include <TREngine.hpp>
 #include <Configs/EngineSettings.hpp>
+#include <Graphics/Graphics_Interfaces.hpp>
+
 #include <Graphics/Structures/VertexLayout.hpp>
 #include <Graphics/Textures/OpenGLTexture2D.hpp>
 
@@ -16,13 +18,13 @@ template<int T>
 constexpr std::array<int, T> generateDataTypeMapper()
 {
 	std::array<int, T> M{0};
-	M[(int)BufferDataType::FLOAT] = GL_FLOAT;
-	M[(int)BufferDataType::INT] = GL_INT;
-	M[(int)BufferDataType::UNSIGNED_INT] = GL_UNSIGNED_INT;
-	M[(int)BufferDataType::SHORT] = GL_SHORT;
-	M[(int)BufferDataType::UNSIGNED_SHORT] = GL_UNSIGNED_SHORT;
-	M[(int)BufferDataType::BYTE] = GL_BYTE;
-	M[(int)BufferDataType::UNSIGNED_BYTE] = GL_UNSIGNED_BYTE;
+	M[(int)EngineDataType::FLOAT] = GL_FLOAT;
+	M[(int)EngineDataType::INT] = GL_INT;
+	M[(int)EngineDataType::UNSIGNED_INT] = GL_UNSIGNED_INT;
+	M[(int)EngineDataType::SHORT] = GL_SHORT;
+	M[(int)EngineDataType::UNSIGNED_SHORT] = GL_UNSIGNED_SHORT;
+	M[(int)EngineDataType::BYTE] = GL_BYTE;
+	M[(int)EngineDataType::UNSIGNED_BYTE] = GL_UNSIGNED_BYTE;
 	return M;
 }
 
@@ -47,7 +49,7 @@ constexpr std::array<int, T> generatePrimitiveTypeMapper()
 	return M;
 }
 
-static constexpr auto DataTypeToGLMapper = generateDataTypeMapper<(int)BufferDataType::__COUNT>();
+static constexpr auto DataTypeToGLMapper = generateDataTypeMapper<(int)EngineDataType::__COUNT>();
 static constexpr auto BufferTypeMapper = generateBufferTypeMapper<(int)BufferType::__COUNT>();
 static constexpr auto DrawPrimitivesTypeMapper = generatePrimitiveTypeMapper<(int)PrimitiveType::__COUNT>();
 
@@ -132,7 +134,7 @@ void OpenGLGraphicsDevice::UnbindVertexArray()
 	glBindVertexArray(0);
 }
 
-void OpenGLGraphicsDevice::DrawIndexedPrimitives(PrimitiveType type, size_t count, BufferDataType dataType, size_t offset)
+void OpenGLGraphicsDevice::DrawIndexedPrimitives(PrimitiveType type, size_t count, EngineDataType dataType, size_t offset)
 {
 	glDrawElements(DrawPrimitivesTypeMapper[(int)type], count, DataTypeToGLMapper[(int)dataType], (void*) offset);
 }

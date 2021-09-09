@@ -1,6 +1,7 @@
 ﻿#pragma once
-#include <Graphics/Graphics_Interfaces.hpp>
+#include <TREngine/TREngine_Interfaces.hpp>
 #include <string>
+#include <Core.hpp>
 
 TRV2_NAMESPACE_BEGIN
 class OpenGLRawShader

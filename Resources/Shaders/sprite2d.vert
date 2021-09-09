@@ -1,7 +1,7 @@
-#version 330 core
+ï»¿#version 330 core
 /*
-*   ÓÃÓÚ»æÖÆ2D SpriteµÄShader
-*   ×é³É²¿·Ö£ºvec2 pos, vec2 texCoord
+*   ç”¨äºç»˜åˆ¶2D Spriteçš„Shader
+*   ç»„æˆéƒ¨åˆ†ï¼švec2 pos, vec2 texCoord
 */
 layout (location = 0) in vec2 vertex;
 layout (location = 1) in vec2 vTexCoord;

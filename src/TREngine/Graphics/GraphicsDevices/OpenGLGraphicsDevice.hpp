@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include <Graphics/Graphics_Interfaces.hpp>
+#include <Core.hpp>
 
 TRV2_NAMESPACE_BEGIN
 /**
@@ -28,7 +29,7 @@ public:
 	virtual void BindVertexArray(IVertexBufferHandle handle);
 	virtual void UnbindVertexArray();
 
-	virtual void DrawIndexedPrimitives(PrimitiveType type, size_t count, BufferDataType dataType, size_t offset);
+	virtual void DrawIndexedPrimitives(PrimitiveType type, size_t count, EngineDataType dataType, size_t offset);
 
 	virtual void BindTexture2DSlot(int slot, const ITexture2D* texture);
 
