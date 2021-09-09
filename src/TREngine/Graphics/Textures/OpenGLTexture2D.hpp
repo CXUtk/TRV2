@@ -29,14 +29,15 @@ public:
 	OpenGLTexture2D(IGraphicsDevice* device, const std::string& fileName);
 
 	/**
-	 * @brief 
-	 * @param device 
-	 * @param width 
-	 * @param height 
-	 * @param data 
-	 * @param internalFormat 
-	 * @param srcFormat 
-	 * @param parameters 
+	 * @brief Creates a texture 2d object with various parameters
+	 * @param device The graphics device that will generate this texture
+	 * @param width Width of the image 
+	 * @param height Height of the image
+	 * @param data Data of the image
+	 * @param internalFormat Internal format of this texture
+	 * @param srcFormat Format of the source image
+	 * @param dataType Data type used in source image
+	 * @param parameters Texture parameters in the generating process
 	*/
 	OpenGLTexture2D(IGraphicsDevice* device, int width, int height, unsigned char* data,
 		PixelFormat internalFormat, PixelFormat srcFormat, EngineDataType dataType, const TextureParameters& parameters);

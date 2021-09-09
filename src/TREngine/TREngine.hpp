@@ -119,6 +119,10 @@ public:
 
     }
 
+    /**
+     * @brief Get current game time
+     * @return 
+    */
     double GetGameTime() const
     {
         return _platform->GetGameTimer()->GetCurrentTime();
@@ -148,21 +152,37 @@ public:
         return _logger.get();
     }
 
+    /**
+     * @brief Get graphics device
+     * @return 
+    */
     IGraphicsDevice* GetGraphicsDevice()
     {
         return _graphicsAPI->GetGraphicsDevice();
     }
 
+    /**
+     * @brief Get game window
+     * @return 
+    */
     IGameWindow* GetGameWindow()
     {
         return _platform->GetWindow();
     }
 
+    /**
+     * @brief Get input controller
+     * @return 
+    */
     IInputController* GetInputController()
     {
         return _platform->GetInputController();
     }
 
+    /**
+     * @brief Get game platform related timer
+     * @return 
+    */
     IGameTimer* GetGameTimer()
     {
         return _platform->GetGameTimer();
@@ -199,6 +219,7 @@ private:
 
     void useApplication()
     {
+        assert(_application != nullptr);
         _application->Initialize(this);
     }
 

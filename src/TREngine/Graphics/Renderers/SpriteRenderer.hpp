@@ -41,7 +41,7 @@ public:
 	void Draw(glm::vec2 pos, glm::vec2 size, glm::vec2 origin, float rotation, const glm::vec4& color);
 
 	/**
-	 * @brief Push a sprite drawing task to batch list
+	 * @brief Push a sprite drawing task to the batch list
 	 * @param texture The texture to draw
 	 * @param pos Bottom-right starting point of this quad
 	 * @param size Size of the quad

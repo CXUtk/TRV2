@@ -8,9 +8,15 @@
 #include <sstream>
 
 
-
+/**
+ * @brief Get the formatted std::string
+ * @tparam ...Args 
+ * @param format The same format as printf
+ * @param ...args The same arguments as arguments of printf
+ * @return Formatted string
+*/
 template<typename ... Args>
-std::string string_format(const std::string& format, Args&& ... args)
+inline std::string string_format(const std::string& format, Args&& ... args)
 {
     int size_s = std::snprintf(nullptr, 0, format.c_str(), args ...) + 1; // Extra space for '\0'
     if (size_s <= 0) { throw std::exception("Error during formatting."); }
@@ -20,7 +26,11 @@ std::string string_format(const std::string& format, Args&& ... args)
     return std::string(buf.get(), buf.get() + size - 1); // We don't want the '\0' inside
 }
 
-
+/**
+ * @brief Read all string from a text file
+ * @param fileName Name of the file
+ * @return All string in file
+*/
 inline std::string ReadAllStringFromFile(const std::string& fileName) {
     std::ifstream iFile;
     iFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);

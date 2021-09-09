@@ -42,6 +42,9 @@ OpenGLTexture2D::~OpenGLTexture2D()
 void OpenGLTexture2D::genNewTexture2D(IGraphicsDevice* device, int width, int height, unsigned char* data,
     PixelFormat internalFormat, PixelFormat srcFormat, EngineDataType dataType, const TextureParameters& parameters)
 {
+    assert(_graphicsDevice != nullptr);
+    assert(data != nullptr);
+
     _graphicsDevice = device;
     _width = width;
     _height = height;
@@ -50,7 +53,8 @@ void OpenGLTexture2D::genNewTexture2D(IGraphicsDevice* device, int width, int he
     glGenTextures(1, &_handle);
     glBindTexture(GL_TEXTURE_2D, _handle);
 
-    glTexImage2D(GL_TEXTURE_2D, 0, _OpenGLAPI::MapPixelFormat(internalFormat), width, height, 0, _OpenGLAPI::MapPixelFormat(srcFormat), GL_UNSIGNED_BYTE, data);
+    glTexImage2D(GL_TEXTURE_2D, 0, _OpenGLAPI::MapPixelFormat(internalFormat), width, height, 0, _OpenGLAPI::MapPixelFormat(srcFormat), 
+        _OpenGLAPI::MapDataType(EngineDataType::UNSIGNED_BYTE), data);
 
     auto sampleMethod = _OpenGLAPI::MapTextureSampleMethod(parameters.SampleMethod);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, sampleMethod[0]);

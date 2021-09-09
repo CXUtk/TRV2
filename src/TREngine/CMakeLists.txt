@@ -3,7 +3,7 @@
 #
 cmake_minimum_required (VERSION 3.13)
 
-project ("TRV2_Engine" VERSION 0.2.0.0)
+project ("TRV2_Engine" VERSION 0.3.0.0)
 
 # 指定版本号的配置文件
 configure_file(
@@ -13,7 +13,6 @@ configure_file(
 
 # 包含子项目。
 add_library("TRV2_Engine" STATIC
-
 "Configs/EngineSettings.cpp"
 "Graphics/GraphicsDevices/OpenGLGraphicsDevice.cpp"
 "Utils/Logging/Logger.cpp"

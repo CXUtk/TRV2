@@ -108,7 +108,7 @@ void TRGame::Update(double deltaTime)
     }
 
 
-    if (controller->IsMouseClicked(trv2::TRV2MouseButtonCode::LEFT_BUTTON))
+    if (controller->IsMouseJustPressed(trv2::TRV2MouseButtonCode::LEFT_BUTTON))
     {
         _mouseDragStart = controller->GetMousePos();
         _oldScreenPos = _screenRect.Position;

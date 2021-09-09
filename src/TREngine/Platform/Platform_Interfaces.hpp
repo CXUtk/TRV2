@@ -76,7 +76,7 @@ public:
 	virtual bool IsKeyDowned(TRV2KeyCode key) const = 0;
 	virtual bool IsKeyJustReleased(TRV2KeyCode key) const = 0;
 
-	virtual bool IsMouseClicked(TRV2MouseButtonCode mouse) const = 0;
+	virtual bool IsMouseJustPressed(TRV2MouseButtonCode mouse) const = 0;
 	virtual bool IsMouseDowned(TRV2MouseButtonCode mouse) const = 0;
 	virtual bool IsMouseReleased(TRV2MouseButtonCode mouse) const = 0;
 

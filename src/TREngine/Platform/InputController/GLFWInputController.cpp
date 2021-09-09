@@ -56,6 +56,8 @@ void GLFWInputController::initializeCodeMapping()
 GLFWInputController::GLFWInputController(GLFWwindow* window, const EngineSettings& settings)
     : _window(window), _scrollWheel(glm::vec2(0))
 {
+    assert(window != nullptr);
+
     glfwSetWindowUserPointer(_window, this);
     initializeCodeMapping();
     auto mouseScrollCallbackFunction = [](GLFWwindow* rawWindow, double xoffset, double yoffset) {

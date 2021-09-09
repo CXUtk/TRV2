@@ -3,7 +3,7 @@
 #
 cmake_minimum_required (VERSION 3.13)
 
-project ("TRV2_Game" VERSION 0.2.0.0)
+project ("TRV2_Game" VERSION 0.3.0.0)
 
 # 初始化变量
 set(TRV2_GAME_SRC_DIR "${PROJECT_SOURCE_DIR}/src/TRGame")
