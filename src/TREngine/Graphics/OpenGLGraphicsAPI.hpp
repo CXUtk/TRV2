@@ -33,6 +33,9 @@ public:
 	static std::array<int, 2> MapTextureSampleMethod(TextureSampleMethod sampleMethod); 
 	static int MapPixelFormat(PixelFormat format);
 	static int MapShaderType(ShaderType type);
+	static int MapDataType(EngineDataType type);
+	static int MapBufferType(BufferType type);
+	static int MapDrawPrimitivesType(PrimitiveType type);
 private:
 	std::shared_ptr<_GraphicsDevice_Type> _graphicsDevice;
 };

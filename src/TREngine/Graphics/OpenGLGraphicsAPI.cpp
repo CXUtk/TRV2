@@ -54,12 +54,49 @@ constexpr std::array<int, T> generateShaderTypeMapper()
     M[(int)ShaderType::COMPUTE_SHADER] = GL_COMPUTE_SHADER;
     return M;
 }
+template<size_t T>
+constexpr std::array<int, T> generateDataTypeMapper()
+{
+    std::array<int, T> M{ 0 };
+    M[(int)EngineDataType::FLOAT] = GL_FLOAT;
+    M[(int)EngineDataType::INT] = GL_INT;
+    M[(int)EngineDataType::UNSIGNED_INT] = GL_UNSIGNED_INT;
+    M[(int)EngineDataType::SHORT] = GL_SHORT;
+    M[(int)EngineDataType::UNSIGNED_SHORT] = GL_UNSIGNED_SHORT;
+    M[(int)EngineDataType::BYTE] = GL_BYTE;
+    M[(int)EngineDataType::UNSIGNED_BYTE] = GL_UNSIGNED_BYTE;
+    return M;
+}
+
+template<size_t T>
+constexpr std::array<int, T> generateBufferTypeMapper()
+{
+    std::array<int, T> M{ 0 };
+    M[(int)BufferType::ARRAY_BUFFER] = GL_ARRAY_BUFFER;
+    M[(int)BufferType::INDEX_BUFFER] = GL_ELEMENT_ARRAY_BUFFER;
+    return M;
+}
+
+template<size_t T>
+constexpr std::array<int, T> generatePrimitiveTypeMapper()
+{
+    std::array<int, T> M{ 0 };
+    M[(int)PrimitiveType::TRIANGLE_LIST] = GL_TRIANGLES;
+    M[(int)PrimitiveType::TRIANGLE_STRIP] = GL_TRIANGLE_STRIP;
+    M[(int)PrimitiveType::LINE_LIST] = GL_LINES;
+    M[(int)PrimitiveType::LINE_STRIP] = GL_LINE_STRIP;
+    M[(int)PrimitiveType::POINTS] = GL_POINTS;
+    return M;
+}
 
 
 static constexpr auto TextureWarpMethodMapper = generateTextureWarpMethod<(size_t)TextureWarpMethod::__COUNT>();
 static constexpr auto TextureSampleMethodMapper = generateTextureSampleMethod<(size_t)TextureSampleMethod::__COUNT>();
 static constexpr auto PixelFormatMapper = generatePixelFormat<(size_t)PixelFormat::__COUNT>();
 static constexpr auto ShaderTypeMapper = generateShaderTypeMapper<(size_t)ShaderType::__COUNT>();
+static constexpr auto DataTypeToGLMapper = generateDataTypeMapper<(size_t)EngineDataType::__COUNT>();
+static constexpr auto BufferTypeMapper = generateBufferTypeMapper<(size_t)BufferType::__COUNT>();
+static constexpr auto DrawPrimitivesTypeMapper = generatePrimitiveTypeMapper<(size_t)PrimitiveType::__COUNT>();
 
 
 _OpenGLAPI::_OpenGLAPI(const EngineSettings& settings)
@@ -90,6 +127,21 @@ int _OpenGLAPI::MapPixelFormat(PixelFormat format)
 int _OpenGLAPI::MapShaderType(ShaderType type)
 {
     return ShaderTypeMapper[(int)type];
+}
+
+int _OpenGLAPI::MapDataType(EngineDataType type)
+{
+    return DataTypeToGLMapper[(int)type];
+}
+
+int _OpenGLAPI::MapBufferType(BufferType type)
+{
+    return BufferTypeMapper[(int)type];
+}
+
+int _OpenGLAPI::MapDrawPrimitivesType(PrimitiveType type)
+{
+    return DrawPrimitivesTypeMapper[(int)type];
 }
 
 TRV2_NAMESPACE_END
