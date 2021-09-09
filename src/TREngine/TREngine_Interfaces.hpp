@@ -80,8 +80,9 @@ enum class PlatformType
 
 
 
-// Global interface
+// Global Constants
 
+constexpr float OneMinusEpsilon = 0.99999994;
 
 TRV2_NAMESPACE_END
 

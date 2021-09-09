@@ -32,16 +32,35 @@ struct BatchState
 	BatchState() = default;
 };
 
+struct BYTE_Color
+{
+	unsigned char R;
+	unsigned char G;
+	unsigned char B;
+	unsigned char A;
+};
+
+inline BYTE_Color vec4ToByteColor(const glm::vec4& color)
+{
+	BYTE_Color C;
+	C.R = (unsigned char)(std::min(OneMinusEpsilon, color.r) * 256);
+	C.G = (unsigned char)(std::min(OneMinusEpsilon, color.g) * 256);
+	C.B = (unsigned char)(std::min(OneMinusEpsilon, color.b) * 256);
+	C.A = (unsigned char)(std::min(OneMinusEpsilon, color.a) * 256);
+	return C;
+}
 
 struct BatchVertex2D
 {
 	glm::vec2 Position;
 	glm::vec2 TextureCoords;
-	glm::vec4 Color;
+	BYTE_Color Color;
 	float TextureIndex;
 
 	BatchVertex2D() = default;
 	BatchVertex2D(glm::vec2 pos, glm::vec2 texCoords, const glm::vec4& color) : Position(pos),
-		TextureCoords(texCoords), Color(color), TextureIndex(0.f) {}
+		TextureCoords(texCoords), TextureIndex(0.f) {
+		Color = vec4ToByteColor(color);
+	}
 };
 TRV2_NAMESPACE_END

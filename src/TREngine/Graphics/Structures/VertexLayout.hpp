@@ -8,9 +8,10 @@ struct VertexElement
     int Offset;
     int NumberOfElements;
     EngineDataType DataType;
+    bool Normalized;
 
-    VertexElement(int offset, int size, EngineDataType dataType) : Offset(offset), NumberOfElements(size),
-        DataType(dataType)
+    VertexElement(int offset, int size,  EngineDataType dataType, bool normalized)
+        : Offset(offset), NumberOfElements(size), DataType(dataType), Normalized(normalized)
     {
 
     }

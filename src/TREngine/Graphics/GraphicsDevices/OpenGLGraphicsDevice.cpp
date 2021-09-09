@@ -37,7 +37,7 @@ void OpenGLGraphicsDevice::SetupVertexAttributes(const VertexLayout& layout)
 	for (auto& element : elements)
 	{
 		glVertexAttribPointer(counter, element.NumberOfElements, _OpenGLAPI::MapDataType(element.DataType), 
-			GL_FALSE, layout.GetSize(), (void*)element.Offset);
+			element.Normalized, layout.GetSize(), (void*)element.Offset);
 		glEnableVertexAttribArray(counter);
 		++counter;
 	}

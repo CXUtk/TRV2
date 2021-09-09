@@ -64,10 +64,10 @@ SpriteRenderer::SpriteRenderer(IGraphicsDevice* graphicsDevice, IShaderProgram* 
 		sizeof(unsigned int) * MaxIndiciesPerBatch, _vertexIndices.get(), BufferHint::STATIC_DRAW);
 
 	VertexLayout vertexLayout;
-	vertexLayout.Add(VertexElement(offsetof(BatchVertex2D, Position), 2, EngineDataType::FLOAT));
-	vertexLayout.Add(VertexElement(offsetof(BatchVertex2D, TextureCoords), 2, EngineDataType::FLOAT));
-	vertexLayout.Add(VertexElement(offsetof(BatchVertex2D, Color), 4, EngineDataType::FLOAT));
-	vertexLayout.Add(VertexElement(offsetof(BatchVertex2D, TextureIndex), 1, EngineDataType::FLOAT));
+	vertexLayout.Add(VertexElement(offsetof(BatchVertex2D, Position), 2, EngineDataType::FLOAT, false));
+	vertexLayout.Add(VertexElement(offsetof(BatchVertex2D, TextureCoords), 2, EngineDataType::FLOAT, false));
+	vertexLayout.Add(VertexElement(offsetof(BatchVertex2D, Color), 4, EngineDataType::UNSIGNED_BYTE, true));
+	vertexLayout.Add(VertexElement(offsetof(BatchVertex2D, TextureIndex), 1, EngineDataType::FLOAT, false));
 	_graphicsDevice->SetupVertexAttributes(vertexLayout);
 
 	_graphicsDevice->UnbindVertexArray();
@@ -133,6 +133,7 @@ void SpriteRenderer::pushTextureQuad(const ITexture2D* texture, glm::vec2 tpos, 
 		transform[0][1] = -sinr;
 		transform[1][1] = cosr;
 	}
+	auto bColor = vec4ToByteColor(color);
 	for (int i = 0; i < 4; i++)
 	{
 		auto pos = (simpleQuadVertices[i].Position - origin) * size;
@@ -141,7 +142,7 @@ void SpriteRenderer::pushTextureQuad(const ITexture2D* texture, glm::vec2 tpos, 
 		auto& curV = _vertices[_currentVertex];
 		curV.Position = vpos + tpos;
 		curV.TextureCoords = simpleQuadVertices[i].TextureCoords;
-		curV.Color = color;
+		curV.Color = bColor;
 		curV.TextureIndex = (float)slotId;
 
 		_currentVertex++;
