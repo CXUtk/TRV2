@@ -1,5 +1,5 @@
 ﻿#pragma once
-#include <Graphics/Graphics_Interfaces.hpp>
+#include <Graphics/OpenGLGraphicsAPI.hpp>
 #include <Core.hpp>
 
 TRV2_NAMESPACE_BEGIN
@@ -31,9 +31,13 @@ public:
 
 	virtual void DrawIndexedPrimitives(PrimitiveType type, size_t count, EngineDataType dataType, size_t offset);
 
-	virtual void BindTexture2DSlot(int slot, const ITexture2D* texture);
+	virtual void BindTexture2DSlot(int slot, const OpenGLTexture2D* texture);
 
 	virtual int GetMaxTextureSlots() { return _MaxTextureSlotCanUse; }
+
+	virtual void SwitchRenderTarget(const OpenGLRenderTarget2D* renderTarget);
+	virtual void SetViewPort(int x, int y, int width, int height);
+	virtual void Clear(const glm::vec4& color);
 private:
 	void initializeConstants();
 

@@ -43,7 +43,6 @@ void OpenGLTexture2D::genNewTexture2D(IGraphicsDevice* device, int width, int he
     PixelFormat internalFormat, PixelFormat srcFormat, EngineDataType dataType, const TextureParameters& parameters)
 {
     assert(_graphicsDevice != nullptr);
-    assert(data != nullptr);
 
     _graphicsDevice = device;
     _width = width;

@@ -22,6 +22,9 @@ enum class SpriteSortMode
 struct BatchSettings
 {
 	SpriteSortMode SpriteSortMode;
+	IShaderProgram* Shader;
+
+	BatchSettings() : SpriteSortMode(SpriteSortMode::Deferred), Shader(nullptr) {}
 };
 
 struct BatchState

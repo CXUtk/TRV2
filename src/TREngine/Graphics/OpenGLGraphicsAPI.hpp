@@ -13,6 +13,7 @@ class OpenGLGraphicsDevice;
 class OpenGLShaderProgram;
 class OpenGLRawShader;
 class OpenGLTexture2D;
+class OpenGLRenderTarget2D;
 
 class _OpenGLAPI
 {
@@ -22,6 +23,7 @@ public:
 	using _ShaderProgram_Type = OpenGLShaderProgram;
 	using _RawShader_Type = OpenGLRawShader;
 	using _Texture2D_Type = OpenGLTexture2D;
+	using _RenderTarget2D_Type = OpenGLRenderTarget2D;
 
 	enum { APIType = GraphicsAPIType::OpenGL };
 

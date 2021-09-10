@@ -11,12 +11,34 @@
 
 #include <Graphics/Structures/VertexLayout.hpp>
 #include <Graphics/Textures/OpenGLTexture2D.hpp>
+#include <Graphics/Textures/OpenGLRenderTarget2D.hpp>
 
 
 TRV2_NAMESPACE_BEGIN
 
 
-void OpenGLGraphicsDevice::initializeConstants() 
+void OpenGLGraphicsDevice::SwitchRenderTarget(const OpenGLRenderTarget2D* renderTarget)
+{
+	if (renderTarget == nullptr)
+	{
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		return;
+	}
+	glBindFramebuffer(GL_FRAMEBUFFER, renderTarget->GetHandle());
+}
+
+void OpenGLGraphicsDevice::SetViewPort(int x, int y, int width, int height)
+{
+	glViewport(x, y, width, height);
+}
+
+void OpenGLGraphicsDevice::Clear(const glm::vec4& color)
+{
+	glClearColor(color.r, color.g, color.b, color.a);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+}
+
+void OpenGLGraphicsDevice::initializeConstants()
 {
 	glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &_MaxTextureSlotCanUse);
 }
@@ -102,7 +124,7 @@ void OpenGLGraphicsDevice::DrawIndexedPrimitives(PrimitiveType type, size_t coun
 	glDrawElements(_OpenGLAPI::MapDrawPrimitivesType(type), count, _OpenGLAPI::MapDataType(dataType), (void*) offset);
 }
 
-void OpenGLGraphicsDevice::BindTexture2DSlot(int slot, const ITexture2D* texture)
+void OpenGLGraphicsDevice::BindTexture2DSlot(int slot, const OpenGLTexture2D* texture)
 {
 	glActiveTexture(GL_TEXTURE0 + slot);
 	glBindTexture(GL_TEXTURE_2D, texture->GetHandle());

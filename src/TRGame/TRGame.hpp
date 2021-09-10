@@ -41,7 +41,7 @@ private:
     trv2::SpriteRenderer* _spriteRenderer;
     std::unique_ptr<GameWorld> _gameWorld;
     
-    trv2::Rect _screenRect;
+    trv2::Rect2D<float> _screenRect;
     glm::mat4 _projection;
     float _expScale;
     glm::vec2 _mouseDragStart;

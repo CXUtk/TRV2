@@ -101,7 +101,12 @@ struct TextureParameters
 	TextureParameters() : SampleMethod(TextureSampleMethod::NEAREST), TextureWarpMethod(TextureWarpMethod::REPEAT) {}
 };
 
-
+// Handles
+using IVertexBufferHandle = unsigned int;
+using IShaderHandle = unsigned int;
+using IShaderProgramHandle = unsigned int;
+using ITextureHandle = unsigned int;
+using IRenderTarget2DHandle = unsigned int;
 
 ///**
 // * @brief Graphics device interface. Includes platform independent operations to create and draw rendering objects.

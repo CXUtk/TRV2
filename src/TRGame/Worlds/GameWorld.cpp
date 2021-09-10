@@ -1,14 +1,18 @@
 ﻿#include "GameWorld.hpp"
 #include "Tile.hpp"
 
-#include <TREngine/Utils/Structures/Rect.hpp>
 #include <TREngine/Graphics/Renderers/SpriteRenderer.hpp>
 #include <random>
 #include <TRGame/TRGame.hpp>
 #include <TREngine/TREngine.hpp>
 #include <TREngine/Assets/AssetsManager.hpp>
 
+#include <TREngine/Graphics/Textures/OpenGLRenderTarget2D.hpp>
+#include <TREngine/Graphics/GraphicsDevices/OpenGLGraphicsDevice.hpp>
+#include <TREngine/Platform/GameWindow/GLFWGameWindow.hpp>
+
 #include <glm/gtx/transform.hpp>
+#include <algorithm>
 
 static const glm::vec4 tempColorTable[5] = {
 	glm::vec4(1),
@@ -54,9 +58,12 @@ static float perlin(glm::vec2 coord)
 	return glm::mix(v1, v2, factor.y);
 }
 
-GameWorld::GameWorld(int width, int height) : _width(width), _height(height)
+GameWorld::GameWorld(int width, int height) : _tileMaxX(width), _tileMaxY(height)
 {
 	_tiles = std::make_unique<Tile[]>(width * height);
+
+	auto graphicsDevice = TRGame::GetInstance()->GetEngine()->GetGraphicsDevice();
+	_renderTarget = std::make_shared<trv2::IRenderTarget2D>(graphicsDevice, 1024, 1024);
 
 	for (int i = 0; i <= DIM; i++) {
 		for (int j = 0; j <= DIM; j++) {
@@ -98,26 +105,73 @@ GameWorld::GameWorld(int width, int height) : _width(width), _height(height)
 
 Tile& GameWorld::GetTile(int x, int y)
 {
-	return _tiles[y * _width + x];
+	return _tiles[y * _tileMaxX + x];
 }
 
 void GameWorld::SetTile(int x, int y, const Tile& tile)
 {
-	_tiles[y * _width + x] = tile;
+	_tiles[y * _tileMaxX + x] = tile;
 }
 
 
-void GameWorld::RenderWorld(trv2::SpriteRenderer* renderer, const trv2::RectI& renderRect)
+void GameWorld::RenderWorld(const glm::mat4& projection, trv2::SpriteRenderer* renderer, const trv2::Rect2D<float>& renderRect)
 {
-	auto start = glm::vec2(renderRect.Position);
-	auto assetManager = TRGame::GetInstance()->GetEngine()->GetAssetsManager();
-	for (int i = 0; i < renderRect.Size.x; i++) {
-		for (int j = 0; j < renderRect.Size.y; j++) {
-			auto coord = renderRect.Position + glm::ivec2(i, j);
-			auto startPos = glm::vec2(coord) * (float)GameWorld::TILE_SIZE;
-			auto& tile = GetTile(coord.x, coord.y);
+	// calculate draw rect
+	glm::ivec2 botLeft((int)(renderRect.BottomLeft().x / GameWorld::TILE_SIZE), 
+		(int)(renderRect.BottomLeft().y / GameWorld::TILE_SIZE));
+	botLeft.x = std::max(0, std::min(_tileMaxX - 1, botLeft.x));
+	botLeft.y = std::max(0, std::min(_tileMaxY - 1, botLeft.y));
 
-			renderer->Draw(startPos, glm::vec2(TILE_SIZE), glm::vec2(0), 0.f, glm::vec4(tile.GetColor(), 1.f));
-		}
+	glm::ivec2 topRight((int)((renderRect.TopRight().x + GameWorld::TILE_SIZE - 1) / GameWorld::TILE_SIZE),
+		(int)((renderRect.TopRight().y + GameWorld::TILE_SIZE - 1) / GameWorld::TILE_SIZE));
+	topRight.x = std::max(0, std::min(_tileMaxX - 1, topRight.x));
+	topRight.y = std::max(0, std::min(_tileMaxY - 1, topRight.y));
+
+	trv2::Rect2D<int> viewRect(botLeft, topRight - botLeft);
+
+	auto graphicsDevice = TRGame::GetInstance()->GetEngine()->GetGraphicsDevice();
+	auto assetsManager = TRGame::GetInstance()->GetEngine()->GetAssetsManager();
+	auto clientSize = TRGame::GetInstance()->GetEngine()->GetGameWindow()->GetWindowSize();
+
+	//_spriteRenderer->Draw(glm::vec2((int)(worldPos.x / 16) * 16, (int)(worldPos.y / 16) * 16), glm::vec2(16), glm::vec2(0), 0.f, glm::vec4(1, 0, 0, 1));
+	trv2::BatchSettings setting{};
+	setting.SpriteSortMode = trv2::SpriteSortMode::Deferred;
+	setting.Shader = assetsManager->GetShader("perlinNoise");
+
+	// Render to offscreen texture
+	graphicsDevice->SwitchRenderTarget(_renderTarget.get());
+	graphicsDevice->SetViewPort(0, 0, _renderTarget->GetWidth(), _renderTarget->GetHeight());
+	graphicsDevice->Clear(glm::vec4(0, 0, 0, 0));
+	glm::mat4 localProj = glm::ortho<float>(0.f, _renderTarget->GetWidth(), 0.f, _renderTarget->GetHeight());
+	renderer->Begin(localProj, setting);
+	{
+		renderer->Draw(glm::vec2(0), glm::vec2(1024, 1024), glm::vec2(0), 0.f, glm::vec4(1));
 	}
+	renderer->End();
+
+
+	graphicsDevice->SwitchRenderTarget(nullptr);
+	graphicsDevice->SetViewPort(0, 0, clientSize.x, clientSize.y);
+	graphicsDevice->Clear(glm::vec4(0, 0, 0, 0));
+
+	setting.Shader = nullptr;
+	renderer->Begin(projection, setting);
+	{
+		renderer->Draw(_renderTarget->GetTexture2D(), glm::vec2(0), glm::vec2(1024, 1024), glm::vec2(0), 0.f, glm::vec4(1));
+	}
+	renderer->End();
+
+	//auto start = glm::vec2(viewRect.Position);
+	//auto assetManager = TRGame::GetInstance()->GetEngine()->GetAssetsManager();
+	//for (int i = 0; i < viewRect.Size.x; i++)
+	//{
+	//	for (int j = 0; j < viewRect.Size.y; j++)
+	//	{
+	//		auto coord = viewRect.BottomLeft() + glm::ivec2(i, j);
+	//		auto startPos = glm::vec2(coord) * (float)GameWorld::TILE_SIZE;
+	//		auto& tile = GetTile(coord.x, coord.y);
+
+	//		renderer->Draw(startPos, glm::vec2(TILE_SIZE), glm::vec2(0), 0.f, glm::vec4(tile.GetColor(), 1.f));
+	//	}
+	//}
 }

@@ -162,11 +162,14 @@ void SpriteRenderer::flushBatch()
 	}
 
 	_graphicsDevice->BindVertexArray(_quadVAO);
-	_spriteShaderPure->Apply();
+
+
+	auto currentShader = _batchState.Settings.Shader ? _batchState.Settings.Shader : _spriteShaderPure;
+	currentShader->Apply();
 	// 绑定纹理们
 	bindTextures();
 
-	_spriteShaderPure->SetParameterfm4x4("uWorldTransform", _batchState.WorldTransform);
+	currentShader->SetParameterfm4x4("uWorldTransform", _batchState.WorldTransform);
 	// 以最多 MaxVerticesPerBatch 个点为单位，分批绘制线段
 	for (int i = 0; i < _currentVertex; i += MaxVerticesPerBatch)
 	{

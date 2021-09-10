@@ -22,9 +22,6 @@ class EngineSettings;
 
 // Utils
 class Logger;
-struct Rect;
-struct RectI;
-
 
 // Templates
 /**

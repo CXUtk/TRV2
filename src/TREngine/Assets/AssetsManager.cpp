@@ -18,7 +18,13 @@ void AssetsManager::loadBuiltinAssets()
 {
 	auto vs = std::make_shared<IRawShader>(ReadAllStringFromFile("Resources/Shaders/sprite2d.vert").c_str(), ShaderType::VERTEX_SHADER, "sprite2d.vert");
 	auto fs = std::make_shared<IRawShader>(ReadAllStringFromFile("Resources/Shaders/sprite2d.frag").c_str(), ShaderType::FRAGMENT_SHADER, "sprite2d.frag");
+
+	auto vs_pure = std::make_shared<IRawShader>(ReadAllStringFromFile("Resources/Shaders/procedure.vert").c_str(), ShaderType::VERTEX_SHADER, "procedure.vert");
+	auto fs_perlin = std::make_shared<IRawShader>(ReadAllStringFromFile("Resources/Shaders/perlinNoise.frag").c_str(), ShaderType::FRAGMENT_SHADER, "perlinNoise.frag");
 	_shadersTable["builtin::sprite"] = std::make_shared<IShaderProgram>(vs, fs);
+
+	_shadersTable["perlinNoise"] = std::make_shared<IShaderProgram>(vs_pure, fs_perlin);
+
 
 	auto gd = IEngine::GetInstance()->GetGraphicsDevice();
 	int whitePixel = 0xffffffff;

@@ -4,11 +4,10 @@
 #include <map>
 
 #include <TREngine_Interfaces.hpp>
-#include <Core.hpp>
-
 #include <Graphics/Graphics_Interfaces.hpp>
 #include <Graphics/Structures/BatchInfo.hpp>
 #include <Graphics/Structures/VertexLayout.hpp>
+#include <Core.hpp>
 
 TRV2_NAMESPACE_BEGIN
 class SpriteRenderer
