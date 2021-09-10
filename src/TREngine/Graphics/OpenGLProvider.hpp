@@ -1,21 +1,10 @@
 ﻿#pragma once
-#include <TREngine_Interfaces.hpp>
+#include <Engine_Interfaces.hpp>
 #include <Graphics/Graphics_Interfaces.hpp>
 #include <array>
-//#include <Graphics/GraphicsDevices/OpenGLGraphicsDevice.h>
-//#include <Graphics/Shaders/OpenGLRawShader.h>
-//#include <Graphics/Shaders/OpenGLShaderProgram.h>
-//#include <Graphics/Textures/OpenGLTexture2D.h>
-
 TRV2_NAMESPACE_BEGIN
 
-class OpenGLGraphicsDevice;
-class OpenGLShaderProgram;
-class OpenGLRawShader;
-class OpenGLTexture2D;
-class OpenGLRenderTarget2D;
-
-class _OpenGLAPI
+class OpenGLProvider
 {
 public:
 	// 基础图形资源的映射类
@@ -27,9 +16,9 @@ public:
 
 	enum { APIType = GraphicsAPIType::OpenGL };
 
-	_OpenGLAPI(const EngineSettings& settings);
+	OpenGLProvider(const EngineSettings& settings);
 
-	_GraphicsDevice_Type* GetGraphicsDevice() const { return _graphicsDevice.get(); }
+	IGraphicsDevice* GetGraphicsDevice() const { return ptr(_graphicsDevice); }
 
 	static int MapTextureWarpMethod(TextureWarpMethod warpMethod); 
 	static std::array<int, 2> MapTextureSampleMethod(TextureSampleMethod sampleMethod); 

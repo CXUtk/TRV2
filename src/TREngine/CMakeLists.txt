@@ -25,7 +25,7 @@ add_library("TRV2_Engine" STATIC
 "Graphics/Structures/VertexLayout.cpp"
 "Graphics/Shaders/OpenGLRawShader.cpp"
 "Platform/GLFWPlatform.cpp"
-"Graphics/OpenGLGraphicsAPI.cpp" "Graphics/Textures/OpenGLRenderTarget2D.hpp" "Graphics/Textures/OpenGLRenderTarget2D.cpp")
+"Graphics/OpenGLProvider.cpp" "Graphics/Textures/OpenGLRenderTarget2D.hpp" "Graphics/Textures/OpenGLRenderTarget2D.cpp")
 
 
 message(STATUS "${PROJECT_SOURCE_DIR}")

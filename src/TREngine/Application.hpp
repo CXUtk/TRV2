@@ -1,20 +1,20 @@
 ﻿#pragma once
-#include <Core.hpp>
+#include <Engine_Interfaces.hpp>
 
 TRV2_NAMESPACE_BEGIN
 /**
  * @brief The main application class used by TREngine.
  * This class if for game logic, you can implement them by inheriting this class.
 */
-class TRApplication {
+class Application {
 public:
-	virtual ~TRApplication() = 0 {};
+	virtual ~Application() = 0 {};
 
 	/**
 	 * @brief Initialization of the application after the engine is ready
 	 * @param engine The instance of game engine
 	*/
-	virtual void Initialize(IEngine* engine) = 0;
+	virtual void Initialize(Engine* engine) = 0;
 
 	/**
 	 * @brief Specify how to update each frame, execute once per frame

@@ -1,6 +1,8 @@
 ﻿#pragma once
 #include <memory>
 #include <glm/glm.hpp>
+#include <Engine_Interfaces.hpp>
+
 #include <Utils/Logging/Logger.hpp>
 #include <Configs/EngineSettings.hpp>
 #include <Assets/AssetsManager.hpp>
@@ -12,21 +14,15 @@ TRV2_NAMESPACE_BEGIN
  * @tparam _API Target graphics API
  * @tparam _Platform Target platform
 */
-template<typename _API, typename _Platform>
-class TREngine
+class Engine
 {
 public:
-
-    using IGameWindow = typename _Platform::_Window_Type;
-    using IInputController = typename _Platform::_InputController_Type;
-    using IGameTimer = typename _Platform::_GameTimer_Type;
-    using IGraphicsDevice = typename _API::_GraphicsDevice_Type;
 
     /**
     * @brief Manually set current application instance
     * @param application The application instance to run
    */
-    void SetApplication(TRApplication* application)
+    void SetApplication(Application* application)
     {
         _application = application;
         useApplication();
@@ -94,7 +90,7 @@ public:
         }
     }
 
-    TREngine(int argc, char** argv, TRApplication* application)
+    Engine(int argc, char** argv, TRApplication* application)
     {
         _instance = this;
         _logger = std::make_unique<Logger>();
@@ -114,7 +110,7 @@ public:
         }
     }
 
-    ~TREngine()
+    ~Engine()
     {
 
     }
@@ -228,14 +224,14 @@ private:
     std::shared_ptr<SpriteRenderer> _spriteRenderer;
     std::shared_ptr<AssetsManager> _assetsManager;
 
-    std::shared_ptr<_API> _graphicsAPI;
-    std::shared_ptr<_Platform> _platform;
+    std::shared_ptr<IGraphicsProvider> _graphicsProvider;
+    std::shared_ptr<IPlatformProvider> _platformProvider;
 
-    TRApplication* _application;
+    Application* _application;
 
     static TREngine* _instance;
 };
 
-template<typename _API, typename _Platform>
-TREngine<_API, _Platform>* TREngine<_API, _Platform>::_instance = nullptr;
+
+Engine* Engine::_instance = nullptr;
 TRV2_NAMESPACE_END

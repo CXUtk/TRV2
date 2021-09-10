@@ -6,12 +6,30 @@
 #define TRV2_NAMESPACE_END }
 
 TRV2_NAMESPACE_BEGIN
-template<typename _API, typename _Platform>
-class TREngine;
-
 // Interfaces
 // Core
-class TRApplication;
+class Engine;
+class Application;
+
+
+// GraphicsAPI
+class IGraphicsDevice;
+class IRawShader;
+class IShaderProgram;
+class ITexture2D;
+class IRenderTarget2D;
+
+class IGraphicsProvider;
+
+
+
+// Platform
+class IGameWindow;
+class IInputController;
+
+class IPlatformProvider;
+
+
 
 // Assets
 class AssetsManager;
