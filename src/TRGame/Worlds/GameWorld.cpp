@@ -90,7 +90,7 @@ GameWorld::GameWorld(int width, int height) : _tileMaxX(width), _tileMaxY(height
 			}
 
 			//SetTile(x, y, Tile(glm::vec3(v) * 0.5f + 0.5f));
-			v = sin(v * 7 + coord.y * 2);
+			//v = sin(v * 7 + coord.y * 2);
 			if (v < 0.5) {
 				SetTile(x, y, Tile(glm::vec3(0.6, 0.5, 0.3)));
 			}

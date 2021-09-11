@@ -15,7 +15,7 @@ TRV2_NAMESPACE_BEGIN
 
 Engine* Engine::_instance = nullptr;
 
-void Engine::SetApplication(Application* application)
+void Engine::SetApplication(const std::shared_ptr<Application>& application)
 {
 	assert(application != nullptr);
 
@@ -66,7 +66,7 @@ void Engine::Run()
         throw;
     }
 }
-Engine::Engine(int argc, char** argv, Application* application)
+Engine::Engine(int argc, char** argv, const std::shared_ptr<Application>& application)
 {
     _instance = this;
     _logger = std::make_unique<Logger>();
@@ -87,7 +87,12 @@ Engine::Engine(int argc, char** argv, Application* application)
 }
 
 Engine::~Engine()
-{}
+{
+    _application.reset();
+    _assetsManager.reset();
+    _spriteRenderer.reset();
+    _graphicsProvider.reset();
+}
 
 void Engine::loadSupportiveSystem()
 {

@@ -11,8 +11,7 @@ int main(int argc, char** argv)
     _CrtMemState sDiff;
     _CrtMemCheckpoint(&sOld); //take a snapshot
     try {
-        TRGame game;
-        trv2::Engine engine(argc, argv, &game);
+        trv2::Engine engine(argc, argv, std::make_shared<TRGame>());
         engine.Run();
     }
     catch (std::exception ex) {

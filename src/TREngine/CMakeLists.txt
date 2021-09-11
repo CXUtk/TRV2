@@ -20,7 +20,7 @@ add_library("TRV2_Engine" STATIC
 "Core/Render/SpriteRenderer.cpp"
 "Platform/GameWindow/GLFWGameWindow.cpp"
 "Core/Assets/AssetsManager.cpp"
-"Platform/InputController/GLFWInputController.cpp"
+
 "Graphics/Structures/VertexLayout.cpp"
 "Platform/GLFWPlatform.cpp"
 "Graphics/OpenGLProvider.cpp"   
