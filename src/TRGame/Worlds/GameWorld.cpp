@@ -1,15 +1,16 @@
 ﻿#include "GameWorld.hpp"
 #include "Tile.hpp"
 
-#include <TREngine/Graphics/Renderers/SpriteRenderer.hpp>
+
 #include <random>
 #include <TRGame/TRGame.hpp>
-#include <TREngine/TREngine.hpp>
-#include <TREngine/Assets/AssetsManager.hpp>
+#include <TREngine/Engine.h>
+#include <TREngine/Core/Assets/AssetsManager.h>
+#include <TREngine/Core/Render/SpriteRenderer.h>
 
-#include <TREngine/Graphics/Textures/OpenGLRenderTarget2D.hpp>
-#include <TREngine/Graphics/GraphicsDevices/OpenGLGraphicsDevice.hpp>
-#include <TREngine/Platform/GameWindow/GLFWGameWindow.hpp>
+#include <TREngine/Core/Render/RenderTarget2D.h>
+#include <TREngine/Graphics/Graphics_Interfaces.h>
+#include <TREngine/Platform/Platform_Interfaces.h>
 
 #include <glm/gtx/transform.hpp>
 #include <algorithm>
@@ -62,8 +63,11 @@ GameWorld::GameWorld(int width, int height) : _tileMaxX(width), _tileMaxY(height
 {
 	_tiles = std::make_unique<Tile[]>(width * height);
 
-	auto graphicsDevice = TRGame::GetInstance()->GetEngine()->GetGraphicsDevice();
-	_renderTarget = std::make_shared<trv2::IRenderTarget2D>(graphicsDevice, 1024, 1024);
+	auto engine = TRGame::GetInstance()->GetEngine();
+	auto graphicsDevice = engine->GetGraphicsDevice();
+	auto resourceManager = engine->GetGraphicsResourceManager();
+
+	_renderTarget = std::make_shared<trv2::RenderTarget2D>(resourceManager, 1024, 1024);
 
 	for (int i = 0; i <= DIM; i++) {
 		for (int j = 0; j <= DIM; j++) {

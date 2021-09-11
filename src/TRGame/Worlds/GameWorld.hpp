@@ -1,8 +1,8 @@
 ﻿#pragma once
 #include <memory>
 
-#include <TREngine/Core.hpp>
-#include <TREngine/Utils/Structures/Rect.hpp>
+#include <TREngine/Core.h>
+#include <TREngine/Core/Structures/Rect.hpp>
 #include "Tile.hpp"
 
 class GameWorld
@@ -20,7 +20,7 @@ public:
 
 private:
 	std::unique_ptr<Tile[]> _tiles;
-	std::shared_ptr<trv2::IRenderTarget2D> _renderTarget;
+	std::shared_ptr<trv2::RenderTarget2D> _renderTarget;
 
 	int _tileMaxX, _tileMaxY;
 

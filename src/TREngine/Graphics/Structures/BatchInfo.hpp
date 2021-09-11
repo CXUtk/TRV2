@@ -1,5 +1,5 @@
 ﻿#pragma once
-#include <Core.hpp>
+#include <Core.h>
 #include <glm/glm.hpp>
 
 TRV2_NAMESPACE_BEGIN
@@ -22,7 +22,7 @@ enum class SpriteSortMode
 struct BatchSettings
 {
 	SpriteSortMode SpriteSortMode;
-	IShaderProgram* Shader;
+	ShaderProgram* Shader;
 
 	BatchSettings() : SpriteSortMode(SpriteSortMode::Deferred), Shader(nullptr) {}
 };

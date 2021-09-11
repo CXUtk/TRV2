@@ -1,5 +1,5 @@
 ﻿#pragma once
-#include <Graphics/Graphics_Interfaces.hpp>
+#include <Graphics/Graphics_Interfaces.h>
 #include <vector>
 
 TRV2_NAMESPACE_BEGIN

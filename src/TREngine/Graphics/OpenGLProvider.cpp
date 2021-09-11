@@ -2,9 +2,9 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
-#include "OpenGLGraphicsAPI.hpp"
-#include <Configs/EngineSettings.hpp>
-#include <Graphics/GraphicsDevices/OpenGLGraphicsDevice.hpp>
+#include "OpenGLProvider.h"
+#include <Graphics/GraphicsDevices/OpenGLGraphicsDevice.h>
+#include <Graphics/ResourceManager/OpenGLGraphicsResourceManager.h>
 
 
 TRV2_NAMESPACE_BEGIN
@@ -99,47 +99,48 @@ static constexpr auto BufferTypeMapper = generateBufferTypeMapper<(size_t)Buffer
 static constexpr auto DrawPrimitivesTypeMapper = generatePrimitiveTypeMapper<(size_t)PrimitiveType::__COUNT>();
 
 
-_OpenGLAPI::_OpenGLAPI(const EngineSettings& settings)
+OpenGLProvider::OpenGLProvider(const EngineSettings& settings)
 {
 	// Initialize GLAD and configs
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
 	{
 		throw std::exception("Failed to load glad!");
 	}
-	_graphicsDevice = std::make_shared<_GraphicsDevice_Type>(settings);
+	_graphicsDevice = std::make_shared<OpenGLGraphicsDevice>(settings);
+    _graphicsResourceManager = std::make_shared<OpenGLGraphicsResourceManager>(settings);
 }
 
-int _OpenGLAPI::MapTextureWarpMethod(TextureWarpMethod warpMethod)
+int OpenGLProvider::MapTextureWarpMethod(TextureWarpMethod warpMethod)
 {
     return TextureWarpMethodMapper[(int)warpMethod];
 }
 
-std::array<int, 2> _OpenGLAPI::MapTextureSampleMethod(TextureSampleMethod sampleMethod)
+std::array<int, 2> OpenGLProvider::MapTextureSampleMethod(TextureSampleMethod sampleMethod)
 {
     return TextureSampleMethodMapper[(int)sampleMethod];
 }
 
-int _OpenGLAPI::MapPixelFormat(PixelFormat format)
+int OpenGLProvider::MapPixelFormat(PixelFormat format)
 {
     return PixelFormatMapper[(int)format];
 }
 
-int _OpenGLAPI::MapShaderType(ShaderType type)
+int OpenGLProvider::MapShaderType(ShaderType type)
 {
     return ShaderTypeMapper[(int)type];
 }
 
-int _OpenGLAPI::MapDataType(EngineDataType type)
+int OpenGLProvider::MapDataType(EngineDataType type)
 {
     return DataTypeToGLMapper[(int)type];
 }
 
-int _OpenGLAPI::MapBufferType(BufferType type)
+int OpenGLProvider::MapBufferType(BufferType type)
 {
     return BufferTypeMapper[(int)type];
 }
 
-int _OpenGLAPI::MapDrawPrimitivesType(PrimitiveType type)
+int OpenGLProvider::MapDrawPrimitivesType(PrimitiveType type)
 {
     return DrawPrimitivesTypeMapper[(int)type];
 }

@@ -1,17 +1,13 @@
 ﻿#include "TRGame.hpp"
 
-#include <TREngine/TREngine.hpp>
-#include <TREngine/Graphics/Renderers/SpriteRenderer.hpp>
-#include <TREngine/Utils/Structures/Rect.hpp>
+#include <TREngine/Engine.h>
+#include <TREngine/Core/Render/SpriteRenderer.h>
+#include <TREngine/Core/Utils/Utils.h>
 
-#include <Platform/Platform_Interfaces.hpp>
+#include <TREngine/Core/Gamplay/InputController.h>
+#include <TREngine/Core/Utils/Logging/Logger.h>
 
-#include <Platform/GameTimer/GLFWGameTimer.hpp>
-#include <Platform/GameWindow/GLFWGameWindow.hpp>
-#include <Platform/InputController/GLFWInputController.hpp>
-
-#include <TREngine/Graphics/GraphicsDevices/OpenGLGraphicsDevice.hpp>
-
+#include <TREngine/Platform/Platform_Interfaces.h>
 #include <TRGame/Worlds/GameWorld.hpp>
 
 #include <glm/gtx/transform.hpp>
@@ -45,7 +41,7 @@ void TRGame::loadGameContent()
 }
 
 
-void TRGame::Initialize(trv2::IEngine* engine)
+void TRGame::Initialize(trv2::Engine* engine)
 {
     _logger = std::make_unique<trv2::Logger>();
 
@@ -74,19 +70,19 @@ void TRGame::Update(double deltaTime)
     auto clientSize = window->GetWindowSize();
 
     auto moveVal = 0.05f * _screenRect.Size.x;
-    if (controller->IsKeyDowned(trv2::TRV2KeyCode::TRV2_A_KEY))
+    if (controller->IsKeyDowned(trv2::KeyCode::TRV2_A_KEY))
     {
         _screenRect.Position.x -= moveVal;
     }
-    else if (controller->IsKeyDowned(trv2::TRV2KeyCode::TRV2_D_KEY))
+    else if (controller->IsKeyDowned(trv2::KeyCode::TRV2_D_KEY))
     {
         _screenRect.Position.x += moveVal;
     }
-    else if (controller->IsKeyDowned(trv2::TRV2KeyCode::TRV2_W_KEY))
+    else if (controller->IsKeyDowned(trv2::KeyCode::TRV2_W_KEY))
     {
         _screenRect.Position.y += moveVal;
     }
-    else if (controller->IsKeyDowned(trv2::TRV2KeyCode::TRV2_S_KEY))
+    else if (controller->IsKeyDowned(trv2::KeyCode::TRV2_S_KEY))
     {
         _screenRect.Position.y -= moveVal;
     }
@@ -110,12 +106,12 @@ void TRGame::Update(double deltaTime)
     }
 
 
-    if (controller->IsMouseJustPressed(trv2::TRV2MouseButtonCode::LEFT_BUTTON))
+    if (controller->IsMouseJustPressed(trv2::MouseButtonCode::LEFT_BUTTON))
     {
         _mouseDragStart = controller->GetMousePos();
         _oldScreenPos = _screenRect.Position;
     }
-    if (controller->IsMouseDowned(trv2::TRV2MouseButtonCode::LEFT_BUTTON))
+    if (controller->IsMouseDowned(trv2::MouseButtonCode::LEFT_BUTTON))
     {
         auto moveDir = (controller->GetMousePos() - _mouseDragStart) / factor;
         _screenRect.Position = _oldScreenPos - moveDir;

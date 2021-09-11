@@ -2,25 +2,25 @@
 #include <memory>
 #include <glm/glm.hpp>
 
-#include <TREngine/Core.hpp>
+#include <TREngine/Core.h>
 #include <TRGame/TRGame_Interfaces.hpp>
-#include <TREngine/TRApplication.hpp>
-#include <TREngine/Utils/Structures/Rect.hpp>
+#include <TREngine/Application.h>
+#include <TREngine/Core/Structures/Rect.hpp>
 
 
-class TRGame : public trv2::TRApplication
+class TRGame : public trv2::Application
 {
 public:
     static TRGame* GetInstance() { return _instance; }
     TRGame();
     ~TRGame() override;
 
-    virtual void Initialize(trv2::IEngine* engine) override;
+    virtual void Initialize(trv2::Engine* engine) override;
     virtual void Update(double deltaTime) override;
     virtual void Draw(double deltaTime) override;
     virtual void Exit() override;
 
-    trv2::IEngine* GetEngine()
+    trv2::Engine* GetEngine()
     {
         return _engine;
     }
@@ -35,7 +35,7 @@ private:
     void logGameInfo();
     void loadGameContent();
 
-    trv2::IEngine* _engine;
+    trv2::Engine* _engine;
     std::shared_ptr<trv2::Logger> _logger;
 
     trv2::SpriteRenderer* _spriteRenderer;
