@@ -14,7 +14,7 @@ TRV2_NAMESPACE_BEGIN
 Texture2D::Texture2D(IGraphicsResourceManager* resourceManager, int width, int height, const void* data)
     : IGraphicsResource(resourceManager), _width(width), _height(height), _parameters()
 {
-    assert(_graphicsDevice != nullptr);
+    assert(resourceManager != nullptr);
     _handle = resourceManager->CreateTexture2D(width, height, data,
         PixelFormat::RGB, PixelFormat::RGBA, EngineDataType::UNSIGNED_BYTE, _parameters);
 }
@@ -22,7 +22,7 @@ Texture2D::Texture2D(IGraphicsResourceManager* resourceManager, int width, int h
 Texture2D::Texture2D(IGraphicsResourceManager* resourceManager, const std::string& fileName) 
     : IGraphicsResource(resourceManager)
 {
-    assert(_graphicsDevice != nullptr);
+    assert(resourceManager != nullptr);
     int nrChannels;
     unsigned char* data = stbi_load(fileName.c_str(), &_width, &_height, &nrChannels, 0);
     if (!data)

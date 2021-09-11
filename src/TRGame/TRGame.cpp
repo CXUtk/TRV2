@@ -123,7 +123,6 @@ void TRGame::Update(double deltaTime)
 
 void TRGame::Draw(double deltaTime)
 {
-    auto window = _engine->GetGameWindow();
     auto graphicsDevice = _engine->GetGraphicsDevice();
     graphicsDevice->Clear(glm::vec4(0));
 
@@ -131,4 +130,6 @@ void TRGame::Draw(double deltaTime)
 }
 
 void TRGame::Exit()
-{}
+{
+    
+}

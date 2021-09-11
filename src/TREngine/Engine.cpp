@@ -51,10 +51,10 @@ void Engine::Run()
             gameWindow->PollEvents();
 
             double t = _gameTimer.GetTimeFromGameStartInSeconds() - prevTimestamp;
-            //_logger->LogInfo("%lf, %d\n", t, (int)(1 / t));
+            //_logger->LogInfo("%lf, %d", t, (int)(1 / t));
             while (_gameTimer.GetTimeFromGameStartInSeconds() - prevTimestamp < minElapsedTime)
             {
-                gameWindow->PollEvents();
+                // gameWindow->PollEvents();
             }
         }
 

@@ -109,6 +109,6 @@ enum class PlatformType
 
 // Global Constants
 
-constexpr float OneMinusEpsilon = 0.99999994;
+constexpr float OneMinusEpsilon = 0.99999994f;
 
 TRV2_NAMESPACE_END

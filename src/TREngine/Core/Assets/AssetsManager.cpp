@@ -23,8 +23,6 @@ void AssetsManager::loadBuiltinAssets()
 	_shadersTable["perlinNoise"] = std::make_shared<ShaderProgram>(_resourceManager, 
 		trv2::cptr(vs_pure), trv2::cptr(fs_perlin));
 
-
-	auto gd = Engine::GetInstance()->GetGraphicsDevice();
 	int whitePixel = 0xffffffff;
 	_texture2DTable["builtin::sprite"] = std::make_shared<Texture2D>(_resourceManager, 1, 1, (unsigned char*)&whitePixel);
 }

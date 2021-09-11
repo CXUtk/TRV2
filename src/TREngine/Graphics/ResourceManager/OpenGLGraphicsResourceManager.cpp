@@ -115,6 +115,7 @@ IRenderTarget2DHandle OpenGLGraphicsResourceManager::CreateRenderTarget2D(Textur
     }
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    return handle;
 }
 
 void OpenGLGraphicsResourceManager::DeleteRenderTarget2D(IRenderTarget2DHandle handle)
