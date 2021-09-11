@@ -3,7 +3,7 @@
 #
 cmake_minimum_required (VERSION 3.13)
 
-project ("TRV2_Game" VERSION 0.2.0.0)
+project ("TRV2_Game" VERSION 0.3.0.0)
 
 # 初始化变量
 set(TRV2_GAME_SRC_DIR "${PROJECT_SOURCE_DIR}/src/TRGame")
@@ -31,10 +31,10 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 # Include 目录
-include_directories(SYSTEM "${PROJECT_SOURCE_DIR}/generated")
-include_directories(SYSTEM "${PROJECT_SOURCE_DIR}/ext/includes")
-include_directories("${PROJECT_SOURCE_DIR}/src/TREngine")
-include_directories("${PROJECT_SOURCE_DIR}/src")
+target_include_directories("TRV2_Game" SYSTEM PRIVATE "${PROJECT_SOURCE_DIR}/generated")
+target_include_directories("TRV2_Game" SYSTEM PRIVATE "${PROJECT_SOURCE_DIR}/ext/includes")
+target_include_directories("TRV2_Game" SYSTEM PRIVATE "${PROJECT_SOURCE_DIR}/src/TREngine")
+target_include_directories("TRV2_Game" PRIVATE "${PROJECT_SOURCE_DIR}/src")
 
 
 # 添加库引用

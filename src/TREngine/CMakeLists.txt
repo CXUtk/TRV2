@@ -3,7 +3,7 @@
 #
 cmake_minimum_required (VERSION 3.13)
 
-project ("TRV2_Engine" VERSION 0.2.0.0)
+project ("TRV2_Engine" VERSION 0.3.0.0)
 
 # 指定版本号的配置文件
 configure_file(
@@ -13,20 +13,29 @@ configure_file(
 
 # 包含子项目。
 add_library("TRV2_Engine" STATIC
-
-"Configs/EngineSettings.cpp"
+"Engine.cpp"
+"Core/Structures/EngineSettings.cpp"
 "Graphics/GraphicsDevices/OpenGLGraphicsDevice.cpp"
-"Utils/Logging/Logger.cpp"
-"Graphics/Renderers/SpriteRenderer.cpp"
+"Core/Utils/Logging/Logger.cpp"
+"Core/Render/SpriteRenderer.cpp"
 "Platform/GameWindow/GLFWGameWindow.cpp"
-"Assets/AssetsManager.cpp"
-"Graphics/Shaders/OpenGLShaderProgram.cpp"
+"Core/Assets/AssetsManager.cpp"
 "Platform/InputController/GLFWInputController.cpp"
-"Graphics/Textures/OpenGLTexture2D.cpp"
 "Graphics/Structures/VertexLayout.cpp"
-"Graphics/Shaders/OpenGLRawShader.cpp"
 "Platform/GLFWPlatform.cpp"
-"Graphics/OpenGLGraphicsAPI.cpp")
+"Graphics/OpenGLProvider.cpp"   
+"Core/Gamplay/InputController.h" 
+"Core/Gamplay/InputController.cpp"
+"Core/Render/Texture2D.cpp"
+"Core/Render/Texture2D.h"
+"Core/Render/RenderTarget2D.cpp"
+"Core/Render/RenderTarget2D.h"
+"Core/Render/RawShader.cpp"
+"Core/Render/RawShader.h"
+"Core/Render/ShaderProgram.cpp"
+"Core/Render/ShaderProgram.h" 
+"Graphics/ResourceManager/OpenGLGraphicsResourceManager.h"
+"Graphics/ResourceManager/OpenGLGraphicsResourceManager.cpp" "Core/Utils/GameTimer.h" "Core/Utils/GameTimer.cpp")
 
 
 message(STATUS "${PROJECT_SOURCE_DIR}")
@@ -56,9 +65,9 @@ message(STATUS "${PROJECT_SOURCE_DIR}")
 message(STATUS "${PROJECT_BINARY_DIR}")
 
 # Include 目录
-include_directories("${PROJECT_SOURCE_DIR}/../../generated")
-include_directories(SYSTEM "${PROJECT_SOURCE_DIR}/../../ext/includes")
-include_directories("${PROJECT_SOURCE_DIR}")
+target_include_directories("TRV2_Engine" SYSTEM PRIVATE "${PROJECT_SOURCE_DIR}/../../generated")
+target_include_directories("TRV2_Engine" SYSTEM PRIVATE "${PROJECT_SOURCE_DIR}/../../ext/includes")
+target_include_directories("TRV2_Engine" PRIVATE "${PROJECT_SOURCE_DIR}")
 
 
 add_custom_command(TARGET "TRV2_Engine" PRE_BUILD

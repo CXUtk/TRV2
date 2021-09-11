@@ -1,11 +1,8 @@
 ﻿#define _CRTDBG_MAP_ALLOC
 #include <TRGame/TRGame.hpp>
-#include <TREngine/TREngine.hpp>
+#include <TREngine/Engine.h>
 #include <cstdio>
 
-#include <Platform/GameTimer/GLFWGameTimer.hpp>
-#include <Platform/GameWindow/GLFWGameWindow.hpp>
-#include <Platform/InputController/GLFWInputController.hpp>
 
 int main(int argc, char** argv)
 {
@@ -15,7 +12,7 @@ int main(int argc, char** argv)
     _CrtMemCheckpoint(&sOld); //take a snapshot
     try {
         TRGame game;
-        trv2::IEngine engine(argc, argv, &game);
+        trv2::Engine engine(argc, argv, &game);
         engine.Run();
     }
     catch (std::exception ex) {

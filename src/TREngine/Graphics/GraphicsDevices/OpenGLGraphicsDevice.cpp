@@ -1,22 +1,55 @@
-﻿#include "OpenGLGraphicsDevice.hpp"
+﻿#include "OpenGLGraphicsDevice.h"
 
 #include <glad/glad.h>
 #include <array>
 #include <thread>
 #include <exception>
 
-#include <TREngine.hpp>
-#include <Configs/EngineSettings.hpp>
-#include <Graphics/Graphics_Interfaces.hpp>
+#include <Engine.h>
+#include <Core/Structures/EngineSettings.h>
+#include <Core/Render/Texture2D.h>
+#include <Core/Render/RenderTarget2D.h>
+#include <Core/Render/ShaderProgram.h>
+#include <Platform/Platform_Interfaces.h>
 
+#include <Graphics/Graphics_Interfaces.h>
 #include <Graphics/Structures/VertexLayout.hpp>
-#include <Graphics/Textures/OpenGLTexture2D.hpp>
+#include <Graphics/OpenGLProvider.h>
 
 
 TRV2_NAMESPACE_BEGIN
 
 
-void OpenGLGraphicsDevice::initializeConstants() 
+void OpenGLGraphicsDevice::SwitchRenderTarget(const RenderTarget2D* renderTarget)
+{
+	if (renderTarget == nullptr)
+	{
+		auto windowSize = Engine::GetInstance()->GetGameWindow()->GetWindowSize();
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		glViewport(0, 0, windowSize.x, windowSize.y);
+		return;
+	}
+	glBindFramebuffer(GL_FRAMEBUFFER, renderTarget->GetHandle());
+	glViewport(0, 0, renderTarget->GetWidth(), renderTarget->GetHeight());
+}
+
+void OpenGLGraphicsDevice::SetViewPort(int x, int y, int width, int height)
+{
+	glViewport(x, y, width, height);
+}
+
+void OpenGLGraphicsDevice::Clear(const glm::vec4& color)
+{
+	glClearColor(color.r, color.g, color.b, color.a);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+}
+
+void OpenGLGraphicsDevice::UseShader(const ShaderProgram* shader)
+{
+	glUseProgram(shader->GetHandle());
+}
+
+void OpenGLGraphicsDevice::initializeConstants()
 {
 	glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &_MaxTextureSlotCanUse);
 }
@@ -36,8 +69,8 @@ void OpenGLGraphicsDevice::SetupVertexAttributes(const VertexLayout& layout)
 	int counter = 0;
 	for (auto& element : elements)
 	{
-		glVertexAttribPointer(counter, element.NumberOfElements, _OpenGLAPI::MapDataType(element.DataType), 
-			GL_FALSE, layout.GetSize(), (void*)element.Offset);
+		glVertexAttribPointer(counter, element.NumberOfElements, OpenGLProvider::MapDataType(element.DataType),
+			element.Normalized, layout.GetSize(), (void*)element.Offset);
 		glEnableVertexAttribArray(counter);
 		++counter;
 	}
@@ -69,7 +102,7 @@ void OpenGLGraphicsDevice::CreateBuffers(int size, IVertexBufferHandle* hOut)
 
 void OpenGLGraphicsDevice::SetBufferData(BufferType type, IVertexBufferHandle handle, size_t size, const void* data, BufferHint bufferHint)
 {
-	auto bufferType = _OpenGLAPI::MapBufferType(type);
+	auto bufferType = OpenGLProvider::MapBufferType(type);
 	glBindBuffer(bufferType, handle);
 	glBufferData(bufferType, size, data,
 		(bufferHint == BufferHint::DYNAMIC_DRAW) ? GL_DYNAMIC_DRAW : GL_STATIC_DRAW);
@@ -77,14 +110,14 @@ void OpenGLGraphicsDevice::SetBufferData(BufferType type, IVertexBufferHandle ha
 
 void OpenGLGraphicsDevice::ChangeBufferData(BufferType type, IVertexBufferHandle handle, size_t offset, size_t size, const void* data)
 {
-	auto target = _OpenGLAPI::MapBufferType(type);
+	auto target = OpenGLProvider::MapBufferType(type);
 	glBindBuffer(target, handle);
 	glBufferSubData(target, offset, size, data);
 }
 
 void OpenGLGraphicsDevice::BindBuffer(BufferType type, IVertexBufferHandle handle)
 {
-	glBindBuffer(_OpenGLAPI::MapBufferType(type), handle);
+	glBindBuffer(OpenGLProvider::MapBufferType(type), handle);
 }
 
 void OpenGLGraphicsDevice::BindVertexArray(IVertexBufferHandle handle)
@@ -99,10 +132,10 @@ void OpenGLGraphicsDevice::UnbindVertexArray()
 
 void OpenGLGraphicsDevice::DrawIndexedPrimitives(PrimitiveType type, size_t count, EngineDataType dataType, size_t offset)
 {
-	glDrawElements(_OpenGLAPI::MapDrawPrimitivesType(type), count, _OpenGLAPI::MapDataType(dataType), (void*) offset);
+	glDrawElements(OpenGLProvider::MapDrawPrimitivesType(type), count, OpenGLProvider::MapDataType(dataType), (void*) offset);
 }
 
-void OpenGLGraphicsDevice::BindTexture2DSlot(int slot, const ITexture2D* texture)
+void OpenGLGraphicsDevice::BindTexture2DSlot(int slot, const Texture2D* texture)
 {
 	glActiveTexture(GL_TEXTURE0 + slot);
 	glBindTexture(GL_TEXTURE_2D, texture->GetHandle());

@@ -14,6 +14,7 @@ void VertexLayout::Add(const VertexElement& element)
 	switch (element.DataType)
 	{
 	case EngineDataType::BYTE:
+	case EngineDataType::UNSIGNED_BYTE:
 	{
 		baseSize = 1;
 		break;
