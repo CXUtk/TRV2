@@ -21,8 +21,8 @@ public:
 	void PollEvents();
 
 
-	glm::ivec2 GetWindowSize() const { return _windowSize; }
-	GLFWwindow* GetWindowHandle() const { return _window; }
+	glm::ivec2 GetMousePos() const override;
+	glm::ivec2 GetWindowSize() const override { return _windowSize; }
 
 	void Resize(glm::ivec2 newSize) { _windowSize = newSize; }
 

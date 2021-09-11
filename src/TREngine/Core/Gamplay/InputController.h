@@ -7,6 +7,8 @@ TRV2_NAMESPACE_BEGIN
 
 enum class KeyCode
 {
+	EMPTY,
+
 	TRV2_W_KEY,
 	TRV2_A_KEY,
 	TRV2_S_KEY,
@@ -36,6 +38,8 @@ enum class KeyCode
 
 enum class MouseButtonCode
 {
+	EMPTY,
+
 	LEFT_BUTTON,
 	RIGHT_BUTTON,
 	MIDDLE_BUTTON,
@@ -58,7 +62,7 @@ public:
 	/**
 	 * @brief Calculate input state from poll events in this frame
 	*/
-	void UpdateInput();
+	void DispatchInput();
 
 	/**
 	 * @brief Get the change of mouse wheel value in this frame
@@ -114,9 +118,11 @@ public:
 	*/
 	glm::vec2 GetMousePos() const;
 
-private:
+	void TriggerKeyChange(KeyCode key, bool down);
+	void TriggerMouseChange(MouseButtonCode button, bool down);
+	void OnScrollWheel(glm::vec2 dir);
 
-	void updateScrollWheel(glm::vec2 dir);
+private:
 
 	// Keys
 	std::bitset<(int)KeyCode::__COUNT> _curKeysDown;

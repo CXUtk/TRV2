@@ -10,6 +10,7 @@
 #include <Core/Render/Texture2D.h>
 #include <Core/Render/RenderTarget2D.h>
 #include <Core/Render/ShaderProgram.h>
+#include <Platform/Platform_Interfaces.h>
 
 #include <Graphics/Graphics_Interfaces.h>
 #include <Graphics/Structures/VertexLayout.hpp>
@@ -23,10 +24,13 @@ void OpenGLGraphicsDevice::SwitchRenderTarget(const RenderTarget2D* renderTarget
 {
 	if (renderTarget == nullptr)
 	{
+		auto windowSize = Engine::GetInstance()->GetGameWindow()->GetWindowSize();
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		glViewport(0, 0, windowSize.x, windowSize.y);
 		return;
 	}
 	glBindFramebuffer(GL_FRAMEBUFFER, renderTarget->GetHandle());
+	glViewport(0, 0, renderTarget->GetWidth(), renderTarget->GetHeight());
 }
 
 void OpenGLGraphicsDevice::SetViewPort(int x, int y, int width, int height)

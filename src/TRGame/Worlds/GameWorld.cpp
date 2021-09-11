@@ -143,25 +143,23 @@ void GameWorld::RenderWorld(const glm::mat4& projection, trv2::SpriteRenderer* r
 	setting.Shader = assetsManager->GetShader("perlinNoise");
 
 	// Render to offscreen texture
-	graphicsDevice->SwitchRenderTarget(_renderTarget.get());
-	graphicsDevice->SetViewPort(0, 0, _renderTarget->GetWidth(), _renderTarget->GetHeight());
-	graphicsDevice->Clear(glm::vec4(0, 0, 0, 0));
-	glm::mat4 localProj = glm::ortho<float>(0.f, _renderTarget->GetWidth(), 0.f, _renderTarget->GetHeight());
-	renderer->Begin(localProj, setting);
-	{
-		renderer->Draw(glm::vec2(0), glm::vec2(1024, 1024), glm::vec2(0), 0.f, glm::vec4(1));
-	}
-	renderer->End();
+	//graphicsDevice->SwitchRenderTarget(_renderTarget.get());
+	//graphicsDevice->Clear(glm::vec4(0, 0, 0, 0));
+	//glm::mat4 localProj = glm::ortho<float>(0.f, _renderTarget->GetWidth(), 0.f, _renderTarget->GetHeight());
+	//renderer->Begin(localProj, setting);
+	//{
+	//	renderer->Draw(glm::vec2(0), glm::vec2(1024, 1024), glm::vec2(0), 0.f, glm::vec4(1));
+	//}
+	//renderer->End();
 
 
 	graphicsDevice->SwitchRenderTarget(nullptr);
-	graphicsDevice->SetViewPort(0, 0, clientSize.x, clientSize.y);
 	graphicsDevice->Clear(glm::vec4(0, 0, 0, 0));
 
 	setting.Shader = nullptr;
 	renderer->Begin(projection, setting);
 	{
-		renderer->Draw(_renderTarget->GetTexture2D(), glm::vec2(0), glm::vec2(1024, 1024), glm::vec2(0), 0.f, glm::vec4(1));
+		renderer->Draw(glm::vec2(0), glm::vec2(1024, 1024), glm::vec2(0), 0.f, glm::vec4(1));
 	}
 	renderer->End();
 

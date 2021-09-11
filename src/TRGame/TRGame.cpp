@@ -69,7 +69,7 @@ void TRGame::Update(double deltaTime)
     auto window = _engine->GetGameWindow();
     auto clientSize = window->GetWindowSize();
 
-    auto moveVal = 0.05f * _screenRect.Size.x;
+    auto moveVal = 0.02f * _screenRect.Size.x;
     if (controller->IsKeyDowned(trv2::KeyCode::TRV2_A_KEY))
     {
         _screenRect.Position.x -= moveVal;
@@ -117,8 +117,8 @@ void TRGame::Update(double deltaTime)
         _screenRect.Position = _oldScreenPos - moveDir;
     }
 
-    _projection = glm::ortho(_screenRect.Position.x, _screenRect.Position.x + _screenRect.Size.x,
-    _screenRect.Position.y, _screenRect.Position.y + _screenRect.Size.y);
+    _projection = glm::ortho(_screenRect.BottomLeft().x, _screenRect.BottomRight().x,
+       _screenRect.BottomLeft().y, _screenRect.TopLeft().y);
 }
 
 void TRGame::Draw(double deltaTime)

@@ -39,7 +39,7 @@ void Engine::Run()
             auto elapsed = currentTime - prevTimestamp;
             prevTimestamp = currentTime;
 
-            controller->UpdateInput();
+            controller->DispatchInput();
             gameWindow->BeginFrame();
             {
                 _application->Update(elapsed);

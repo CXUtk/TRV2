@@ -16,6 +16,7 @@ public:
 	virtual bool ShouldClose() const = 0;
 	virtual void PollEvents() = 0;
 
+	virtual glm::ivec2 GetMousePos() const = 0;
 	virtual glm::ivec2 GetWindowSize() const = 0;
 };
 
