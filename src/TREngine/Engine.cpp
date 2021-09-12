@@ -62,7 +62,7 @@ void Engine::Run()
     }
     catch (std::exception ex)
     {
-        _logger->LogError("Error: %s", ex.what());
+        _logger->Log(SeverityLevel::Error, "Error: %s", ex.what());
         throw;
     }
 }
@@ -81,7 +81,7 @@ Engine::Engine(int argc, char** argv, const std::shared_ptr<Application>& applic
     }
     catch (std::exception ex)
     {
-        _logger->LogError("Error: %s", ex.what());
+        _logger->Log(SeverityLevel::Error, "Error: %s", ex.what());
         throw;
     }
 }
@@ -89,29 +89,29 @@ Engine::Engine(int argc, char** argv, const std::shared_ptr<Application>& applic
 Engine::~Engine()
 {
     _application.reset();
-    _assetsManager.reset();
     _spriteRenderer.reset();
+    _assetsManager.reset();
     _graphicsProvider.reset();
 }
 
 void Engine::loadSupportiveSystem()
 {
-    _logger->LogInfo("Loading platform specifics");
+    _logger->Log(SeverityLevel::Info, "Loading platform specifics");
     _gameWindow = std::make_shared<GLFWGameWindow>(*_engineSettings);
     _inputController = std::make_shared<InputController>();
 }
 
 void Engine::loadGraphicsSystem()
 {
-    _logger->LogInfo("Loading graphics system");
+    _logger->Log(SeverityLevel::Info, "Loading graphics system");
     _graphicsProvider = std::make_shared<OpenGLProvider>(*_engineSettings);
 }
 
 void Engine::loadLaunchSettings()
 {
-    _logger->LogInfo("TR Engine Started");
+    _logger->Log(SeverityLevel::Info, "TR Engine Started");
     _engineSettings = std::make_shared<EngineSettings>();
-    _logger->LogInfo("Current Engine Version: %s", _engineSettings->GetVersionString());
+    _logger->Log(SeverityLevel::Info, "Current Engine Version: %s", _engineSettings->GetVersionString());
 }
 
 void Engine::loadResources()

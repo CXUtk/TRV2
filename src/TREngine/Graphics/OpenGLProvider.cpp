@@ -1,8 +1,12 @@
 ﻿#pragma once
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+#include <string>
 
 #include "OpenGLProvider.h"
+#include <Engine.h>
+#include <Core/Utils/Utils.h>
+#include <Core/Utils/Logging/Logger.h>
 #include <Graphics/GraphicsDevices/OpenGLGraphicsDevice.h>
 #include <Graphics/ResourceManager/OpenGLGraphicsResourceManager.h>
 
@@ -99,6 +103,85 @@ static constexpr auto BufferTypeMapper = generateBufferTypeMapper<(size_t)Buffer
 static constexpr auto DrawPrimitivesTypeMapper = generatePrimitiveTypeMapper<(size_t)PrimitiveType::__COUNT>();
 
 
+void APIENTRY glDebugOutput(GLenum source,
+                            GLenum type,
+                            unsigned int id,
+                            GLenum severity,
+                            GLsizei length,
+                            const char* message,
+                            const void* userParam)
+{
+    // ignore non-significant error/warning codes
+    if (id == 131169 || id == 131185 || id == 131218 || id == 131204) return;
+
+    SeverityLevel level = SeverityLevel::Info;
+
+    std::string str;
+    str.append("---------------\n");
+    str.append(string_format("Debug message (%d): %s\n", id, message));
+
+    switch (source)
+    {
+    case GL_DEBUG_SOURCE_API:             str.append("Source: API"); break;
+    case GL_DEBUG_SOURCE_WINDOW_SYSTEM:   str.append("Source: Window System"); break;
+    case GL_DEBUG_SOURCE_SHADER_COMPILER: str.append("Source: Shader Compiler"); break;
+    case GL_DEBUG_SOURCE_THIRD_PARTY:     str.append("Source: Third Party"); break;
+    case GL_DEBUG_SOURCE_APPLICATION:     str.append("Source: Application"); break;
+    case GL_DEBUG_SOURCE_OTHER:           str.append("Source: Other"); break;
+    }
+
+    str.append("\n");
+
+    switch (type)
+    {
+    case GL_DEBUG_TYPE_ERROR:
+    {
+        level = SeverityLevel::Error;
+        str.append("Type: Error"); 
+        break;
+    }
+    case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR:
+    {
+        level = SeverityLevel::Warning;
+        str.append("Type: Deprecated Behaviour"); 
+        break;
+    }
+    case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR:
+    {
+        level = SeverityLevel::Warning;
+        str.append("Type: Undefined Behaviour"); 
+        break;
+    }
+    case GL_DEBUG_TYPE_PORTABILITY:         str.append("Type: Portability"); break;
+    case GL_DEBUG_TYPE_PERFORMANCE:         str.append("Type: Performance"); break;
+    case GL_DEBUG_TYPE_MARKER:              str.append("Type: Marker"); break;
+    case GL_DEBUG_TYPE_PUSH_GROUP:          str.append("Type: Push Group"); break;
+    case GL_DEBUG_TYPE_POP_GROUP:           str.append("Type: Pop Group"); break;
+    case GL_DEBUG_TYPE_OTHER:               str.append("Type: Other"); break;
+    } 
+
+    str.append("\n");
+
+    switch (severity)
+    {
+    case GL_DEBUG_SEVERITY_HIGH:         str.append("Severity: high"); break;
+    case GL_DEBUG_SEVERITY_MEDIUM:       str.append("Severity: medium"); break;
+    case GL_DEBUG_SEVERITY_LOW:          str.append("Severity: low"); break;
+    case GL_DEBUG_SEVERITY_NOTIFICATION: str.append("Severity: notification"); break;
+    }
+
+    str.append("\n");
+    
+    auto logger = Engine::GetInstance()->GetLogger();
+    logger->Log(level, "%s", str.c_str());
+
+    if (level == SeverityLevel::Error)
+    {
+        throw std::exception("OpenGL error triggered!");
+    }
+}
+
+
 OpenGLProvider::OpenGLProvider(const EngineSettings& settings)
 {
 	// Initialize GLAD and configs
@@ -106,6 +189,19 @@ OpenGLProvider::OpenGLProvider(const EngineSettings& settings)
 	{
 		throw std::exception("Failed to load glad!");
 	}
+#ifdef _DEBUG
+    int flags;
+    glGetIntegerv(GL_CONTEXT_FLAGS, &flags);
+    if (flags & GL_CONTEXT_FLAG_DEBUG_BIT)
+    {
+        glEnable(GL_DEBUG_OUTPUT);
+        glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
+        glDebugMessageCallback(glDebugOutput, nullptr);
+        glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, GL_TRUE);
+        Engine::GetInstance()->GetLogger()->Log(SeverityLevel::Debug, "Debug context started");
+    }
+#endif
+
 	_graphicsDevice = std::make_shared<OpenGLGraphicsDevice>(settings);
     _graphicsResourceManager = std::make_shared<OpenGLGraphicsResourceManager>(settings);
 }

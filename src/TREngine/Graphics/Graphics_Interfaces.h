@@ -244,7 +244,8 @@ public:
 	virtual ~IGraphicsResourceManager() = 0 {};
 
 	virtual ITextureHandle CreateTexture2D(int width, int height, const void* data,
-		PixelFormat internalFormat, PixelFormat srcFormat, EngineDataType dataType, const TextureParameters& parameters) = 0;
+		PixelFormat internalFormat, PixelFormat srcFormat, 
+		EngineDataType dataType, const TextureParameters& parameters) = 0;
 	virtual void DeleteTexture2D(ITextureHandle handle) = 0;
 
 	virtual IShaderHandle CreateRawShader(const char* code, ShaderType shaderType, const char* fileName) = 0;
@@ -257,7 +258,8 @@ public:
 	virtual void DeleteRenderTarget2D(IRenderTarget2DHandle handle) = 0;
 
 
-	virtual void SetShaderParameterMat4x4(ShaderProgram* shader, const std::string& name, const glm::mat4& mat, bool normalized) = 0;
+	virtual void SetShaderParameterMat4x4(ShaderProgram* shader, 
+		const std::string& name, const glm::mat4& mat, bool normalized) = 0;
 	virtual void SetShaderParameter1i(ShaderProgram* shader, const std::string& name, int value) = 0;
 };
 TRV2_NAMESPACE_END

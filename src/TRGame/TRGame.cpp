@@ -32,7 +32,7 @@ TRGame::TRGame() : _projection(glm::identity<glm::mat4>()), _screenRect(),  _eng
 
 void TRGame::logGameInfo()
 {
-    _logger->LogInfo("TR Game Started");
+    _logger->Log(trv2::SeverityLevel::Info, "TR Game Started");
 }
 
 void TRGame::loadGameContent()

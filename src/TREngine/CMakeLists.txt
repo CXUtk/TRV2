@@ -22,7 +22,7 @@ add_library("TRV2_Engine" STATIC
 "Core/Assets/AssetsManager.cpp"
 
 "Graphics/Structures/VertexLayout.cpp"
-"Platform/GLFWPlatform.cpp"
+
 "Graphics/OpenGLProvider.cpp"   
 "Core/Gamplay/InputController.h" 
 "Core/Gamplay/InputController.cpp"

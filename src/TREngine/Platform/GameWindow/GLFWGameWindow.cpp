@@ -114,6 +114,10 @@ GLFWGameWindow::GLFWGameWindow(const EngineSettings& settings)
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_RESIZABLE, settings.IsWindowResizable() ? GLFW_TRUE : GLFW_FALSE);
 
+#ifdef _DEBUG
+    glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, true);
+#endif
+
     _windowSize = glm::ivec2(settings.GetWindowWidth(), settings.GetWindowHeight());
 
     _window = glfwCreateWindow(_windowSize.x, _windowSize.y,

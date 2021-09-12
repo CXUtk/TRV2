@@ -88,7 +88,7 @@ GameWorld::GameWorld(int width, int height) : _tileMaxX(width), _tileMaxY(height
 				v += 1.f / K * perlin(coord * K);
 				K *= 2;
 			}
-
+			auto& tile = GetTile(x, y);
 			//SetTile(x, y, Tile(glm::vec3(v) * 0.5f + 0.5f));
 			//v = sin(v * 7 + coord.y * 2);
 			if (v < 0.5) {
@@ -142,15 +142,15 @@ void GameWorld::RenderWorld(const glm::mat4& projection, trv2::SpriteRenderer* r
 	setting.SpriteSortMode = trv2::SpriteSortMode::Deferred;
 	setting.Shader = assetsManager->GetShader("perlinNoise");
 
-	//// Render to offscreen texture
-	//graphicsDevice->SwitchRenderTarget(_renderTarget.get());
-	//graphicsDevice->Clear(glm::vec4(0, 0, 0, 0));
-	//glm::mat4 localProj = glm::ortho<float>(0.f, _renderTarget->GetWidth(), 0.f, _renderTarget->GetHeight());
-	//renderer->Begin(localProj, setting);
-	//{
-	//	renderer->Draw(glm::vec2(0), glm::vec2(1024, 1024), glm::vec2(0), 0.f, glm::vec4(1));
-	//}
-	//renderer->End();
+	// Render to offscreen texture
+	graphicsDevice->SwitchRenderTarget(_renderTarget.get());
+	graphicsDevice->Clear(glm::vec4(0, 0, 0, 0));
+	glm::mat4 localProj = glm::ortho<float>(0.f, _renderTarget->GetWidth(), 0.f, _renderTarget->GetHeight());
+	renderer->Begin(localProj, setting);
+	{
+		renderer->Draw(glm::vec2(0), glm::vec2(1024, 1024), glm::vec2(0), 0.f, glm::vec4(1));
+	}
+	renderer->End();
 
 
 	graphicsDevice->SwitchRenderTarget(nullptr);

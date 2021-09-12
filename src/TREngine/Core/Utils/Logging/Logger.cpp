@@ -6,53 +6,49 @@
 #include <iomanip>
 #include <ctime>
 #include <sstream>
-
+#include <array>
 
 TRV2_NAMESPACE_BEGIN
-static const char* infoBadge = "[INFO]";
-static const char* warningBadge = "[WARN]";
-static const char* errorBadge = "[ERROR]";
-static const char* debugBadge = "[DEBUG]";
+
+
+template<size_t T>
+constexpr std::array<const char*, T> generateBadgeTable()
+{
+	std::array<const char*, T> M{ 0 };
+	M[(int)SeverityLevel::Info] = "[INFO]";
+	M[(int)SeverityLevel::Warning] = "[WARNING]";
+	M[(int)SeverityLevel::Error] = "[ERROR]";
+	M[(int)SeverityLevel::Debug] = "[DEBUG]";
+	return M;
+}
+
+
+static constexpr auto badgeTable = generateBadgeTable<(size_t)SeverityLevel::__COUNT>();
+
+void Logger::Log(SeverityLevel slevel, const char* format, ...) const
+{
+	if (slevel == SeverityLevel::Debug)
+	{
+#ifdef _DEBUG
+		va_list ap;
+		va_start(ap, format);
+		pushLog(slevel, badgeTable[(int)slevel], format, ap);
+		va_end(ap);
+#endif
+	}
+	else
+	{
+		va_list ap;
+		va_start(ap, format);
+		pushLog(slevel, badgeTable[(int)slevel], format, ap);
+		va_end(ap);
+	}
+}
 
 Logger::Logger()
 {
 }
-
-void Logger::LogInfo(const char* format, ...) const
-{
-	va_list ap;
-	va_start(ap, format);
-	pushLog(infoBadge, format, ap);
-	va_end(ap);
-}
-
-void Logger::LogWarning(const char* format, ...) const
-{
-	va_list ap;
-	va_start(ap, format);
-	pushLog(warningBadge, format, ap);
-	va_end(ap);
-}
-
-void Logger::LogError(const char* format, ...) const
-{
-	va_list ap;
-	va_start(ap, format);
-	pushLog(errorBadge, format, ap);
-	va_end(ap);
-}
-
-void Logger::LogDebug(const char* format, ...) const
-{
-#ifdef _DEBUG
-	va_list ap;
-	va_start(ap, format);
-	pushLog(debugBadge, format, ap);
-	va_end(ap);
-#endif // _DEBUG
-}
-
-void Logger::pushLog(const char* badge, const char* format, va_list ap) const
+void Logger::pushLog(SeverityLevel slevel, const char* badge, const char* format, va_list ap) const
 {
 	const std::lock_guard<std::mutex> lockGuard(_mutexLock);
 
