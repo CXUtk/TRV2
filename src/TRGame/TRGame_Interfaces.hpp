@@ -3,4 +3,5 @@ class TRGame;
 
 // Game
 class Tile;
+class TileSection;
 class GameWorld;

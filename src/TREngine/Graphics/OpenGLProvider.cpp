@@ -198,7 +198,7 @@ OpenGLProvider::OpenGLProvider(const EngineSettings& settings)
         glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
         glDebugMessageCallback(glDebugOutput, nullptr);
         glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, GL_TRUE);
-        Engine::GetInstance()->GetLogger()->Log(SeverityLevel::Debug, "Debug context started");
+        Engine::GetInstance()->GetLogger()->Log(SeverityLevel::Info, "Debug context started");
     }
 #endif
 

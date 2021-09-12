@@ -13,6 +13,6 @@ RenderTarget2D::RenderTarget2D(IGraphicsResourceManager* resourceManager, int wi
 RenderTarget2D::~RenderTarget2D()
 {
 	if (_handle != -1)
-		_resourceManager->DeleteShaderProgram(_handle);
+		_resourceManager->DeleteTexture2D(_handle);
 }
 TRV2_NAMESPACE_END

@@ -8,6 +8,14 @@ public:
 	~Tile() {}
 
 	glm::vec3 GetColor() const { return _color; }
+	void SetColor(glm::vec3 value) { _color = value; }
 private:
 	glm::vec3 _color;
+
+};
+
+
+struct TileGenLayout
+{
+	float v[5];
 };
