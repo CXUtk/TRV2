@@ -46,23 +46,44 @@ static float GetRandFloat()
 	return (double)mt() / s;
 }
 
-//static float GetRandValueGrid(unsigned int x, unsigned int y, int seed)
-//{
-//	return glm::fract(std::sin(glm::dot(glm::vec2(x, y), glm::vec2(12.9898, 78.233))) * 43758.5453
-//		+ 114.514 * (x + y));
-//}
-
-static float GetRandValueGrid(uint32 x, uint32 y, uint32 seed)
+static float GetRandValueGrid(unsigned int x, unsigned int y, int seed)
 {
-	auto s = (ull)x * BASE % MOD + y;
-	auto s1 = s * BASE % MOD + seed;
-	auto s2 = s1 * BASE % MOD;
-	return (double)s2 / (MOD - 1);
+	return glm::fract(std::sin(glm::dot(glm::vec2(x, y), glm::vec2(12.9898, 78.233))) * 43758.5453
+		+ 114.514 * (x + y));
 }
 
-static glm::vec2 GetDir(int x, int y)
+
+
+float GetRandValueGrid2(int x, int y, int seed)
 {
-	float r = GetRandValueGrid(x, y, SEED) * glm::two_pi<float>();
+	static constexpr int A = 0x7fffffff / 48271;
+	static constexpr int B = 0x7fffffff % 48271;
+	int result;
+
+	seed = x ^ ((y << 1) & 0x2AAAAAAA) ^ ((y >> 1) & 0x33333333);
+	result = 48271 * (seed % A) - B * (seed / A);
+	return (float)(result & 0xffff) / 0xffff;
+}
+
+//static float GetRandValueGrid(uint32 x, uint32 y, uint32 seed)
+//{
+//	auto s = (ull)x * BASE % MOD + y;
+//	auto s1 = s * BASE % MOD + seed;
+//	auto s2 = s1 * BASE % MOD;
+//	return (double)s2 / (MOD - 1);
+//}
+
+static glm::vec2 GetDir(int x, int y, int type)
+{
+	float r;
+	if (type == 0)
+	{
+		r = GetRandValueGrid(x, y, SEED) * glm::two_pi<float>();
+	}
+	else
+	{
+		r = GetRandValueGrid2(x, y, SEED) * glm::two_pi<float>();
+	}
 	return glm::vec2(cos(r), sin(r));
 }
 
@@ -72,7 +93,7 @@ static glm::vec2 SmoothInterp(glm::vec2 x)
 	return (6.f * x2 - 15.f * x + 10.f) * x2 * x;
 }
 
-static float perlin(glm::vec2 coord)
+static float perlin(glm::vec2 coord, int type)
 {
 	auto P = glm::ivec2(glm::floor(coord));
 	//P.x %= DIM;
@@ -81,28 +102,28 @@ static float perlin(glm::vec2 coord)
 
 	auto factor = SmoothInterp(extraCoord);
 
-	float V1 = glm::dot(GetDir(P.x, P.y), extraCoord - glm::vec2(0, 0));
-	float V2 = glm::dot(GetDir(P.x + 1, P.y), extraCoord - glm::vec2(1, 0));
-	float V3 = glm::dot(GetDir(P.x, P.y + 1), extraCoord - glm::vec2(0, 1));
-	float V4 = glm::dot(GetDir(P.x + 1, P.y + 1), extraCoord - glm::vec2(1, 1));
+	float V1 = glm::dot(GetDir(P.x, P.y, type), extraCoord - glm::vec2(0, 0));
+	float V2 = glm::dot(GetDir(P.x + 1, P.y, type), extraCoord - glm::vec2(1, 0));
+	float V3 = glm::dot(GetDir(P.x, P.y + 1, type), extraCoord - glm::vec2(0, 1));
+	float V4 = glm::dot(GetDir(P.x + 1, P.y + 1, type), extraCoord - glm::vec2(1, 1));
 
 	float v1 = glm::mix(V1, V2, factor.x);
 	float v2 = glm::mix(V3, V4, factor.x);
 	return glm::mix(v1, v2, factor.y);
 }
 
-static float fBm(glm::vec2 coord, int X)
+static float fBm(glm::vec2 coord, int X, int type)
 {
 	float v = 0.f;
 	float b = 0.f;
 	float K = 1;
 	for (int i = 0; i < X; i++)
 	{
-		v += 1.f / K * perlin(coord * K);
+		v += 1.f / K * perlin(coord * K, type);
 		b += 1.f / K;
 		K *= 2;
 	}
-	return v / b;
+	return v;
 }
 
 
@@ -124,7 +145,7 @@ GameWorld::GameWorld(int width, int height) : _tileMaxX(width), _tileMaxY(height
 
 
 
-	for (int s = 0; s < 1; s++)
+	for (int s = 0; s < 2; s++)
 	{
 		logger->Log(trv2::SeverityLevel::Info, "Generating Loop %d", s);
 		for (int y = 0; y < height; y++)
@@ -133,20 +154,44 @@ GameWorld::GameWorld(int width, int height) : _tileMaxX(width), _tileMaxY(height
 			{
 				auto coord = glm::vec2((float)x / width, (float)y / height) * 18.f;
 
-				auto v = fBm(coord, 8);
+				auto v = fBm(coord, 8, s);
 
 				auto& tile = GetTile(x, y);
 
 				_worldGenLayouts[y * width + x].v[s] = v;
+			}
+		}
+	}
 
-				if (v < 0)
+	for (int y = 0; y < height; y++)
+	{
+		for (int x = 0; x < width; x++)
+		{
+			float v = _worldGenLayouts[y * width + x].v[0];
+			float v2 = _worldGenLayouts[y * width + x].v[1];
+
+			//v = std::pow(v * 1.2, 1.8);
+
+			float threashold = 0.15f;
+			auto& tile = GetTile(x, y);
+			if (y > MINIMAL_SURFACE_HEIGHT)
+			{
+				float f = (float)(y - MINIMAL_SURFACE_HEIGHT) / (MAXIMAL_SURFACE_HEIGHT - MINIMAL_SURFACE_HEIGHT);
+				f = std::pow(f, 2.0);
+				threashold = glm::mix(0.15f, 0.8f, f);
+			}
+			//tile.SetColor(glm::vec3(v * 0.5 + 0.5));
+			if (v < threashold)
+			{
+				tile.SetColor(glm::vec3(0.3, 0.3, 0.3));
+				if (v2 < -0.5)
 				{
-					tile.SetColor(glm::vec3(0.3, 0.3, 0.3));
+					tile.SetColor(glm::vec3(1, 0.5, 0.3));
 				}
-				else
-				{
-					tile.SetColor(glm::vec3(1, 1, 1));
-				}
+			}
+			else
+			{
+				tile.SetColor(glm::vec3(1));
 			}
 		}
 	}
@@ -156,15 +201,15 @@ GameWorld::GameWorld(int width, int height) : _tileMaxX(width), _tileMaxY(height
 	{
 
 		float X = (x + 0.5f) / _tileMaxX;
-		float v = fBm(glm::vec2(1.5, X * 10), 4);
+		float v = fBm(glm::vec2(1.5, X * 5), 4, 0);
 		v = sin(v) * 0.5 + 0.5;
 
 		int BlockH = MAXIMAL_SURFACE_HEIGHT - MINIMAL_SURFACE_HEIGHT - MINIMAL_SURFACE_THICKNESS;
 		float BaseLine = MINIMAL_SURFACE_HEIGHT + BlockH * v;
 
-		float v1 = fBm(glm::vec2(2.5, X * 10), 4);
-		float v2 = fBm(glm::vec2(3.5, X * 10), 4);
-		float v3 = fBm(glm::vec2(4.5, X * 10), 4);
+		float v1 = fBm(glm::vec2(2.5, X * 5), 4, 0);
+		float v2 = fBm(glm::vec2(3.5, X * 5), 4, 0);
+		float v3 = fBm(glm::vec2(4.5, X * 5), 4, 0);
 		float bottom = BaseLine - MINIMAL_SURFACE_THICKNESS * v1;
 
 		float AVHeight = MAXIMAL_SURFACE_HEIGHT - bottom - MINIMAL_SURFACE_THICKNESS;

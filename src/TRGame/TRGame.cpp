@@ -9,6 +9,7 @@
 
 #include <TREngine/Platform/Platform_Interfaces.h>
 #include <TRGame/Worlds/GameWorld.hpp>
+#include <TRGame/Player/Player.h>
 
 #include <glm/gtx/transform.hpp>
 
@@ -59,6 +60,7 @@ void TRGame::Initialize(trv2::Engine* engine)
         0.f, (float)clientSize.y);
 
     _screenRect = trv2::Rect2D<float>(glm::vec2(0), clientSize);
+    _mainPlayer = std::make_unique<Player>();
 }
 
 
@@ -69,41 +71,45 @@ void TRGame::Update(double deltaTime)
     auto window = _engine->GetGameWindow();
     auto clientSize = window->GetWindowSize();
 
-    auto moveVal = 0.02f * _screenRect.Size.x;
+    auto moveVal = 4;
     if (controller->IsKeyDowned(trv2::KeyCode::TRV2_A_KEY))
     {
-        _screenRect.Position.x -= moveVal;
+        _mainPlayer->SetVelocity(glm::vec2(-moveVal, 0));
     }
     else if (controller->IsKeyDowned(trv2::KeyCode::TRV2_D_KEY))
     {
-        _screenRect.Position.x += moveVal;
+        _mainPlayer->SetVelocity(glm::vec2(moveVal, 0));
     }
     else if (controller->IsKeyDowned(trv2::KeyCode::TRV2_W_KEY))
     {
-        _screenRect.Position.y += moveVal;
+        _mainPlayer->SetVelocity(glm::vec2(0, moveVal));
     }
     else if (controller->IsKeyDowned(trv2::KeyCode::TRV2_S_KEY))
     {
-        _screenRect.Position.y -= moveVal;
+        _mainPlayer->SetVelocity(glm::vec2(0, -moveVal));
     }
 
     auto pos = controller->GetMousePos();
 
+    // 缩放视距
     float factor = std::exp(_expScale);
-    if (controller->GetScrollValue().y != 0)
-    {
-        _expScale += controller->GetScrollValue().y * 0.1f;
-        factor = std::exp(_expScale);
+    //if (controller->GetScrollValue().y != 0)
+    //{
+    //    _expScale += controller->GetScrollValue().y * 0.1f;
+    //    factor = std::exp(_expScale);
 
-        auto unproject = glm::inverse(_projection);
-        
-        auto mouseScreen = controller->GetMousePos();
-        auto mousePos = controller->GetMousePos() / glm::vec2(clientSize) * 2.f - glm::vec2(1.f);
-        auto worldPos = glm::vec2(unproject * glm::vec4(mousePos, 0, 1));
+    //    auto unproject = glm::inverse(_projection);
+    //    
+    //    auto mouseScreen = controller->GetMousePos();
+    //    auto mousePos = controller->GetMousePos() / glm::vec2(clientSize) * 2.f - glm::vec2(1.f);
+    //    auto worldPos = glm::vec2(unproject * glm::vec4(mousePos, 0, 1));
 
-        _screenRect.Position = glm::vec2(worldPos.x - mouseScreen.x / factor, worldPos.y - mouseScreen.y / factor);
-        _screenRect.Size = glm::vec2(clientSize) / factor;
-    }
+    //    _screenRect.Position = glm::vec2(worldPos.x - mouseScreen.x / factor, worldPos.y - mouseScreen.y / factor);
+    //    _screenRect.Size = glm::vec2(clientSize) / factor;
+    //}
+
+    _screenRect.Size = window->GetWindowSize();
+    _screenRect.Position = glm::mix(_screenRect.Position, _mainPlayer->GetPlayerHitbox().Center() - _screenRect.Size * 0.5f, 0.4f);
 
 
     if (controller->IsMouseJustPressed(trv2::MouseButtonCode::LEFT_BUTTON))
@@ -119,6 +125,8 @@ void TRGame::Update(double deltaTime)
 
     _projection = glm::ortho(_screenRect.BottomLeft().x, _screenRect.BottomRight().x,
        _screenRect.BottomLeft().y, _screenRect.TopLeft().y);
+
+    _mainPlayer->Update();
 }
 
 void TRGame::Draw(double deltaTime)
@@ -126,7 +134,19 @@ void TRGame::Draw(double deltaTime)
     auto graphicsDevice = _engine->GetGraphicsDevice();
     graphicsDevice->Clear(glm::vec4(0));
 
+    
+
     _gameWorld->RenderWorld(_projection, _spriteRenderer, _screenRect);
+
+    trv2::BatchSettings setting{};
+    setting.SpriteSortMode = trv2::SpriteSortMode::Deferred;
+    setting.Shader = nullptr;
+    _spriteRenderer->Begin(_projection, setting);
+    {
+        auto box = _mainPlayer->GetPlayerHitbox();
+        _spriteRenderer->Draw(box.Position, box.Size, glm::vec2(0), 0.f, glm::vec4(0.6, 0.9, 0.3, 1.0));
+    }
+    _spriteRenderer->End();
 }
 
 void TRGame::Exit()

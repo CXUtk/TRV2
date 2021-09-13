@@ -3,7 +3,8 @@
 #include <glm/glm.hpp>
 
 #include <TREngine/Core.h>
-#include <TRGame/TRGame_Interfaces.hpp>
+
+#include <TRGame/TRGame_Interfaces.h>
 #include <TREngine/Application.h>
 #include <TREngine/Core/Structures/Rect.hpp>
 
@@ -40,6 +41,7 @@ private:
 
     trv2::SpriteRenderer* _spriteRenderer;
     std::unique_ptr<GameWorld> _gameWorld;
+    std::unique_ptr<Player> _mainPlayer;
     
     trv2::Rect2D<float> _screenRect;
     glm::mat4 _projection;

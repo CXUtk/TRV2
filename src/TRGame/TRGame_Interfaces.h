@@ -5,3 +5,4 @@ class TRGame;
 class Tile;
 class TileSection;
 class GameWorld;
+class Player;

@@ -16,5 +16,6 @@ struct Rect2D
 	glm::vec<2, T> BottomRight() const { return Position + glm::vec<2, T>(Size.x, 0); }
 	glm::vec<2, T> TopLeft() const { return Position + glm::vec<2, T>(0, Size.y); }
 	glm::vec<2, T> TopRight() const { return Position + Size; }
+	glm::vec<2, T> Center() const { return Position + Size / (T)2; }
 };
 TRV2_NAMESPACE_END

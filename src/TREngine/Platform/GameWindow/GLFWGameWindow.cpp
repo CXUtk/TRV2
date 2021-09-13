@@ -41,6 +41,8 @@ constexpr std::array<KeyCode, N> generateKeyCodeMapper()
     M[GLFW_KEY_MINUS] = KeyCode::TRV2_MINUS_KEY;
     M[GLFW_KEY_GRAVE_ACCENT] = KeyCode::TRV2_TILDE_KEY;
 
+    M[GLFW_KEY_SPACE] = KeyCode::TRV2_SPACE_KEY;
+
     /*M[(int)KeyCode::TRV2_W_KEY] = { GLFW_KEY_W };
     M[(int)KeyCode::TRV2_S_KEY] = { GLFW_KEY_S };
     M[(int)KeyCode::TRV2_A_KEY] = { GLFW_KEY_A };

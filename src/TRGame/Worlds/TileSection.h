@@ -1,5 +1,5 @@
 ﻿#pragma once
-#include <TRGame_Interfaces.hpp>
+#include <TRGame_Interfaces.h>
 
 class TileSection
 {
