@@ -2,13 +2,14 @@
 #include "Application.h"
 
 #include <Graphics/OpenGLProvider.h>
-#include <Platform/GameWindow/GLFWGameWindow.h>
+#include <Platform/GLFWProvider.h>
 
 #include <Core/Utils/Logging/Logger.h>
 #include <Core/Assets/AssetsManager.h>
 #include <Core/Structures/EngineSettings.h>
 #include <Core/Render/SpriteRenderer.h>
 #include <Core/Gamplay/InputController.h>
+#include <Core/Utils/GameTimer.h>
 
 
 TRV2_NAMESPACE_BEGIN
@@ -28,14 +29,14 @@ void Engine::Run()
     try
     {
         double minElapsedTime = 1.0 / GetEngineSetting()->GetFPSCap();
-        double prevTimestamp = _gameTimer.GetTimeFromGameStartInSeconds();
+        double prevTimestamp = _gameTimer->GetTimeFromGameStartInSeconds();
 
         auto controller = GetInputController();
         auto gameWindow = GetGameWindow();
 
         while (!gameWindow->ShouldClose())
         {
-            auto currentTime = _gameTimer.GetTimeFromGameStartInSeconds();
+            auto currentTime = _gameTimer->GetTimeFromGameStartInSeconds();
             auto elapsed = currentTime - prevTimestamp;
             prevTimestamp = currentTime;
 
@@ -50,9 +51,9 @@ void Engine::Run()
 
             gameWindow->PollEvents();
 
-            double t = _gameTimer.GetTimeFromGameStartInSeconds() - prevTimestamp;
+            double t = _gameTimer->GetTimeFromGameStartInSeconds() - prevTimestamp;
             //_logger->LogInfo("%lf, %d", t, (int)(1 / t));
-            while (_gameTimer.GetTimeFromGameStartInSeconds() - prevTimestamp < minElapsedTime)
+            while (_gameTimer->GetTimeFromGameStartInSeconds() - prevTimestamp < minElapsedTime)
             {
                 // gameWindow->PollEvents();
             }
@@ -97,7 +98,8 @@ Engine::~Engine()
 void Engine::loadSupportiveSystem()
 {
     _logger->Log(SeverityLevel::Info, "Loading platform specifics");
-    _gameWindow = std::make_shared<GLFWGameWindow>(*_engineSettings);
+    _gameTimer = std::make_shared<GameTimer>();
+    _platformProvider = std::make_shared<GLFWProvider>(*_engineSettings);
     _inputController = std::make_shared<InputController>();
 }
 
@@ -126,5 +128,20 @@ void Engine::useApplication()
 {
     assert(_application != nullptr);
     _application->Initialize(this);
+}
+
+IGraphicsDevice* Engine::GetGraphicsDevice()
+{
+    return _graphicsProvider->GetCurrentDeivce();
+}
+
+IGraphicsResourceManager* Engine::GetGraphicsResourceManager()
+{
+    return _graphicsProvider->GetGraphicsResourceManager();
+}
+
+IGameWindow* Engine::GetGameWindow()
+{
+    return _platformProvider->GetGameWindow();
 }
 TRV2_NAMESPACE_END

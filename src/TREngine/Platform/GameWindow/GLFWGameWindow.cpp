@@ -110,16 +110,6 @@ static void mouseButtonCallbackFunction(GLFWwindow* window, int button, int acti
 
 GLFWGameWindow::GLFWGameWindow(const EngineSettings& settings)
 {
-    glfwInit();
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-    glfwWindowHint(GLFW_RESIZABLE, settings.IsWindowResizable() ? GLFW_TRUE : GLFW_FALSE);
-
-#ifdef _DEBUG
-    glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, true);
-#endif
-
     _windowSize = glm::ivec2(settings.GetWindowWidth(), settings.GetWindowHeight());
 
     _window = glfwCreateWindow(_windowSize.x, _windowSize.y,

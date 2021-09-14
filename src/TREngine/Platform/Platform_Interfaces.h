@@ -5,6 +5,14 @@
 
 TRV2_NAMESPACE_BEGIN
 
+
+class IPlatformProvider
+{
+public:
+	virtual ~IPlatformProvider() = 0 {};
+	virtual IGameWindow* GetGameWindow() const = 0;
+};
+
 class IGameWindow
 {
 public:

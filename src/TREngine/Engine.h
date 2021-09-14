@@ -3,8 +3,6 @@
 #include <glm/glm.hpp>
 
 #include <Core.h>
-#include <Graphics/Graphics_Interfaces.h>
-#include <Core/Utils/GameTimer.h>
 
 TRV2_NAMESPACE_BEGIN
 /**
@@ -59,29 +57,28 @@ public:
     Logger* GetLogger() { return trv2::ptr(_logger); }
 
     /**
+     * @brief Get input controller
+     * @return
+    */
+    InputController* GetInputController() { return trv2::ptr(_inputController); }
+
+    /**
      * @brief Get graphics device
      * @return 
     */
-    IGraphicsDevice* GetGraphicsDevice() { return _graphicsProvider->GetCurrentDeivce(); }
+    IGraphicsDevice* GetGraphicsDevice();
 
     /**
      * @brief Get graphics API resource manager
      * @return 
     */
-    IGraphicsResourceManager* GetGraphicsResourceManager() { return _graphicsProvider->GetGraphicsResourceManager(); }
+    IGraphicsResourceManager* GetGraphicsResourceManager();
 
     /**
      * @brief Get game window
      * @return 
     */
-    IGameWindow* GetGameWindow() { return trv2::ptr(_gameWindow); }
-
-    /**
-     * @brief Get input controller
-     * @return 
-    */
-    InputController* GetInputController() { return trv2::ptr(_inputController); }
-
+    IGameWindow* GetGameWindow();
 
 private:
     // 加载函数
@@ -102,11 +99,10 @@ private:
     std::shared_ptr<AssetsManager> _assetsManager;
     std::shared_ptr<InputController> _inputController;
     std::shared_ptr<Application> _application;
+    std::shared_ptr<GameTimer> 	_gameTimer;
 
     std::shared_ptr<IGraphicsProvider> _graphicsProvider;
-    std::shared_ptr<IGameWindow> _gameWindow;
-
-    GameTimer _gameTimer;
+    std::shared_ptr<IPlatformProvider> _platformProvider;
 
     static Engine* _instance;
 };
