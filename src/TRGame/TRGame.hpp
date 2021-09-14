@@ -31,6 +31,11 @@ public:
         return _logger.get();
     }
 
+    GameWorld* GetGameWorld() const
+    {
+        return trv2::ptr(_gameWorld);
+    }
+
 private:
     // Other
     void logGameInfo();

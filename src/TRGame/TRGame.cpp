@@ -71,23 +71,6 @@ void TRGame::Update(double deltaTime)
     auto window = _engine->GetGameWindow();
     auto clientSize = window->GetWindowSize();
 
-    auto moveVal = 4;
-    if (controller->IsKeyDowned(trv2::KeyCode::TRV2_A_KEY))
-    {
-        _mainPlayer->SetVelocity(glm::vec2(-moveVal, 0));
-    }
-    else if (controller->IsKeyDowned(trv2::KeyCode::TRV2_D_KEY))
-    {
-        _mainPlayer->SetVelocity(glm::vec2(moveVal, 0));
-    }
-    else if (controller->IsKeyDowned(trv2::KeyCode::TRV2_W_KEY))
-    {
-        _mainPlayer->SetVelocity(glm::vec2(0, moveVal));
-    }
-    else if (controller->IsKeyDowned(trv2::KeyCode::TRV2_S_KEY))
-    {
-        _mainPlayer->SetVelocity(glm::vec2(0, -moveVal));
-    }
 
     auto pos = controller->GetMousePos();
 
@@ -137,16 +120,7 @@ void TRGame::Draw(double deltaTime)
     
 
     _gameWorld->RenderWorld(_projection, _spriteRenderer, _screenRect);
-
-    trv2::BatchSettings setting{};
-    setting.SpriteSortMode = trv2::SpriteSortMode::Deferred;
-    setting.Shader = nullptr;
-    _spriteRenderer->Begin(_projection, setting);
-    {
-        auto box = _mainPlayer->GetPlayerHitbox();
-        _spriteRenderer->Draw(box.Position, box.Size, glm::vec2(0), 0.f, glm::vec4(0.6, 0.9, 0.3, 1.0));
-    }
-    _spriteRenderer->End();
+    _mainPlayer->Draw(_projection, _spriteRenderer);
 }
 
 void TRGame::Exit()

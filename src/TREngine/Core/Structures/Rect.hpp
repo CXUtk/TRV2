@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include <Core.h>
 #include <glm/glm.hpp>
+#include <algorithm>
 
 TRV2_NAMESPACE_BEGIN
 template<typename T>
@@ -17,5 +18,16 @@ struct Rect2D
 	glm::vec<2, T> TopLeft() const { return Position + glm::vec<2, T>(0, Size.y); }
 	glm::vec<2, T> TopRight() const { return Position + Size; }
 	glm::vec<2, T> Center() const { return Position + Size / (T)2; }
+
 };
+
+using Rectf = Rect2D<float>;
+using RectI = Rect2D<int>;
+
+template<typename T, typename V>
+inline bool RectIntersects(const Rect2D<T>& A, const Rect2D<V>& B)
+{
+	return std::max(A.Position.x, B.Position.x) <= std::min(A.Position.x + A.Size.x, B.Position.x + B.Size.x)
+		&& std::max(A.Position.y, B.Position.y) <= std::min(A.Position.y + A.Size.y, B.Position.y + B.Size.y);
+}
 TRV2_NAMESPACE_END

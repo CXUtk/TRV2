@@ -19,12 +19,19 @@ enum class SpriteSortMode
 	Texture,
 };
 
+enum class BlendMode
+{
+	None,
+	AlphaBlend,
+};
+
 struct BatchSettings
 {
-	SpriteSortMode SpriteSortMode;
+	SpriteSortMode SpriteSortMode = SpriteSortMode::Deferred;
+	BlendMode BlendMode = BlendMode::None;
 	ShaderProgram* Shader;
 
-	BatchSettings() : SpriteSortMode(SpriteSortMode::Deferred), Shader(nullptr) {}
+	BatchSettings() : Shader(nullptr) {}
 };
 
 struct BatchState

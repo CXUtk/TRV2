@@ -248,6 +248,8 @@ GameWorld::GameWorld(int width, int height) : _tileMaxX(width), _tileMaxY(height
 
 Tile& GameWorld::GetTile(int x, int y)
 {
+	x = std::max(0, std::min(_tileMaxX - 1, x));
+	y = std::max(0, std::min(_tileMaxY - 1, y));
 	return _tiles[y * _tileMaxX + x];
 }
 
@@ -260,13 +262,13 @@ void GameWorld::SetTile(int x, int y, const Tile& tile)
 void GameWorld::RenderWorld(const glm::mat4& projection, trv2::SpriteRenderer* renderer, const trv2::Rect2D<float>& renderRect)
 {
 	// calculate draw rect
-	glm::ivec2 botLeft((int)(renderRect.BottomLeft().x / GameWorld::TILE_SIZE),
-		(int)(renderRect.BottomLeft().y / GameWorld::TILE_SIZE));
+	glm::ivec2 botLeft = GameWorld::GetLowerWorldCoord(renderRect.BottomLeft());
 	botLeft.x = std::max(0, std::min(_tileMaxX - 1, botLeft.x));
 	botLeft.y = std::max(0, std::min(_tileMaxY - 1, botLeft.y));
 
-	glm::ivec2 topRight((int)((renderRect.TopRight().x + GameWorld::TILE_SIZE - 1) / GameWorld::TILE_SIZE),
-		(int)((renderRect.TopRight().y + GameWorld::TILE_SIZE - 1) / GameWorld::TILE_SIZE));
+
+	
+	glm::ivec2 topRight = GameWorld::GetUpperWorldCoord(renderRect.TopRight());
 	topRight.x = std::max(0, std::min(_tileMaxX - 1, topRight.x));
 	topRight.y = std::max(0, std::min(_tileMaxY - 1, topRight.y));
 
@@ -314,4 +316,14 @@ void GameWorld::RenderWorld(const glm::mat4& projection, trv2::SpriteRenderer* r
 		// renderer->Draw(_renderTarget->GetTexture2D(), glm::vec2(0), glm::vec2(1024, 1024), glm::vec2(0), 0.f, glm::vec4(1));
 	}
 	renderer->End();
+}
+
+glm::ivec2 GameWorld::GetLowerWorldCoord(glm::vec2 pos)
+{
+	return glm::ivec2((pos.x - TILE_SIZE + 1) / TILE_SIZE, (pos.y - TILE_SIZE + 1) / TILE_SIZE);
+}
+
+glm::ivec2 GameWorld::GetUpperWorldCoord(glm::vec2 pos)
+{
+	return glm::ivec2((pos.x + TILE_SIZE) / TILE_SIZE, (pos.y + TILE_SIZE) / TILE_SIZE);
 }
