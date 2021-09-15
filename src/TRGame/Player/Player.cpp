@@ -151,14 +151,15 @@ void Player::applyConstrains()
 {
 	auto world = TRGame::GetInstance()->GetGameWorld();
 
-	float T = 0.f;
-	while (T < 1.f)
-	{
-		auto len = glm::length(_velocity);
-		float step = std::min(1.f - T, 16.f / len);
-		_playerHitBox = tryMoveWithCollide(_playerHitBox, _velocity * step, step);
-		T += step;
-	}
+	//float T = 0.f;
+	//while (T < 1.f)
+	//{
+	//	auto len = glm::length(_velocity);
+	//	float step = std::min(1.f - T, 16.f / len);
+	//	_playerHitBox = tryMoveWithCollide(_playerHitBox, _velocity * step, step);
+	//	T += step;
+	//}
+	_playerHitBox = tryMoveWithCollide(_playerHitBox, _velocity, 1.f);
 	_playerHitBox.Position.y = std::max(_playerHitBox.Position.y, 0.f);
 }
 
@@ -215,6 +216,7 @@ trv2::Rectf Player::tryMoveWithCollide(const trv2::Rectf& oldBox, glm::vec2 disp
 	if (minTimeX != std::numeric_limits<float>::infinity() && minTimeX < minTimeY)
 	{
 		newBox.Position = oldBox.Position + displacement * minTimeX;
+
 		_velocity.x = 0;
 		displacement = _velocity * timeDelta * (1.f - minTimeX);
 		if (minTimeY != std::numeric_limits<float>::infinity())
@@ -229,6 +231,7 @@ trv2::Rectf Player::tryMoveWithCollide(const trv2::Rectf& oldBox, glm::vec2 disp
 	else if (minTimeY != std::numeric_limits<float>::infinity() && minTimeY <= minTimeX)
 	{
 		newBox.Position = oldBox.Position + displacement * minTimeY;
+
 		_velocity.y = 0.f;
 		displacement = _velocity * timeDelta * (1.f - minTimeY);
 		if (minTimeX != std::numeric_limits<float>::infinity())
@@ -239,6 +242,12 @@ trv2::Rectf Player::tryMoveWithCollide(const trv2::Rectf& oldBox, glm::vec2 disp
 		{
 			newBox.Position += displacement;
 		}
+	}
+	if (intervalH.size() > 0 &&
+		intervalV.size() > 0 && minTimeY == std::numeric_limits<float>::infinity()
+		&& minTimeX == std::numeric_limits<float>::infinity())
+	{
+		return oldBox;
 	}
 	return newBox;
 }

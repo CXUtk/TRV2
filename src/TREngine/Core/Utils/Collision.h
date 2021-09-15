@@ -50,7 +50,7 @@ inline std::vector<Interval> GetCollidingSegments(const Rectf& rect, glm::vec2 v
 		// 上碰撞段
 		segments.push_back({ true, rect.Position.y + rect.Size.y, rect.Position.x, rect.Position.x + rect.Size.x });
 	}
-	else
+	else if(velocity.y < 0)
 	{
 		// 下碰撞段
 		segments.push_back({ true, rect.Position.y, rect.Position.x, rect.Position.x + rect.Size.x });
@@ -79,7 +79,7 @@ inline std::vector<Interval> GetCollidingSegmentsRev(const Rectf& rect, glm::vec
 		// 下碰撞段
 		segments.push_back({ true, rect.Position.y, rect.Position.x, rect.Position.x + rect.Size.x });
 	}
-	else
+	else if(velocity.y < 0)
 	{
 		// 上碰撞段
 		segments.push_back({ true, rect.Position.y + rect.Size.y, rect.Position.x, rect.Position.x + rect.Size.x });
@@ -97,7 +97,7 @@ inline float GetNearestCollisionTime(const Interval& subject, glm::vec2 velocity
 		{
 			double distY = inv.V - subject.V;
 			double t = distY / velocity.y;
-			if (t < -EPS) continue;
+			if (t < 0) continue;
 
 			double moveX = velocity.x * t;
 			// If X collides
@@ -113,7 +113,7 @@ inline float GetNearestCollisionTime(const Interval& subject, glm::vec2 velocity
 		{
 			double distX = inv.V - subject.V;
 			double t = distX / velocity.x;
-			if (t < -EPS) continue;
+			if (t < 0) continue;
 
 			double moveY = velocity.y * t;
 			// If X collides
