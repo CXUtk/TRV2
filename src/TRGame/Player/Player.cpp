@@ -139,7 +139,7 @@ void Player::handleMovement()
 		}
 	}
 
-	_velocity.y = std::max(-16.f, _velocity.y - _gravity);
+	_velocity.y = std::max(-30.f, _velocity.y - _gravity);
 }
 
 struct Edge
@@ -151,11 +151,27 @@ void Player::applyConstrains()
 {
 	auto world = TRGame::GetInstance()->GetGameWorld();
 
-	_playerHitBox = tryMoveWithCollide(_playerHitBox, _velocity);
+	float T = 0.f;
+	while (T < 1.f)
+	{
+		auto len = glm::length(_velocity);
+		//auto unit = _velocity;
+		//if (std::abs(len) > trv2::EPS)
+		//{
+		//	unit /= len;
+		//}
+		//else
+		//{
+		//	unit = glm::vec2(0, 0);
+		//}
+		float step = std::min(1.f - T, 16.f / len);
+		_playerHitBox = tryMoveWithCollide(_playerHitBox, _velocity * step, step);
+		T += step;
+	}
 	_playerHitBox.Position.y = std::max(_playerHitBox.Position.y, 0.f);
 }
 
-trv2::Rectf Player::tryMoveWithCollide(const trv2::Rectf& oldBox, glm::vec2 displacement)
+trv2::Rectf Player::tryMoveWithCollide(const trv2::Rectf& oldBox, glm::vec2 displacement, float timeDelta)
 {
 	auto world = TRGame::GetInstance()->GetGameWorld();
 
@@ -168,7 +184,7 @@ trv2::Rectf Player::tryMoveWithCollide(const trv2::Rectf& oldBox, glm::vec2 disp
 
 	std::vector<trv2::Interval> intervalV;
 	std::vector<trv2::Interval> intervalH;
-	std::vector<trv2::Interval> subjectInterval = trv2::GetCollidingSegments(oldBox, _velocity);
+	std::vector<trv2::Interval> subjectInterval = trv2::GetCollidingSegments(oldBox, displacement);
 	for (int y = tileRect.Position.y; y <= tileRect.Position.y + tileRect.Size.y; y++)
 	{
 		for (int x = tileRect.Position.x; x <= tileRect.Position.x + tileRect.Size.x; x++)
@@ -177,7 +193,7 @@ trv2::Rectf Player::tryMoveWithCollide(const trv2::Rectf& oldBox, glm::vec2 disp
 			auto fRect = trv2::Rectf(glm::vec2(x * GameWorld::TILE_SIZE, y * GameWorld::TILE_SIZE), glm::vec2(GameWorld::TILE_SIZE));
 			if (!trv2::RectIntersects(newBox, fRect)) continue;
 
-			for (auto& inv : trv2::GetCollidingSegmentsRev(fRect, _velocity))
+			for (auto& inv : trv2::GetCollidingSegmentsRev(fRect, displacement))
 			{
 				if (inv.horizontal)
 				{
@@ -194,7 +210,7 @@ trv2::Rectf Player::tryMoveWithCollide(const trv2::Rectf& oldBox, glm::vec2 disp
 	float minTimeX = std::numeric_limits<float>::infinity(), minTimeY = std::numeric_limits<float>::infinity();
 	for (auto& sub : subjectInterval)
 	{
-		float t = trv2::GetNearestCollisionTime(sub, _velocity, sub.horizontal ? intervalH : intervalV);
+		float t = trv2::GetNearestCollisionTime(sub, displacement, sub.horizontal ? intervalH : intervalV);
 		if (sub.horizontal)
 		{
 			minTimeY = std::min(minTimeY, t);
@@ -207,30 +223,30 @@ trv2::Rectf Player::tryMoveWithCollide(const trv2::Rectf& oldBox, glm::vec2 disp
 
 	if (minTimeX != std::numeric_limits<float>::infinity() && minTimeX < minTimeY)
 	{
-		newBox.Position = oldBox.Position + _velocity * minTimeX;
-		displacement.x = 0;
+		newBox.Position = oldBox.Position + displacement * minTimeX * timeDelta;
 		_velocity.x = 0;
+		displacement = _velocity * (1.f - minTimeX) * timeDelta;
 		if (minTimeY != std::numeric_limits<float>::infinity())
 		{
-			return tryMoveWithCollide(newBox, displacement * (1.f - minTimeX));
+			return tryMoveWithCollide(newBox, displacement, (1.f - minTimeX) * timeDelta);
 		}
 		else
 		{
-			newBox.Position += displacement * (1.f - minTimeX);
+			newBox.Position += displacement;
 		}
 	}
 	else if (minTimeY != std::numeric_limits<float>::infinity() && minTimeY <= minTimeX)
 	{
-		newBox.Position = oldBox.Position + _velocity * minTimeY;
-		displacement.y = 0;
-		_velocity.y = 0;
+		newBox.Position = oldBox.Position + displacement * minTimeY * timeDelta;
+		_velocity.y = -0.5f * _velocity.y;
+		displacement = _velocity * (1.f - minTimeY) * timeDelta;
 		if (minTimeX != std::numeric_limits<float>::infinity())
 		{
-			return tryMoveWithCollide(newBox, displacement * (1.f - minTimeY));
+			return tryMoveWithCollide(newBox, displacement, (1.f - minTimeY) * timeDelta);
 		}
 		else
 		{
-			newBox.Position += displacement * (1.f - minTimeY);
+			newBox.Position += displacement;
 		}
 	}
 	return newBox;

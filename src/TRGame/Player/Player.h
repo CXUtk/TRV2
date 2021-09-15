@@ -29,10 +29,10 @@ private:
 	bool _controlUp = false;
 	bool _controlDown = false;
 
-	float _maxMovementSpeedX = 10.f;
-	float _runAcceleration = 0.6f;
-	float _gravity = 0.5f;
-	float _jumpAcceleration = 15.f;
+	float _maxMovementSpeedX = 100.f;
+	float _runAcceleration = 6.f;
+	float _gravity = 0.8f;
+	float _jumpAcceleration = 100.f;
 
 	bool _collideX = false;
 	bool _collideY = false;
@@ -43,5 +43,5 @@ private:
 	void handleMovement();
 	void applyConstrains();
 
-	trv2::Rectf tryMoveWithCollide(const trv2::Rectf& oldBox, glm::vec2 displacement);
+	trv2::Rectf tryMoveWithCollide(const trv2::Rectf& oldBox, glm::vec2 displacement, float timeDelta);
 };
