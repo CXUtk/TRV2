@@ -155,15 +155,6 @@ void Player::applyConstrains()
 	while (T < 1.f)
 	{
 		auto len = glm::length(_velocity);
-		//auto unit = _velocity;
-		//if (std::abs(len) > trv2::EPS)
-		//{
-		//	unit /= len;
-		//}
-		//else
-		//{
-		//	unit = glm::vec2(0, 0);
-		//}
 		float step = std::min(1.f - T, 16.f / len);
 		_playerHitBox = tryMoveWithCollide(_playerHitBox, _velocity * step, step);
 		T += step;
@@ -223,9 +214,9 @@ trv2::Rectf Player::tryMoveWithCollide(const trv2::Rectf& oldBox, glm::vec2 disp
 
 	if (minTimeX != std::numeric_limits<float>::infinity() && minTimeX < minTimeY)
 	{
-		newBox.Position = oldBox.Position + displacement * minTimeX * timeDelta;
+		newBox.Position = oldBox.Position + displacement * minTimeX;
 		_velocity.x = 0;
-		displacement = _velocity * (1.f - minTimeX) * timeDelta;
+		displacement = _velocity * timeDelta * (1.f - minTimeX);
 		if (minTimeY != std::numeric_limits<float>::infinity())
 		{
 			return tryMoveWithCollide(newBox, displacement, (1.f - minTimeX) * timeDelta);
@@ -237,9 +228,9 @@ trv2::Rectf Player::tryMoveWithCollide(const trv2::Rectf& oldBox, glm::vec2 disp
 	}
 	else if (minTimeY != std::numeric_limits<float>::infinity() && minTimeY <= minTimeX)
 	{
-		newBox.Position = oldBox.Position + displacement * minTimeY * timeDelta;
-		_velocity.y = -0.5f * _velocity.y;
-		displacement = _velocity * (1.f - minTimeY) * timeDelta;
+		newBox.Position = oldBox.Position + displacement * minTimeY;
+		_velocity.y = 0.f;
+		displacement = _velocity * timeDelta * (1.f - minTimeY);
 		if (minTimeX != std::numeric_limits<float>::infinity())
 		{
 			return tryMoveWithCollide(newBox, displacement, (1.f - minTimeY) * timeDelta);
