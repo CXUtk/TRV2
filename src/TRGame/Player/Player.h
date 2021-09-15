@@ -29,10 +29,10 @@ private:
 	bool _controlUp = false;
 	bool _controlDown = false;
 
-	float _maxMovementSpeedX = 10.f;
-	float _runAcceleration = 0.6f;
-	float _gravity = 0.5f;
-	float _jumpAcceleration = 15.f;
+	float _maxMovementSpeedX = 100.f;
+	float _runAcceleration = 5.6f;
+	float _gravity = 1.5f;
+	float _jumpAcceleration = 105.f;
 
 	bool _collideX = false;
 	bool _collideY = false;

@@ -151,15 +151,14 @@ void Player::applyConstrains()
 {
 	auto world = TRGame::GetInstance()->GetGameWorld();
 
-	//float T = 0.f;
-	//while (T < 1.f)
-	//{
-	//	auto len = glm::length(_velocity);
-	//	float step = std::min(1.f - T, 16.f / len);
-	//	_playerHitBox = tryMoveWithCollide(_playerHitBox, _velocity * step, step);
-	//	T += step;
-	//}
-	_playerHitBox = tryMoveWithCollide(_playerHitBox, _velocity, 1.f);
+	float T = 0.f;
+	while (T < 1.f)
+	{
+		auto len = glm::length(_velocity);
+		float step = std::min(1.f - T, 16.f / len);
+		_playerHitBox = tryMoveWithCollide(_playerHitBox, _velocity * step, step);
+		T += step;
+	}
 	_playerHitBox.Position.y = std::max(_playerHitBox.Position.y, 0.f);
 }
 
