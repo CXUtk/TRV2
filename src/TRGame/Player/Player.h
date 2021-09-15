@@ -42,4 +42,6 @@ private:
 	void updateInput();
 	void handleMovement();
 	void applyConstrains();
+
+	trv2::Rectf tryMoveWithCollide(const trv2::Rectf& oldBox, glm::vec2 displacement);
 };

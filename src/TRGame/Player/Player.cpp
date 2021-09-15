@@ -10,7 +10,7 @@
 Player::Player()
 {
 	_playerHitBox.Size = glm::vec2(16, 32);
-	_playerHitBox.Position = glm::vec2(16, 850);
+	_playerHitBox.Position = glm::vec2(32, 0);
 }
 
 Player::~Player()
@@ -151,97 +151,87 @@ void Player::applyConstrains()
 {
 	auto world = TRGame::GetInstance()->GetGameWorld();
 
-	float distance = glm::length(_velocity);
+	_playerHitBox = tryMoveWithCollide(_playerHitBox, _velocity);
+	_playerHitBox.Position.y = std::max(_playerHitBox.Position.y, 0.f);
+}
 
-	//auto unit = glm::normalize(_velocity);
-	//for (float step = 0; step < distance; step += 10)
-	//{
-	auto oldHitbox = _playerHitBox;
+trv2::Rectf Player::tryMoveWithCollide(const trv2::Rectf& oldBox, glm::vec2 displacement)
+{
+	auto world = TRGame::GetInstance()->GetGameWorld();
 
-	_playerHitBox.Position += _velocity;
+	trv2::Rectf newBox = oldBox;
+	newBox.Position += displacement;
 
-	auto finalBox = _playerHitBox;
-	auto finalVel = _velocity;
-
-	auto start = GameWorld::GetLowerWorldCoord(_playerHitBox.BottomLeft());
+	auto start = GameWorld::GetLowerWorldCoord(newBox.BottomLeft());
 	trv2::RectI tileRect(start,
-		GameWorld::GetUpperWorldCoord(_playerHitBox.TopRight()) - start);
-	
-	float minXt = std::numeric_limits<float>::infinity();
-	Edge minXEdge;
+		GameWorld::GetUpperWorldCoord(newBox.TopRight()) - start);
+
+	std::vector<trv2::Interval> intervalV;
+	std::vector<trv2::Interval> intervalH;
+	std::vector<trv2::Interval> subjectInterval = trv2::GetCollidingSegments(oldBox, _velocity);
 	for (int y = tileRect.Position.y; y <= tileRect.Position.y + tileRect.Size.y; y++)
 	{
 		for (int x = tileRect.Position.x; x <= tileRect.Position.x + tileRect.Size.x; x++)
 		{
 			if (world->GetTile(x, y).GetColor() == glm::vec3(1)) continue;
 			auto fRect = trv2::Rectf(glm::vec2(x * GameWorld::TILE_SIZE, y * GameWorld::TILE_SIZE), glm::vec2(GameWorld::TILE_SIZE));
-			if (!trv2::RectIntersects(_playerHitBox, fRect)) continue;
-			
-			if (_velocity.x > 0)
+			if (!trv2::RectIntersects(newBox, fRect)) continue;
+
+			for (auto& inv : trv2::GetCollidingSegmentsRev(fRect, _velocity))
 			{
-				auto distX = targetRect.Position.x - (oldRect.Position.x + oldRect.Size.x);
-				if (distX >= 0)
+				if (inv.horizontal)
 				{
-					double t = (double)distX / velocity.x;
-					double newY1 = oldRect.Position.y + velocity.y * t;
-					double newY2 = newY1 + oldRect.Size.y;
-
-					// If Y axis collide, then it's left side collide
-					if (std::max(newY1, (double)targetRect.Position.y) < std::min(newY2, (double)(targetRect.Position.y + targetRect.Size.y)))
-					{
-						return CollisionSide::LEFT;
-					}
-					else
-					{
-						return velocity.y > 0 ? CollisionSide::BOTTOM : CollisionSide::TOP;
-					}
+					intervalH.push_back(inv);
 				}
-			}
-			else if (_velocity.x < 0)
-			{
-
+				else
+				{
+					intervalV.push_back(inv);
+				}
 			}
 		}
 	}
 
-	auto side = trv2::GetCollisionSide(finalBox, finalVel, fRect);
-	switch (side)
+	float minTimeX = std::numeric_limits<float>::infinity(), minTimeY = std::numeric_limits<float>::infinity();
+	for (auto& sub : subjectInterval)
 	{
-	case trv2::CollisionSide::LEFT:
-	{
-		finalBox.Position.x = fRect.Position.x - _playerHitBox.Size.x;
-		finalVel.x = 0;
-		break;
+		float t = trv2::GetNearestCollisionTime(sub, _velocity, sub.horizontal ? intervalH : intervalV);
+		if (sub.horizontal)
+		{
+			minTimeY = std::min(minTimeY, t);
+		}
+		else
+		{
+			minTimeX = std::min(minTimeX, t);
+		}
 	}
-	case trv2::CollisionSide::RIGHT:
-	{
-		finalBox.Position.x = fRect.Position.x + fRect.Size.x;
-		finalVel.x = 0;
-		break;
-	}
-	case trv2::CollisionSide::TOP:
-	{
-		finalBox.Position.y = fRect.Position.y + fRect.Size.y;
-		finalVel.y = 0;
-		break;
-	}
-	case trv2::CollisionSide::BOTTOM:
-	{
-		finalBox.Position.y = fRect.Position.y - _playerHitBox.Size.y;
-		finalVel.y = 0;
-		break;
-	}
-	default:
-		break;
-	}
-	_playerHitBox = finalBox;
-	//if (_velocity != finalVel)
-	//{
-	//	_velocity = finalVel;
-	//	break;
-	//}
-	_velocity = finalVel;
 
-//}
-	_playerHitBox.Position.y = std::max(_playerHitBox.Position.y, 0.f);
+	if (minTimeX != std::numeric_limits<float>::infinity() && minTimeX < minTimeY)
+	{
+		newBox.Position = oldBox.Position + _velocity * minTimeX;
+		displacement.x = 0;
+		_velocity.x = 0;
+		if (minTimeY != std::numeric_limits<float>::infinity())
+		{
+			return tryMoveWithCollide(newBox, displacement * (1.f - minTimeX));
+		}
+		else
+		{
+			newBox.Position += displacement * (1.f - minTimeX);
+		}
+	}
+	else if (minTimeY != std::numeric_limits<float>::infinity() && minTimeY <= minTimeX)
+	{
+		newBox.Position = oldBox.Position + _velocity * minTimeY;
+		displacement.y = 0;
+		_velocity.y = 0;
+		if (minTimeX != std::numeric_limits<float>::infinity())
+		{
+			return tryMoveWithCollide(newBox, displacement * (1.f - minTimeY));
+		}
+		else
+		{
+			newBox.Position += displacement * (1.f - minTimeY);
+		}
+	}
+	return newBox;
 }
