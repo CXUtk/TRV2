@@ -99,6 +99,7 @@ static void mouseScrollCallbackFunction(GLFWwindow* window, double xoffset, doub
 static void keyCallbackFunction(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
     auto inputController = Engine::GetInstance()->GetInputController();
+    if (key < 0 || key >= MAX_KEYS) return;
     inputController->TriggerKeyChange(keyCodeMap[key], action != GLFW_RELEASE);
 }
 

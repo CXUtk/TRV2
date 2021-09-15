@@ -142,65 +142,106 @@ void Player::handleMovement()
 	_velocity.y = std::max(-16.f, _velocity.y - _gravity);
 }
 
+struct Edge
+{
+	float L, R;
+};
+
 void Player::applyConstrains()
 {
 	auto world = TRGame::GetInstance()->GetGameWorld();
 
 	float distance = glm::length(_velocity);
-	auto unit = glm::normalize(_velocity);
 
-	for (float step = 0; step < distance; step += 10)
+	//auto unit = glm::normalize(_velocity);
+	//for (float step = 0; step < distance; step += 10)
+	//{
+	auto oldHitbox = _playerHitBox;
+
+	_playerHitBox.Position += _velocity;
+
+	auto finalBox = _playerHitBox;
+	auto finalVel = _velocity;
+
+	auto start = GameWorld::GetLowerWorldCoord(_playerHitBox.BottomLeft());
+	trv2::RectI tileRect(start,
+		GameWorld::GetUpperWorldCoord(_playerHitBox.TopRight()) - start);
+	
+	float minXt = std::numeric_limits<float>::infinity();
+	Edge minXEdge;
+	for (int y = tileRect.Position.y; y <= tileRect.Position.y + tileRect.Size.y; y++)
 	{
-		auto oldHitbox = _playerHitBox;
-		_playerHitBox.Position += unit * std::min(10.f, distance - step);
-
-		auto start = GameWorld::GetLowerWorldCoord(_playerHitBox.BottomLeft());
-		trv2::RectI tileRect(start,
-			GameWorld::GetUpperWorldCoord(_playerHitBox.TopRight()) - start);
-
-		for (int y = tileRect.Position.y; y <= tileRect.Position.y + tileRect.Size.y; y++)
+		for (int x = tileRect.Position.x; x <= tileRect.Position.x + tileRect.Size.x; x++)
 		{
-			for (int x = tileRect.Position.x; x <= tileRect.Position.x + tileRect.Size.x; x++)
+			if (world->GetTile(x, y).GetColor() == glm::vec3(1)) continue;
+			auto fRect = trv2::Rectf(glm::vec2(x * GameWorld::TILE_SIZE, y * GameWorld::TILE_SIZE), glm::vec2(GameWorld::TILE_SIZE));
+			if (!trv2::RectIntersects(_playerHitBox, fRect)) continue;
+			
+			if (_velocity.x > 0)
 			{
-				if (world->GetTile(x, y).GetColor() == glm::vec3(1)) continue;
-				auto fRect = trv2::Rectf(glm::vec2(x * GameWorld::TILE_SIZE, y * GameWorld::TILE_SIZE), glm::vec2(GameWorld::TILE_SIZE));
-				if (trv2::RectIntersects(_playerHitBox, fRect))
+				auto distX = targetRect.Position.x - (oldRect.Position.x + oldRect.Size.x);
+				if (distX >= 0)
 				{
-					auto side = trv2::GetCollisionSide(oldHitbox, _velocity, fRect);
-					switch (side)
+					double t = (double)distX / velocity.x;
+					double newY1 = oldRect.Position.y + velocity.y * t;
+					double newY2 = newY1 + oldRect.Size.y;
+
+					// If Y axis collide, then it's left side collide
+					if (std::max(newY1, (double)targetRect.Position.y) < std::min(newY2, (double)(targetRect.Position.y + targetRect.Size.y)))
 					{
-					case trv2::CollisionSide::LEFT:
-					{
-						_playerHitBox.Position.x = fRect.Position.x - _playerHitBox.Size.x - 0.001;
-						_velocity.x = 0;
-						break;
+						return CollisionSide::LEFT;
 					}
-					case trv2::CollisionSide::RIGHT:
+					else
 					{
-						_playerHitBox.Position.x = fRect.Position.x + fRect.Size.x + 0.001;
-						_velocity.x = 0;
-						break;
-					}
-					case trv2::CollisionSide::TOP:
-					{
-						_playerHitBox.Position.y = fRect.Position.y + fRect.Size.y + 0.001;
-						_velocity.y = 0;
-						break;
-					}
-					case trv2::CollisionSide::BOTTOM:
-					{
-						_playerHitBox.Position.y = fRect.Position.y - _playerHitBox.Size.y - 0.001;
-						_velocity.y = 0;
-						break;
-					}
-					default:
-						break;
+						return velocity.y > 0 ? CollisionSide::BOTTOM : CollisionSide::TOP;
 					}
 				}
 			}
+			else if (_velocity.x < 0)
+			{
+
+			}
 		}
 	}
-	
 
+	auto side = trv2::GetCollisionSide(finalBox, finalVel, fRect);
+	switch (side)
+	{
+	case trv2::CollisionSide::LEFT:
+	{
+		finalBox.Position.x = fRect.Position.x - _playerHitBox.Size.x;
+		finalVel.x = 0;
+		break;
+	}
+	case trv2::CollisionSide::RIGHT:
+	{
+		finalBox.Position.x = fRect.Position.x + fRect.Size.x;
+		finalVel.x = 0;
+		break;
+	}
+	case trv2::CollisionSide::TOP:
+	{
+		finalBox.Position.y = fRect.Position.y + fRect.Size.y;
+		finalVel.y = 0;
+		break;
+	}
+	case trv2::CollisionSide::BOTTOM:
+	{
+		finalBox.Position.y = fRect.Position.y - _playerHitBox.Size.y;
+		finalVel.y = 0;
+		break;
+	}
+	default:
+		break;
+	}
+	_playerHitBox = finalBox;
+	//if (_velocity != finalVel)
+	//{
+	//	_velocity = finalVel;
+	//	break;
+	//}
+	_velocity = finalVel;
+
+//}
 	_playerHitBox.Position.y = std::max(_playerHitBox.Position.y, 0.f);
 }

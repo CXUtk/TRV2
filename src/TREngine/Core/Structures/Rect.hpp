@@ -27,7 +27,7 @@ using RectI = Rect2D<int>;
 template<typename T, typename V>
 inline bool RectIntersects(const Rect2D<T>& A, const Rect2D<V>& B)
 {
-	return std::max(A.Position.x, B.Position.x) <= std::min(A.Position.x + A.Size.x, B.Position.x + B.Size.x)
-		&& std::max(A.Position.y, B.Position.y) <= std::min(A.Position.y + A.Size.y, B.Position.y + B.Size.y);
+	return std::max(A.Position.x, B.Position.x) < std::min(A.Position.x + A.Size.x, B.Position.x + B.Size.x)
+		&& std::max(A.Position.y, B.Position.y) < std::min(A.Position.y + A.Size.y, B.Position.y + B.Size.y);
 }
 TRV2_NAMESPACE_END

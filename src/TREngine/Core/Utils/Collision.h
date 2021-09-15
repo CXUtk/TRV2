@@ -13,30 +13,30 @@ enum class CollisionSide
 	TOP,
 	BOTTOM
 };
-/**
- * @brief 
- * @tparam T 
- * @param oldRect 
- * @param newRect 
- * @param velocity 
- * @return 
-*/
+
+
 template<typename T>
-inline CollisionSide GetCollisionSide(const Rect2D<T>& oldRect, glm::vec<2, T> velocity, const Rect2D<T>& targetRect)
+struct Interval
+{
+	T x;
+	T L, R;
+};
+
+inline CollisionSide GetCollisionSide(const Rectf& oldRect, glm::vec2 velocity, const Rectf& targetRect)
 {
 	// Need to make sure oldRect does not intersects with target
 	// And newRect must intersects with target
 	if (velocity.x > 0)
 	{
 		auto distX = targetRect.Position.x - (oldRect.Position.x + oldRect.Size.x);
-		if (distX > 0)
+		if (distX >= 0)
 		{
 			double t = (double)distX / velocity.x;
 			double newY1 = oldRect.Position.y + velocity.y * t;
 			double newY2 = newY1 + oldRect.Size.y;
 
 			// If Y axis collide, then it's left side collide
-			if (std::max(newY1, (double)targetRect.Position.y) <= std::min(newY2, (double)(targetRect.Position.y + targetRect.Size.y)))
+			if (std::max(newY1, (double)targetRect.Position.y) < std::min(newY2, (double)(targetRect.Position.y + targetRect.Size.y)))
 			{
 				return CollisionSide::LEFT;
 			}
@@ -53,7 +53,7 @@ inline CollisionSide GetCollisionSide(const Rect2D<T>& oldRect, glm::vec<2, T> v
 	else
 	{
 		auto distX = oldRect.Position.x - (targetRect.Position.x + targetRect.Size.x);
-		if (distX > 0)
+		if (distX >= 0)
 		{
 			double t = (double)distX / velocity.x;
 			if (std::isnan(t)) return CollisionSide::RIGHT;
@@ -62,7 +62,7 @@ inline CollisionSide GetCollisionSide(const Rect2D<T>& oldRect, glm::vec<2, T> v
 			double newY2 = newY1 + oldRect.Size.y;
 
 			// If Y axis collide, then it's right side collide
-			if (std::max(newY1, (double)targetRect.Position.y) <= std::min(newY2, (double)(targetRect.Position.y + targetRect.Size.y)))
+			if (std::max(newY1, (double)targetRect.Position.y) < std::min(newY2, (double)(targetRect.Position.y + targetRect.Size.y)))
 			{
 				return CollisionSide::RIGHT;
 			}

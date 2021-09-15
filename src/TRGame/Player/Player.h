@@ -34,6 +34,9 @@ private:
 	float _gravity = 0.5f;
 	float _jumpAcceleration = 15.f;
 
+	bool _collideX = false;
+	bool _collideY = false;
+
 
 	void clearState();
 	void updateInput();
