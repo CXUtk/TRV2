@@ -29,6 +29,6 @@ float Lighting::GetLight(glm::ivec2 pos)
 	glm::ivec2 diff = pos - lightTile;
 
 	double dist = std::sqrt((double)diff.x * diff.x + (double)diff.y * diff.y);
-	if (dist > 16) return 0;
+	if (dist > 32) return 0;
 	return glm::smoothstep(0.f, 1.f, 1.f / (1.f + (float)dist));
 }
