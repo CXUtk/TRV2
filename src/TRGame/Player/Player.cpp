@@ -246,7 +246,15 @@ trv2::Rectf Player::tryMoveWithCollide(const trv2::Rectf& oldBox, glm::vec2 disp
 		intervalV.size() > 0 && minTimeY == std::numeric_limits<float>::infinity()
 		&& minTimeX == std::numeric_limits<float>::infinity())
 	{
-		return oldBox;
+		newBox = oldBox;
+		if (std::abs(displacement.x) > std::abs(displacement.y))
+		{
+			newBox.Position.x += displacement.x;
+		}
+		else
+		{
+			newBox.Position.y += displacement.y;
+		}
 	}
 	return newBox;
 }
