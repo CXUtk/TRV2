@@ -28,12 +28,17 @@ public:
 
     trv2::Logger* GetLogger() const
     {
-        return _logger.get();
+        return trv2::ptr(_logger);
     }
 
     GameWorld* GetGameWorld() const
     {
         return trv2::ptr(_gameWorld);
+    }
+
+    Player* GetLocalPlayer() const
+    {
+        return trv2::ptr(_mainPlayer);
     }
 
 private:

@@ -45,6 +45,8 @@ public:
 	virtual void SetBlendingMode(BlendingMode mode) override;
 
 	virtual void SetDepthTestingMode(DepthTestingMode mode, DepthTestingFunction func) override;
+
+	virtual void SetCullingMode(CullingMode mode) override;
 private:
 	void initializeConstants();
 

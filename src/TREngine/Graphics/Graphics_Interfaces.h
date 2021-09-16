@@ -106,14 +106,15 @@ enum class DepthTestingMode
 	__COUNT
 };
 
-enum class DepthTestingMode
+enum class CullingMode
 {
 	None,
-	DepthTest,
-	DepthTestNoApply,
+	CullCCW,
+	CullCW,
 
 	__COUNT
 };
+
 
 enum class DepthTestingFunction
 {
@@ -279,6 +280,7 @@ public:
 
 	virtual void SetBlendingMode(BlendingMode mode) = 0;
 	virtual void SetDepthTestingMode(DepthTestingMode mode, DepthTestingFunction func) = 0;
+	virtual void SetCullingMode(CullingMode mode) = 0;
 };
 
 

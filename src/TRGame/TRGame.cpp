@@ -6,10 +6,12 @@
 
 #include <TREngine/Core/Gamplay/InputController.h>
 #include <TREngine/Core/Utils/Logging/Logger.h>
+#include <TREngine/Core/Render/RenderTarget2D.h>
 
 #include <TREngine/Platform/Platform_Interfaces.h>
 #include <TRGame/Worlds/GameWorld.hpp>
 #include <TRGame/Player/Player.h>
+
 
 #include <glm/gtx/transform.hpp>
 
@@ -61,6 +63,8 @@ void TRGame::Initialize(trv2::Engine* engine)
 
     _screenRect = trv2::Rect2D<float>(glm::vec2(0), clientSize);
     _mainPlayer = std::make_unique<Player>();
+
+    _renderTarget = std::make_shared<trv2::RenderTarget2D>(_engine->GetGraphicsResourceManager(), _screenRect.Size.x, _screenRect.Size.y);
 }
 
 
@@ -106,8 +110,7 @@ void TRGame::Update(double deltaTime)
         _screenRect.Position = _oldScreenPos - moveDir;
     }
 
-    _projection = glm::ortho(_screenRect.BottomLeft().x, _screenRect.BottomRight().x,
-       _screenRect.BottomLeft().y, _screenRect.TopLeft().y);
+
 
     _mainPlayer->Update();
 }
@@ -115,10 +118,25 @@ void TRGame::Update(double deltaTime)
 void TRGame::Draw(double deltaTime)
 {
     auto graphicsDevice = _engine->GetGraphicsDevice();
-    graphicsDevice->Clear(glm::vec4(0));
 
-    _gameWorld->RenderWorld(_projection, _spriteRenderer, _screenRect);
-    _mainPlayer->Draw(_projection, _spriteRenderer);
+    graphicsDevice->SwitchRenderTarget(trv2::ptr(_renderTarget));
+    graphicsDevice->Clear(glm::vec4(0));
+    glm::mat4 renderProjection = glm::ortho(_screenRect.Position.x, _screenRect.Position.x + (float)_renderTarget->GetWidth(),
+        _screenRect.Position.y, _screenRect.Position.y + (float)_renderTarget->GetHeight());
+    _gameWorld->RenderWorld(renderProjection, _spriteRenderer, _screenRect);
+    _mainPlayer->Draw(renderProjection, _spriteRenderer);
+
+
+    trv2::BatchSettings defaultSetting{};
+    _projection = glm::ortho(0.f, _screenRect.Size.x,
+         0.f, _screenRect.Size.y);
+    graphicsDevice->SwitchRenderTarget(nullptr);
+    graphicsDevice->Clear(glm::vec4(0));
+    _spriteRenderer->Begin(_projection, defaultSetting);
+    {
+        _spriteRenderer->Draw(_renderTarget->GetTexture2D(), glm::vec2(0), glm::vec2(_renderTarget->GetWidth(), _renderTarget->GetHeight()), glm::vec2(0), 0.f, glm::vec4(1));
+    }
+    _spriteRenderer->End();
 }
 
 void TRGame::Exit()

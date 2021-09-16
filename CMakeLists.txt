@@ -23,7 +23,7 @@ add_executable("TRV2_Game"
 "${TRV2_GAME_SRC_DIR}/main.cpp"
 "${TRV2_GAME_SRC_DIR}/TRGame.cpp"
 "${TRV2_GAME_SRC_DIR}/Worlds/GameWorld.cpp"
- "src/TRGame/Worlds/TileSection.h" "src/TRGame/Worlds/TileSection.cpp" "src/TRGame/Player/Player.cpp")
+ "src/TRGame/Worlds/TileSection.h" "src/TRGame/Worlds/TileSection.cpp" "src/TRGame/Player/Player.cpp" "src/TRGame/Lighting/Lighting.h" "src/TRGame/Lighting/Lighting.cpp")
 
 # 编译选项
 set(CMAKE_CXX_STANDARD 17)

@@ -13,6 +13,8 @@
 #include <TREngine/Graphics/Graphics_Interfaces.h>
 #include <TREngine/Platform/Platform_Interfaces.h>
 
+#include <TRGame/Lighting/Lighting.h>
+
 #include <glm/gtx/transform.hpp>
 #include <algorithm>
 
@@ -23,8 +25,6 @@ static const glm::vec4 tempColorTable[5] = {
 	glm::vec4(0.3, 1.0, 0.1, 1.0),
 	glm::vec4(0.4, 0.4, 0.4, 1.0),
 };
-
-
 
 static constexpr int DIM = 50;
 static constexpr float Magnifier = DIM;
@@ -96,8 +96,6 @@ static glm::vec2 SmoothInterp(glm::vec2 x)
 static float perlin(glm::vec2 coord, int type)
 {
 	auto P = glm::ivec2(glm::floor(coord));
-	//P.x %= DIM;
-	//P.y %= DIM;
 	auto extraCoord = glm::fract(coord);
 
 	auto factor = SmoothInterp(extraCoord);
@@ -188,7 +186,7 @@ GameWorld::GameWorld(int width, int height) : _tileMaxX(width), _tileMaxY(height
 			}
 			else
 			{
-				tile.SetColor(glm::vec3(1));
+				tile.SetEmpty(true);
 			}
 		}
 	}
@@ -236,7 +234,7 @@ GameWorld::GameWorld(int width, int height) : _tileMaxX(width), _tileMaxY(height
 		for (int i = top; i < _tileMaxY; i++)
 		{
 			auto& tile = GetTile(x, i);
-			tile.SetColor(glm::vec3(1, 1, 1));
+			tile.SetEmpty(true);
 		}
 	}
 
@@ -280,20 +278,6 @@ void GameWorld::RenderWorld(const glm::mat4& projection, trv2::SpriteRenderer* r
 	setting.SpriteSortMode = trv2::SpriteSortMode::Deferred;
 	setting.Shader = assetsManager->GetShader("perlinNoise");
 
-	// Render to offscreen texture
-	//graphicsDevice->SwitchRenderTarget(_renderTarget.get());
-	//graphicsDevice->Clear(glm::vec4(0, 0, 0, 0));
-	//glm::mat4 localProj = glm::ortho<float>(0.f, _renderTarget->GetWidth(), 0.f, _renderTarget->GetHeight());
-	//renderer->Begin(localProj, setting);
-	//{
-	//	renderer->Draw(glm::vec2(0), glm::vec2(1024, 1024), glm::vec2(0), 0.f, glm::vec4(1));
-	//}
-	//renderer->End();
-
-
-	graphicsDevice->SwitchRenderTarget(nullptr);
-	graphicsDevice->Clear(glm::vec4(0, 0, 0, 0));
-
 	setting.Shader = nullptr;
 	renderer->Begin(projection, setting);
 	{
@@ -306,11 +290,11 @@ void GameWorld::RenderWorld(const glm::mat4& projection, trv2::SpriteRenderer* r
 				auto coord = viewRect.BottomLeft() + glm::ivec2(i, j);
 				auto startPos = glm::vec2(coord) * (float)GameWorld::TILE_SIZE;
 				auto& tile = GetTile(coord.x, coord.y);
+				if (tile.IsEmpty()) continue;
 
-				renderer->Draw(startPos, glm::vec2(TILE_SIZE), glm::vec2(0), 0.f, glm::vec4(tile.GetColor(), 1.f));
+				renderer->Draw(startPos, glm::vec2(TILE_SIZE), glm::vec2(0), 0.f, glm::vec4(tile.GetColor() * Lighting::GetLight(coord) * 3.f, 1.f));
 			}
 		}
-		// renderer->Draw(_renderTarget->GetTexture2D(), glm::vec2(0), glm::vec2(1024, 1024), glm::vec2(0), 0.f, glm::vec4(1));
 	}
 	renderer->End();
 }

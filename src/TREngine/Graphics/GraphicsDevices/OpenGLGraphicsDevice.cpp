@@ -24,8 +24,9 @@ void OpenGLGraphicsDevice::SwitchRenderTarget(const RenderTarget2D* renderTarget
 {
 	if (renderTarget == nullptr)
 	{
-		auto windowSize = Engine::GetInstance()->GetGameWindow()->GetWindowSize();
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+		auto windowSize = Engine::GetInstance()->GetGameWindow()->GetWindowSize();
 		glViewport(0, 0, windowSize.x, windowSize.y);
 		return;
 	}
@@ -74,6 +75,20 @@ void OpenGLGraphicsDevice::SetDepthTestingMode(DepthTestingMode mode, DepthTesti
 		glDepthMask((mode == DepthTestingMode::DepthTestNoApply) ? GL_FALSE : GL_TRUE);
 
 		glDepthFunc(OpenGLProvider::MapDepthTestingFunctionType(func));
+	}
+}
+
+void OpenGLGraphicsDevice::SetCullingMode(CullingMode mode)
+{
+	if (mode == CullingMode::None)
+	{
+		glDisable(GL_CULL_FACE);
+	}
+	else
+	{
+		glEnable(GL_CULL_FACE);
+		glCullFace(GL_FRONT);
+		glFrontFace(mode == CullingMode::CullCW ? GL_CW : GL_CCW);
 	}
 }
 
