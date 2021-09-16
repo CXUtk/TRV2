@@ -41,6 +41,8 @@ constexpr std::array<KeyCode, N> generateKeyCodeMapper()
     M[GLFW_KEY_MINUS] = KeyCode::TRV2_MINUS_KEY;
     M[GLFW_KEY_GRAVE_ACCENT] = KeyCode::TRV2_TILDE_KEY;
 
+    M[GLFW_KEY_SPACE] = KeyCode::TRV2_SPACE_KEY;
+
     /*M[(int)KeyCode::TRV2_W_KEY] = { GLFW_KEY_W };
     M[(int)KeyCode::TRV2_S_KEY] = { GLFW_KEY_S };
     M[(int)KeyCode::TRV2_A_KEY] = { GLFW_KEY_A };
@@ -97,6 +99,7 @@ static void mouseScrollCallbackFunction(GLFWwindow* window, double xoffset, doub
 static void keyCallbackFunction(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
     auto inputController = Engine::GetInstance()->GetInputController();
+    if (key < 0 || key >= MAX_KEYS) return;
     inputController->TriggerKeyChange(keyCodeMap[key], action != GLFW_RELEASE);
 }
 
@@ -108,12 +111,6 @@ static void mouseButtonCallbackFunction(GLFWwindow* window, int button, int acti
 
 GLFWGameWindow::GLFWGameWindow(const EngineSettings& settings)
 {
-    glfwInit();
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-    glfwWindowHint(GLFW_RESIZABLE, settings.IsWindowResizable() ? GLFW_TRUE : GLFW_FALSE);
-
     _windowSize = glm::ivec2(settings.GetWindowWidth(), settings.GetWindowHeight());
 
     _window = glfwCreateWindow(_windowSize.x, _windowSize.y,

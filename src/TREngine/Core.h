@@ -30,6 +30,8 @@ class IGraphicsProvider;
 
 // Platform
 class IGameWindow;
+class IPlatformProvider;
+class GameTimer;
 
 
 // Utils

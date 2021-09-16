@@ -33,6 +33,8 @@ enum class KeyCode
 	TRV2_MINUS_KEY,
 	TRV2_TILDE_KEY,
 
+	TRV2_SPACE_KEY,
+
 	__COUNT,
 };
 

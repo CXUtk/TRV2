@@ -1,5 +1,6 @@
 ﻿#include "SpriteRenderer.h"
 
+#include <glad/glad.h>
 #include <glm/glm.hpp>
 #include <glm/gtx/transform.hpp>
 #include <algorithm>
@@ -85,6 +86,12 @@ void SpriteRenderer::Begin(const glm::mat4& transform,const BatchSettings& setti
 	_batchState.IsBatchBegin = true;
 	_batchState.WorldTransform = transform;
 	_batchState.Settings = settings;
+	
+	if (_batchState.Settings.BlendMode == BlendMode::AlphaBlend)
+	{
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	}
 	_currentVertex = 0;
 }
 
@@ -92,6 +99,10 @@ void SpriteRenderer::End()
 {
 	if (_currentVertex) flushBatch();
 	_batchState.IsBatchBegin = false;
+	if (_batchState.Settings.BlendMode == BlendMode::AlphaBlend)
+	{
+		glDisable(GL_BLEND);
+	}
 }
 
 void SpriteRenderer::Draw(glm::vec2 pos, glm::vec2 size, glm::vec2 origin, float rotation, const glm::vec4& color)
