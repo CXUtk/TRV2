@@ -38,8 +38,7 @@ void Player::Draw(const glm::mat4& projection, trv2::SpriteRenderer* renderer)
 	}
 	renderer->End();
 
-	setting.BlendMode = trv2::BlendMode::AlphaBlend;
-	
+	setting.BlendMode = trv2::BlendingMode::AlphaBlend;
 	renderer->Begin(projection, setting);
 	{
 		auto start = GameWorld::GetLowerWorldCoord(_playerHitBox.BottomLeft());
@@ -142,10 +141,6 @@ void Player::handleMovement()
 	_velocity.y = std::max(-30.f, _velocity.y - _gravity);
 }
 
-struct Edge
-{
-	float L, R;
-};
 
 void Player::applyConstrains()
 {

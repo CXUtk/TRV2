@@ -49,6 +49,34 @@ void OpenGLGraphicsDevice::UseShader(const ShaderProgram* shader)
 	glUseProgram(shader->GetHandle());
 }
 
+void OpenGLGraphicsDevice::SetBlendingMode(BlendingMode mode)
+{
+	if (mode == BlendingMode::AlphaBlend)
+	{
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	}
+	else
+	{
+		glDisable(GL_BLEND);
+	}
+}
+
+void OpenGLGraphicsDevice::SetDepthTestingMode(DepthTestingMode mode, DepthTestingFunction func)
+{
+	if (mode == DepthTestingMode::None)
+	{
+		glDisable(GL_DEPTH_TEST);
+	}
+	else
+	{
+		glEnable(GL_DEPTH_TEST);
+		glDepthMask((mode == DepthTestingMode::DepthTestNoApply) ? GL_FALSE : GL_TRUE);
+
+		glDepthFunc(OpenGLProvider::MapDepthTestingFunctionType(func));
+	}
+}
+
 void OpenGLGraphicsDevice::initializeConstants()
 {
 	glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &_MaxTextureSlotCanUse);

@@ -94,6 +94,21 @@ constexpr std::array<int, T> generatePrimitiveTypeMapper()
 }
 
 
+template<size_t T>
+constexpr std::array<int, T> generateDepthTestingFunctionMapper()
+{
+    std::array<int, T> M{ 0 };
+    M[(int)DepthTestingFunction::ALWAYS] = GL_ALWAYS;
+    M[(int)DepthTestingFunction::NEVER] = GL_NEVER;
+    M[(int)DepthTestingFunction::LESS] = GL_LESS;
+    M[(int)DepthTestingFunction::EQUAL] = GL_EQUAL;
+    M[(int)DepthTestingFunction::LEQUAL] = GL_LEQUAL;
+    M[(int)DepthTestingFunction::GREATER] = GL_GREATER;
+    M[(int)DepthTestingFunction::GEQUAL] = GL_GEQUAL;
+    M[(int)DepthTestingFunction::NEQUAL] = GL_NOTEQUAL;
+    return M;
+}
+
 static constexpr auto TextureWarpMethodMapper = generateTextureWarpMethod<(size_t)TextureWarpMethod::__COUNT>();
 static constexpr auto TextureSampleMethodMapper = generateTextureSampleMethod<(size_t)TextureSampleMethod::__COUNT>();
 static constexpr auto PixelFormatMapper = generatePixelFormat<(size_t)PixelFormat::__COUNT>();
@@ -101,7 +116,7 @@ static constexpr auto ShaderTypeMapper = generateShaderTypeMapper<(size_t)Shader
 static constexpr auto DataTypeToGLMapper = generateDataTypeMapper<(size_t)EngineDataType::__COUNT>();
 static constexpr auto BufferTypeMapper = generateBufferTypeMapper<(size_t)BufferType::__COUNT>();
 static constexpr auto DrawPrimitivesTypeMapper = generatePrimitiveTypeMapper<(size_t)PrimitiveType::__COUNT>();
-
+static constexpr auto DepthTestingFunctionMapper = generateDepthTestingFunctionMapper<(size_t)DepthTestingFunction::__COUNT>();
 
 void APIENTRY glDebugOutput(GLenum source,
                             GLenum type,
@@ -239,6 +254,11 @@ int OpenGLProvider::MapBufferType(BufferType type)
 int OpenGLProvider::MapDrawPrimitivesType(PrimitiveType type)
 {
     return DrawPrimitivesTypeMapper[(int)type];
+}
+
+int OpenGLProvider::MapDepthTestingFunctionType(DepthTestingFunction func)
+{
+    return DepthTestingFunctionMapper[(int)func];
 }
 
 TRV2_NAMESPACE_END

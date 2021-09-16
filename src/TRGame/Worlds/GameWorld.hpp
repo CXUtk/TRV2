@@ -25,7 +25,6 @@ public:
 private:
 	std::unique_ptr<Tile[]> _tiles;
 	std::unique_ptr<TileGenLayout[]> _worldGenLayouts;
-	std::shared_ptr<trv2::RenderTarget2D> _renderTarget;
 
 	int _tileMaxX, _tileMaxY;
 };

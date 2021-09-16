@@ -41,6 +41,10 @@ public:
 	virtual void UseShader(const ShaderProgram* shader) override;
 
 	virtual int GetMaxTextureSlots() override { return _MaxTextureSlotCanUse; }
+
+	virtual void SetBlendingMode(BlendingMode mode) override;
+
+	virtual void SetDepthTestingMode(DepthTestingMode mode, DepthTestingFunction func) override;
 private:
 	void initializeConstants();
 

@@ -89,6 +89,47 @@ enum class TextureWarpMethod
 	__COUNT
 };
 
+enum class BlendingMode
+{
+	None,
+	AlphaBlend,
+
+	__COUNT
+};
+
+enum class DepthTestingMode
+{
+	None,
+	DepthTest,
+	DepthTestNoApply,
+
+	__COUNT
+};
+
+enum class DepthTestingMode
+{
+	None,
+	DepthTest,
+	DepthTestNoApply,
+
+	__COUNT
+};
+
+enum class DepthTestingFunction
+{
+	ALWAYS,
+	NEVER,
+	LESS,
+	EQUAL,
+	LEQUAL,
+	GREATER,
+	NEQUAL,
+	GEQUAL,
+
+	__COUNT
+};
+
+
 
 // Classes
 class VertexLayout;
@@ -235,6 +276,9 @@ public:
 	virtual void Clear(const glm::vec4& color) = 0;
 
 	virtual void UseShader(const ShaderProgram* shader) = 0;
+
+	virtual void SetBlendingMode(BlendingMode mode) = 0;
+	virtual void SetDepthTestingMode(DepthTestingMode mode, DepthTestingFunction func) = 0;
 };
 
 

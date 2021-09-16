@@ -54,5 +54,8 @@ private:
     glm::vec2 _mouseDragStart;
     glm::vec2 _oldScreenPos;
 
+
+    std::shared_ptr<trv2::RenderTarget2D> _renderTarget;
+
     static TRGame* _instance;
 };

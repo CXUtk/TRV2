@@ -141,9 +141,6 @@ GameWorld::GameWorld(int width, int height) : _tileMaxX(width), _tileMaxY(height
 	auto graphicsDevice = engine->GetGraphicsDevice();
 	auto resourceManager = engine->GetGraphicsResourceManager();
 
-	_renderTarget = std::make_shared<trv2::RenderTarget2D>(resourceManager, 1024, 1024);
-
-
 
 	for (int s = 0; s < 2; s++)
 	{

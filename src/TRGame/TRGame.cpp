@@ -117,8 +117,6 @@ void TRGame::Draw(double deltaTime)
     auto graphicsDevice = _engine->GetGraphicsDevice();
     graphicsDevice->Clear(glm::vec4(0));
 
-    
-
     _gameWorld->RenderWorld(_projection, _spriteRenderer, _screenRect);
     _mainPlayer->Draw(_projection, _spriteRenderer);
 }
