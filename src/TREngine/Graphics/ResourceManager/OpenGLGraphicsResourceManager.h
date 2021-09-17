@@ -18,6 +18,9 @@ public:
 		PixelFormat internalFormat, PixelFormat srcFormat, EngineDataType dataType, 
 		const TextureParameters& parameters) override;
 	virtual void DeleteTexture2D(ITextureHandle handle) override;
+	virtual void ResizeTexture2D(ITextureHandle handle, int width, int height, const void* data,
+		PixelFormat internalFormat, PixelFormat srcFormat,
+		EngineDataType dataType, const TextureParameters& parameters) override;
 
 	virtual IShaderHandle CreateRawShader(const char* code, ShaderType shaderType, const char* fileName) override;
 	virtual void DeleteRawShader(IShaderHandle handle) override;

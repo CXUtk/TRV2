@@ -9,6 +9,7 @@
 #include <TREngine/Core/Render/RenderTarget2D.h>
 #include <TREngine/Core/Assets/AssetsManager.h>
 #include <TREngine/Core/Render/ShaderProgram.h>
+#include <TREngine/Core/Render/Texture2D.h>
 
 #include <TREngine/Platform/Platform_Interfaces.h>
 #include <TRGame/Worlds/GameWorld.hpp>
@@ -27,7 +28,8 @@ TRGame::~TRGame()
 }
 
 
-TRGame::TRGame() : _projection(glm::identity<glm::mat4>()), _screenRect(),  _engine(nullptr), _spriteRenderer(nullptr)
+TRGame::TRGame() : _projection(glm::identity<glm::mat4>()), _screenRect(),  
+_engine(nullptr), _spriteRenderer(nullptr), _tileRect()
 {
     _instance = this;
     _expScale = 0.f;
@@ -60,15 +62,14 @@ void TRGame::loadGameContent()
     texPara.SampleMethod = trv2::TextureSampleMethod::NEAREST;
     texPara.TextureWarpMethod = trv2::TextureWarpMethod::CLAMP_TO_EDGE;
 
-    _tileTarget = std::make_shared<trv2::RenderTarget2D>(_engine->GetGraphicsResourceManager(), _screenRect.Size, texPara);
+    _tileTarget = std::make_shared<trv2::RenderTarget2D>(_engine->GetGraphicsResourceManager(), clientSize, texPara);
+    _shadowMap = std::make_shared< trv2::RenderTarget2D>(_engine->GetGraphicsResourceManager(), clientSize, texPara);
 
     _tileRect = _gameWorld->GetTileRect(_screenRect);
 
-    trv2::TextureParameters texPara2{};
-    texPara2.SampleMethod = trv2::TextureSampleMethod::BI_LINEAR;
-    texPara2.TextureWarpMethod = trv2::TextureWarpMethod::CLAMP_TO_EDGE;
-    _shadowMapSwap[0] = std::make_shared<trv2::RenderTarget2D>(_engine->GetGraphicsResourceManager(), _tileRect.Size, texPara2);
-    _shadowMapSwap[1] = std::make_shared<trv2::RenderTarget2D>(_engine->GetGraphicsResourceManager(), _tileRect.Size, texPara2);
+    texPara.SampleMethod = trv2::TextureSampleMethod::BI_LINEAR;
+    _shadowMapSwap[0] = std::make_shared<trv2::RenderTarget2D>(_engine->GetGraphicsResourceManager(), _tileRect.Size, texPara);
+    _shadowMapSwap[1] = std::make_shared<trv2::RenderTarget2D>(_engine->GetGraphicsResourceManager(), _tileRect.Size, texPara);
 }
 
 
@@ -144,6 +145,10 @@ void TRGame::Draw(double deltaTime)
     glm::mat4 renderTileProjection = glm::ortho(0.f, (float)_tileRect.Size.x,
         0.f, (float)_tileRect.Size.y);
 
+
+    _shadowMapSwap[0]->Resize(_tileRect.Size);
+    _shadowMapSwap[1]->Resize(_tileRect.Size);
+
     // render shadow map
     graphicsDevice->SwitchRenderTarget(trv2::ptr(_shadowMapSwap[0]));
     graphicsDevice->Clear(glm::vec4(0));
@@ -151,7 +156,7 @@ void TRGame::Draw(double deltaTime)
 
 
     // Blur shadow map
-    for (int i = 0; i < 6; i++)
+    for (int i = 0; i < 2; i++)
     {
         int index = i & 1;
         graphicsDevice->SwitchRenderTarget(trv2::ptr(_shadowMapSwap[!index]));
@@ -164,7 +169,9 @@ void TRGame::Draw(double deltaTime)
             graphicsDevice->BindTexture2DSlot(1, _shadowMapSwap[index]->GetTexture2D());
             defaultSetting.Shader->SetParameter1i("uOriginalMap", 1);
             defaultSetting.Shader->SetParameter1i("horizontal", (int)(!index));
-            _spriteRenderer->Draw(_shadowMapSwap[index]->GetTexture2D(), glm::vec2(0), _tileRect.Size, glm::vec2(0), 0.f, glm::vec4(1));
+            
+            _spriteRenderer->Draw(glm::vec2(0), _tileRect.Size,
+                glm::vec2(0), 0.f, glm::vec4(1));
         }
         _spriteRenderer->End();
     }
@@ -178,14 +185,18 @@ void TRGame::Draw(double deltaTime)
     _gameWorld->RenderWorld(renderWorldProjection, _spriteRenderer, _screenRect);
 
 
-    //graphicsDevice->SwitchRenderTarget(nullptr);
-    //graphicsDevice->Clear(glm::vec4(0));
-    //defaultSetting.Shader = nullptr;
-    //_spriteRenderer->Begin(renderScreenProjection, defaultSetting);
-    //{
-    //    _spriteRenderer->Draw(_shadowMapSwap[0]->GetTexture2D(), glm::vec2(0), glm::vec2(_tileRect.Size * 16), glm::vec2(0), 0.f, glm::vec4(1));
-    //}
-    //_spriteRenderer->End();
+    graphicsDevice->SwitchRenderTarget(trv2::ptr(_shadowMap));
+    graphicsDevice->Clear(glm::vec4(0));
+    defaultSetting.Shader = nullptr;
+    _spriteRenderer->Begin(renderWorldProjection, defaultSetting);
+    {
+        auto texture = _shadowMapSwap[0]->GetTexture2D();
+        _spriteRenderer->Draw(texture, _tileRect.Position * 16, _tileRect.Size * 16,
+            glm::vec2(0), 0.f, glm::vec4(1));
+    }
+    _spriteRenderer->End();
+
+
 
     // Blending
     
@@ -197,9 +208,8 @@ void TRGame::Draw(double deltaTime)
     graphicsDevice->Clear(glm::vec4(0));
     _spriteRenderer->Begin(_projection, defaultSetting);
     {
-
         graphicsDevice->BindTexture2DSlot(1, _tileTarget->GetTexture2D());
-        graphicsDevice->BindTexture2DSlot(2, _shadowMapSwap[0]->GetTexture2D());
+        graphicsDevice->BindTexture2DSlot(2, _shadowMap->GetTexture2D());
         defaultSetting.Shader->SetParameter1i("uOriginalMap", 1);
         defaultSetting.Shader->SetParameter1i("uShadowMap", 2);
 

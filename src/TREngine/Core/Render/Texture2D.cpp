@@ -45,4 +45,11 @@ Texture2D::~Texture2D()
 {
     _resourceManager->DeleteTexture2D(_handle);
 }
+void Texture2D::Resize(glm::ivec2 size)
+{
+    _width = size.x;
+    _height = size.y;
+    _resourceManager->ResizeTexture2D(_handle, size.x, size.y, nullptr, 
+        PixelFormat::RGB, PixelFormat::RGBA, EngineDataType::UNSIGNED_BYTE, _parameters);
+}
 TRV2_NAMESPACE_END

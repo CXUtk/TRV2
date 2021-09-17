@@ -33,6 +33,8 @@ float distA[8] = { 1.4142f, 1.f, 1.4142f, 1.4142f, 1.f, 1.4142f, 1.f, 1.f };
 float distArray[100 * 100];
 bool visArray[100 * 100];
 
+constexpr float MAXDIST = 16.f;
+
 void Lighting::CalculateLight(trv2::SpriteRenderer* renderer, const glm::mat4& projection, 
 	const GameWorld* world, const trv2::Rect2D<float>& screenRect)
 {
@@ -53,15 +55,15 @@ void Lighting::CalculateLight(trv2::SpriteRenderer* renderer, const glm::mat4& p
 
 	for (int i = 0; i < viewRect.Size.x * viewRect.Size.y; i++)
 	{
-		distArray[i] = 16.f;
+		distArray[i] = MAXDIST;
 		visArray[i] = false;
 	}
 
 	glm::ivec2 lightTile = GameWorld::GetUpperWorldCoord(player->GetPlayerHitbox().BottomLeft());
 
 	auto getId = [&viewRect](glm::ivec2 pos) {
-		int x = pos.x - viewRect.Position.x;
-		int y = pos.y - viewRect.Position.y;
+		int x = pos.x;
+		int y = pos.y;
 		return y * viewRect.Size.x + x;
 	};
 
@@ -75,9 +77,15 @@ void Lighting::CalculateLight(trv2::SpriteRenderer* renderer, const glm::mat4& p
 	};
 
 	std::priority_queue<LightNode> Q;
-	Q.push({ lightTile, 0.f });
-	int id = getId(lightTile);
-	distArray[id] = 0.f;
+
+	auto v = lightTile - viewRect.Position;
+
+	if (v.x >= 0 && v.x < viewRect.Size.x && v.y >= 0 && v.y < viewRect.Size.y)
+	{
+		int id = getId(v);
+		distArray[id] = 0.f;
+		Q.push({ lightTile, 0.f });
+	}
 
 
 
@@ -86,9 +94,9 @@ void Lighting::CalculateLight(trv2::SpriteRenderer* renderer, const glm::mat4& p
 		auto node = Q.top();
 		Q.pop();
 
-		int id = getId(node.Pos);
-		if (visArray[id]) continue;
-		visArray[id] = true;
+		int curId = getId(node.Pos - viewRect.Position);
+		if (visArray[curId]) continue;
+		visArray[curId] = true;
 
 		bool solid = world->GetTile(node.Pos.x, node.Pos.y).IsSolid();
 		for (int i = 0; i < 8; i++)
@@ -96,10 +104,10 @@ void Lighting::CalculateLight(trv2::SpriteRenderer* renderer, const glm::mat4& p
 			glm::ivec2 nxtPos(node.Pos.x + dX[i], node.Pos.y + dY[i]);
 			if (valid(nxtPos, solid))
 			{
-				int nxtId = getId(nxtPos);
-				if (distArray[nxtId] > distA[i] + distArray[id])
+				int nxtId = getId(nxtPos - viewRect.Position);
+				if (distArray[nxtId] > distA[i] + distArray[curId])
 				{
-					distArray[nxtId] = distA[i] + distArray[id];
+					distArray[nxtId] = distA[i] + distArray[curId];
 					Q.push({ nxtPos, distArray[nxtId] });
 				}
 			}
@@ -114,13 +122,20 @@ void Lighting::CalculateLight(trv2::SpriteRenderer* renderer, const glm::mat4& p
 			for (int j = 0; j < viewRect.Size.y; j++)
 			{
 				auto coord = viewRect.BottomLeft() + glm::ivec2(i, j);
-				//auto startPos = glm::vec2(coord) * (float)GameWorld::TILE_SIZE;
-				int id = getId(coord);
+				auto startPos = glm::vec2(coord) * (float)GameWorld::TILE_SIZE;
+				auto& tile = world->GetTile(coord.x, coord.y);
+				if (tile.IsEmpty())
+				{
+					renderer->Draw(glm::ivec2(i, j), glm::vec2(1), glm::vec2(0),
+						0.f, glm::vec4(1));
+					continue;
+				}
+				int id = getId(glm::ivec2(i, j));
 				float d = distArray[id];
-				if (d >= 16) continue;
+				if (d >= MAXDIST) continue;
 
-				d = glm::mix(0.f, 1.f, 1.f - d / 16.f);
-				renderer->Draw(glm::vec2(i, j), glm::vec2(1), glm::vec2(0),
+				d = glm::smoothstep(0.f, 1.f, 1.f - d / MAXDIST);
+				renderer->Draw(glm::ivec2(i, j), glm::vec2(1), glm::vec2(0),
 					0.f, glm::vec4(1) * d);
 			}
 		}

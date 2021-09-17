@@ -31,7 +31,9 @@ void OpenGLGraphicsDevice::SwitchRenderTarget(const RenderTarget2D* renderTarget
 		return;
 	}
 	glBindFramebuffer(GL_FRAMEBUFFER, renderTarget->GetHandle());
-	glViewport(0, 0, renderTarget->GetWidth(), renderTarget->GetHeight());
+
+	auto size = renderTarget->GetSize();
+	glViewport(0, 0, size.x, size.y);
 }
 
 void OpenGLGraphicsDevice::SetViewPort(int x, int y, int width, int height)

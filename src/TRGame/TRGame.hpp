@@ -61,6 +61,7 @@ private:
     glm::vec2 _oldScreenPos;
 
     std::shared_ptr<trv2::RenderTarget2D> _tileTarget;
+    std::shared_ptr<trv2::RenderTarget2D> _shadowMap;
     std::shared_ptr<trv2::RenderTarget2D> _shadowMapSwap[2];
 
     static TRGame* _instance;

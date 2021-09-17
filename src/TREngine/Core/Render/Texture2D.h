@@ -42,6 +42,7 @@ public:
 	~Texture2D();
 
 	ITextureHandle GetHandle() const { return _handle; }
+	void Resize(glm::ivec2 size);
 
 	int GetWidth() const { return _width; }
 	int GetHeight() const { return _height; }
