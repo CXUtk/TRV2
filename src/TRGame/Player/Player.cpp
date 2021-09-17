@@ -158,7 +158,7 @@ void Player::applyConstrains()
 }
 
 trv2::Rectf Player::tryMoveWithCollide(const trv2::Rectf& oldBox, glm::vec2 displacement, float timeDelta)
-{
+{ 
 	auto world = TRGame::GetInstance()->GetGameWorld();
 
 	trv2::Rectf newBox = oldBox;

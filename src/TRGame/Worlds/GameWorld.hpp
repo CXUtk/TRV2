@@ -11,6 +11,7 @@ public:
 	GameWorld(int width, int height);
 
 	Tile& GetTile(int x, int y);
+	const Tile& GetTile(int x, int y) const;
 	void SetTile(int x, int y, const Tile& tile);
 
 	int GetTileMaxX() const { return _tileMaxX; }

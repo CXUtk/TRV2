@@ -140,7 +140,7 @@ GameWorld::GameWorld(int width, int height) : _tileMaxX(width), _tileMaxY(height
 	auto resourceManager = engine->GetGraphicsResourceManager();
 
 
-	for (int s = 0; s < 2; s++)
+	for (int s = 0; s < 1; s++)
 	{
 		logger->Log(trv2::SeverityLevel::Info, "Generating Loop %d", s);
 		for (int y = 0; y < height; y++)
@@ -179,9 +179,11 @@ GameWorld::GameWorld(int width, int height) : _tileMaxX(width), _tileMaxY(height
 			if (v < threashold)
 			{
 				tile.SetColor(glm::vec3(0.3, 0.3, 0.3));
+				tile.SetSolid(true);
 				if (v2 < -0.5)
 				{
 					tile.SetColor(glm::vec3(1, 0.5, 0.3));
+					tile.SetSolid(true);
 				}
 			}
 			else
@@ -227,6 +229,7 @@ GameWorld::GameWorld(int width, int height) : _tileMaxX(width), _tileMaxY(height
 			if (tile.GetColor() != glm::vec3(1))
 			{
 				tile.SetColor(glm::vec3(0.6, 0.5, 0.3));
+				tile.SetSolid(true);
 			}
 		}
 
@@ -242,6 +245,13 @@ GameWorld::GameWorld(int width, int height) : _tileMaxX(width), _tileMaxY(height
 }
 
 Tile& GameWorld::GetTile(int x, int y)
+{
+	x = std::max(0, std::min(_tileMaxX - 1, x));
+	y = std::max(0, std::min(_tileMaxY - 1, y));
+	return _tiles[y * _tileMaxX + x];
+}
+
+const Tile& GameWorld::GetTile(int x, int y) const
 {
 	x = std::max(0, std::min(_tileMaxX - 1, x));
 	y = std::max(0, std::min(_tileMaxY - 1, y));
@@ -276,7 +286,6 @@ void GameWorld::RenderWorld(const glm::mat4& projection, trv2::SpriteRenderer* r
 	//_spriteRenderer->Draw(glm::vec2((int)(worldPos.x / 16) * 16, (int)(worldPos.y / 16) * 16), glm::vec2(16), glm::vec2(0), 0.f, glm::vec4(1, 0, 0, 1));
 	trv2::BatchSettings setting{};
 	setting.SpriteSortMode = trv2::SpriteSortMode::Deferred;
-	setting.Shader = assetsManager->GetShader("perlinNoise");
 
 	setting.Shader = nullptr;
 	renderer->Begin(projection, setting);
@@ -292,7 +301,7 @@ void GameWorld::RenderWorld(const glm::mat4& projection, trv2::SpriteRenderer* r
 				auto& tile = GetTile(coord.x, coord.y);
 				if (tile.IsEmpty()) continue;
 
-				renderer->Draw(startPos, glm::vec2(TILE_SIZE), glm::vec2(0), 0.f, glm::vec4(tile.GetColor() * Lighting::GetLight(coord) * 3.f, 1.f));
+				renderer->Draw(startPos, glm::vec2(TILE_SIZE), glm::vec2(0), 0.f, glm::vec4(tile.GetColor(), 1.f));
 			}
 		}
 	}

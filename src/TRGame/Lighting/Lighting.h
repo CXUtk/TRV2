@@ -10,8 +10,8 @@ public:
 	Lighting();
 	~Lighting();
 
-	void CalculateLight();
-	static float GetLight(glm::ivec2 pos);
-private:
+	static void CalculateLight(trv2::SpriteRenderer* renderer, const glm::mat4& projection, 
+		const GameWorld* world, const trv2::Rect2D<float>& screenRect);
 
+private:
 };
