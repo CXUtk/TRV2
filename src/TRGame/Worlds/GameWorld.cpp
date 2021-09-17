@@ -264,24 +264,29 @@ void GameWorld::SetTile(int x, int y, const Tile& tile)
 }
 
 
-void GameWorld::RenderWorld(const glm::mat4& projection, trv2::SpriteRenderer* renderer, const trv2::Rect2D<float>& renderRect)
+trv2::RectI GameWorld::GetTileRect(const trv2::Rectf& worldRect) const
 {
 	// calculate draw rect
-	glm::ivec2 botLeft = GameWorld::GetLowerWorldCoord(renderRect.BottomLeft());
+	glm::ivec2 botLeft = GameWorld::GetLowerWorldCoord(worldRect.BottomLeft());
 	botLeft.x = std::max(0, std::min(_tileMaxX - 1, botLeft.x));
 	botLeft.y = std::max(0, std::min(_tileMaxY - 1, botLeft.y));
 
 
-	
-	glm::ivec2 topRight = GameWorld::GetUpperWorldCoord(renderRect.TopRight());
+
+	glm::ivec2 topRight = GameWorld::GetUpperWorldCoord(worldRect.TopRight());
 	topRight.x = std::max(0, std::min(_tileMaxX - 1, topRight.x));
 	topRight.y = std::max(0, std::min(_tileMaxY - 1, topRight.y));
 
-	trv2::Rect2D<int> viewRect(botLeft, topRight - botLeft);
+	return trv2::Rect2D<int>(botLeft, topRight - botLeft);
+}
 
+void GameWorld::RenderWorld(const glm::mat4& projection, trv2::SpriteRenderer* renderer, const trv2::Rect2D<float>& renderRect)
+{
 	auto graphicsDevice = TRGame::GetInstance()->GetEngine()->GetGraphicsDevice();
 	auto assetsManager = TRGame::GetInstance()->GetEngine()->GetAssetsManager();
 	auto clientSize = TRGame::GetInstance()->GetEngine()->GetGameWindow()->GetWindowSize();
+
+	auto tileRect = GetTileRect(renderRect);
 
 	//_spriteRenderer->Draw(glm::vec2((int)(worldPos.x / 16) * 16, (int)(worldPos.y / 16) * 16), glm::vec2(16), glm::vec2(0), 0.f, glm::vec4(1, 0, 0, 1));
 	trv2::BatchSettings setting{};
@@ -290,13 +295,13 @@ void GameWorld::RenderWorld(const glm::mat4& projection, trv2::SpriteRenderer* r
 	setting.Shader = nullptr;
 	renderer->Begin(projection, setting);
 	{
-		auto start = glm::vec2(viewRect.Position);
+		auto start = glm::vec2(tileRect.Position);
 		auto assetManager = TRGame::GetInstance()->GetEngine()->GetAssetsManager();
-		for (int i = 0; i < viewRect.Size.x; i++)
+		for (int i = 0; i < tileRect.Size.x; i++)
 		{
-			for (int j = 0; j < viewRect.Size.y; j++)
+			for (int j = 0; j < tileRect.Size.y; j++)
 			{
-				auto coord = viewRect.BottomLeft() + glm::ivec2(i, j);
+				auto coord = tileRect.BottomLeft() + glm::ivec2(i, j);
 				auto startPos = glm::vec2(coord) * (float)GameWorld::TILE_SIZE;
 				auto& tile = GetTile(coord.x, coord.y);
 				if (tile.IsEmpty()) continue;

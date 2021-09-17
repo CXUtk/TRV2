@@ -35,10 +35,15 @@ ITextureHandle OpenGLGraphicsResourceManager::CreateTexture2D(int width, int hei
     auto sampleMethod = OpenGLProvider::MapTextureSampleMethod(parameters.SampleMethod);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, sampleMethod[0]);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, sampleMethod[1]);
+    if (parameters.SampleMethod == TextureSampleMethod::BI_LINEAR_MIPMAP)
+    {
+        glGenerateMipmap(GL_TEXTURE_2D);
+    }
 
     auto warpMethod = OpenGLProvider::MapTextureWarpMethod(parameters.TextureWarpMethod);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, warpMethod);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, warpMethod);
+
     return handle;
 }
 

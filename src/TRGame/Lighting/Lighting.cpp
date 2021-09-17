@@ -114,15 +114,14 @@ void Lighting::CalculateLight(trv2::SpriteRenderer* renderer, const glm::mat4& p
 			for (int j = 0; j < viewRect.Size.y; j++)
 			{
 				auto coord = viewRect.BottomLeft() + glm::ivec2(i, j);
-				auto startPos = glm::vec2(coord) * (float)GameWorld::TILE_SIZE;
-
-
+				//auto startPos = glm::vec2(coord) * (float)GameWorld::TILE_SIZE;
 				int id = getId(coord);
 				float d = distArray[id];
 				if (d >= 16) continue;
-				d = std::sqrt(1.f / (1.f + d * d)) * 3.f;
-				renderer->Draw(startPos, glm::vec2(GameWorld::TILE_SIZE), glm::vec2(0),
-					0.f, glm::vec4(d, d, d, 1));
+
+				d = glm::mix(0.f, 1.f, 1.f - d / 16.f);
+				renderer->Draw(glm::vec2(i, j), glm::vec2(1), glm::vec2(0),
+					0.f, glm::vec4(1) * d);
 			}
 		}
 	}

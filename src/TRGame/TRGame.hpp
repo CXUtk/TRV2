@@ -53,12 +53,12 @@ private:
     std::unique_ptr<GameWorld> _gameWorld;
     std::unique_ptr<Player> _mainPlayer;
     
-    trv2::Rect2D<float> _screenRect;
+    trv2::Rectf _screenRect;
+    trv2::RectI _tileRect;
     glm::mat4 _projection;
     float _expScale;
     glm::vec2 _mouseDragStart;
     glm::vec2 _oldScreenPos;
-
 
     std::shared_ptr<trv2::RenderTarget2D> _tileTarget;
     std::shared_ptr<trv2::RenderTarget2D> _shadowMapSwap[2];
