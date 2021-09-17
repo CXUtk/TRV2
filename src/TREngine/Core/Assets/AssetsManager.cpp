@@ -16,13 +16,13 @@ void AssetsManager::loadBuiltinAssets()
 	auto fs = std::make_shared<RawShader>(_resourceManager, ReadAllStringFromFile("Resources/Shaders/sprite2d.frag").c_str(), ShaderType::FRAGMENT_SHADER, "sprite2d.frag");
 
 	auto vs_pure = std::make_shared<RawShader>(_resourceManager, ReadAllStringFromFile("Resources/Shaders/procedure.vert").c_str(), ShaderType::VERTEX_SHADER, "procedure.vert");
-	auto fs_perlin = std::make_shared<RawShader>(_resourceManager, ReadAllStringFromFile("Resources/Shaders/circle.frag").c_str(), ShaderType::FRAGMENT_SHADER, "circle.frag");
+	auto fs_blur = std::make_shared<RawShader>(_resourceManager, ReadAllStringFromFile("Resources/Shaders/blur.frag").c_str(), ShaderType::FRAGMENT_SHADER, "blur.frag");
 	auto fs_shadow = std::make_shared<RawShader>(_resourceManager, ReadAllStringFromFile("Resources/Shaders/shadowBlend.frag").c_str(), ShaderType::FRAGMENT_SHADER, "shadowBlend.frag");
 	_shadersTable["builtin::sprite"] = std::make_shared<ShaderProgram>(_resourceManager, 
 		trv2::cptr(vs), trv2::cptr(fs));
 
-	_shadersTable["circle"] = std::make_shared<ShaderProgram>(_resourceManager, 
-		trv2::cptr(vs_pure), trv2::cptr(fs_perlin));
+	_shadersTable["blur"] = std::make_shared<ShaderProgram>(_resourceManager, 
+		trv2::cptr(vs_pure), trv2::cptr(fs_blur));
 
 	_shadersTable["blendShadow"] = std::make_shared<ShaderProgram>(_resourceManager,
 	trv2::cptr(vs_pure), trv2::cptr(fs_shadow));

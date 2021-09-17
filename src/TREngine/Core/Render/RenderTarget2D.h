@@ -11,7 +11,7 @@ class RenderTarget2D : public IGraphicsResource
 {
 public:
 	
-	RenderTarget2D(IGraphicsResourceManager* resourceManager, int width, int height);
+	RenderTarget2D(IGraphicsResourceManager* resourceManager, int width, int height, const TextureParameters& parameter);
 	~RenderTarget2D();
 
 	IRenderTarget2DHandle GetHandle() const { return _handle; }

@@ -178,7 +178,7 @@ GameWorld::GameWorld(int width, int height) : _tileMaxX(width), _tileMaxY(height
 			//tile.SetColor(glm::vec3(v * 0.5 + 0.5));
 			if (v < threashold)
 			{
-				tile.SetColor(glm::vec3(0.3, 0.3, 0.3));
+				tile.SetColor(glm::vec3(0.5, 0.5, 0.5));
 				tile.SetSolid(true);
 				if (v2 < -0.5)
 				{
