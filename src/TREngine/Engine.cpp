@@ -52,7 +52,7 @@ void Engine::Run()
             gameWindow->PollEvents();
 
             double t = _gameTimer->GetTimeFromGameStartInSeconds() - prevTimestamp;
-            _logger->Log(trv2::SeverityLevel::Info, "%lf, %d", t, (int)(1 / t));
+            //_logger->Log(trv2::SeverityLevel::Info, "%lf, %d", t, (int)(1 / t));
             while (_gameTimer->GetTimeFromGameStartInSeconds() - prevTimestamp < minElapsedTime)
             {
                 // gameWindow->PollEvents();
