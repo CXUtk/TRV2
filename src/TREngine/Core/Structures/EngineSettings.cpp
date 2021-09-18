@@ -18,6 +18,6 @@ EngineSettings::EngineSettings()
 		TRV2_ENGINE_VERSION_PATCH,
 		TRV2_ENGINE_VERSION_TWEAK);
 
-	_windowResizable = true;
+	_windowResizable = false;
 }
 TRV2_NAMESPACE_END

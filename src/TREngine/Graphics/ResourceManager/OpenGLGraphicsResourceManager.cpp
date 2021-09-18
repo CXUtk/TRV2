@@ -35,16 +35,42 @@ ITextureHandle OpenGLGraphicsResourceManager::CreateTexture2D(int width, int hei
     auto sampleMethod = OpenGLProvider::MapTextureSampleMethod(parameters.SampleMethod);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, sampleMethod[0]);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, sampleMethod[1]);
+    if (parameters.SampleMethod == TextureSampleMethod::BI_LINEAR_MIPMAP)
+    {
+        glGenerateMipmap(GL_TEXTURE_2D);
+    }
 
     auto warpMethod = OpenGLProvider::MapTextureWarpMethod(parameters.TextureWarpMethod);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, warpMethod);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, warpMethod);
+
     return handle;
 }
 
 void OpenGLGraphicsResourceManager::DeleteTexture2D(ITextureHandle handle)
 {
     glDeleteTextures(1, &handle);
+}
+
+void OpenGLGraphicsResourceManager::ResizeTexture2D(ITextureHandle handle, int width, int height, const void* data, PixelFormat internalFormat, PixelFormat srcFormat, EngineDataType dataType, const TextureParameters& parameters)
+{
+    glBindTexture(GL_TEXTURE_2D, handle);
+
+    glTexImage2D(GL_TEXTURE_2D, 0, OpenGLProvider::MapPixelFormat(internalFormat), width, height, 0, OpenGLProvider::MapPixelFormat(srcFormat),
+    OpenGLProvider::MapDataType(dataType), data);
+
+    auto sampleMethod = OpenGLProvider::MapTextureSampleMethod(parameters.SampleMethod);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, sampleMethod[0]);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, sampleMethod[1]);
+    if (parameters.SampleMethod == TextureSampleMethod::BI_LINEAR_MIPMAP)
+    {
+        glGenerateMipmap(GL_TEXTURE_2D);
+    }
+
+    auto warpMethod = OpenGLProvider::MapTextureWarpMethod(parameters.TextureWarpMethod);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, warpMethod);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, warpMethod);
+
 }
 
 IShaderHandle OpenGLGraphicsResourceManager::CreateRawShader(const char* code, ShaderType shaderType, const char* fileName)

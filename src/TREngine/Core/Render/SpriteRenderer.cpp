@@ -1,6 +1,5 @@
 ﻿#include "SpriteRenderer.h"
 
-#include <glad/glad.h>
 #include <glm/glm.hpp>
 #include <glm/gtx/transform.hpp>
 #include <algorithm>
@@ -19,7 +18,7 @@ static const BatchVertex2D simpleQuadVertices[4] = {
 };
 
 static constexpr unsigned int simpleQuadIndicies[6] = { 0, 1, 3, 0, 3, 2 };
-static constexpr int MaxQuadsPerBatch = 1 << 18;
+static constexpr int MaxQuadsPerBatch = 1 << 16;
 static constexpr int MaxVerticesPerBatch = MaxQuadsPerBatch * 4;
 static constexpr int MaxIndiciesPerBatch = MaxQuadsPerBatch * 6;
 
@@ -87,10 +86,9 @@ void SpriteRenderer::Begin(const glm::mat4& transform,const BatchSettings& setti
 	_batchState.WorldTransform = transform;
 	_batchState.Settings = settings;
 	
-	if (_batchState.Settings.BlendMode == BlendMode::AlphaBlend)
+	if (_batchState.Settings.BlendMode != trv2::BlendingMode::None)
 	{
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		_graphicsDevice->SetBlendingMode(_batchState.Settings.BlendMode);
 	}
 	_currentVertex = 0;
 }
@@ -99,9 +97,9 @@ void SpriteRenderer::End()
 {
 	if (_currentVertex) flushBatch();
 	_batchState.IsBatchBegin = false;
-	if (_batchState.Settings.BlendMode == BlendMode::AlphaBlend)
+	if (_batchState.Settings.BlendMode != trv2::BlendingMode::None)
 	{
-		glDisable(GL_BLEND);
+		_graphicsDevice->SetBlendingMode(trv2::BlendingMode::None);
 	}
 }
 

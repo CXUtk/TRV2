@@ -11,19 +11,20 @@ class RenderTarget2D : public IGraphicsResource
 {
 public:
 	
-	RenderTarget2D(IGraphicsResourceManager* resourceManager, int width, int height);
+	RenderTarget2D(IGraphicsResourceManager* resourceManager, glm::ivec2 size, const TextureParameters& parameter);
 	~RenderTarget2D();
+
+	void Resize(glm::ivec2 size);
 
 	IRenderTarget2DHandle GetHandle() const { return _handle; }
 	Texture2D* GetTexture2D() const { return trv2::ptr(_renderTexture); }
-
-	int GetWidth() const { return _width; }
-	int GetHeight() const { return _height; }
+	glm::ivec2 GetSize() const { return glm::ivec2(_width, _height); }
 
 private:
 	IRenderTarget2DHandle _handle;
 
 	int _width, _height;
+	TextureParameters _parameters;
 	std::shared_ptr<Texture2D> _renderTexture;
 };
 TRV2_NAMESPACE_END

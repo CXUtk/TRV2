@@ -21,7 +21,7 @@ public:
 	static int MapDataType(EngineDataType type);
 	static int MapBufferType(BufferType type);
 	static int MapDrawPrimitivesType(PrimitiveType type);
-
+	static int MapDepthTestingFunctionType(DepthTestingFunction func);
 private:
 	std::shared_ptr<IGraphicsDevice> _graphicsDevice;
 	std::shared_ptr<IGraphicsResourceManager> _graphicsResourceManager;

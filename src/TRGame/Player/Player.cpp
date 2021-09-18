@@ -10,7 +10,7 @@
 Player::Player()
 {
 	_playerHitBox.Size = glm::vec2(16, 32);
-	_playerHitBox.Position = glm::vec2(32, 0);
+	_playerHitBox.Position = glm::vec2(1050, 14600);
 }
 
 Player::~Player()
@@ -38,8 +38,7 @@ void Player::Draw(const glm::mat4& projection, trv2::SpriteRenderer* renderer)
 	}
 	renderer->End();
 
-	setting.BlendMode = trv2::BlendMode::AlphaBlend;
-	
+	setting.BlendMode = trv2::BlendingMode::AlphaBlend;
 	renderer->Begin(projection, setting);
 	{
 		auto start = GameWorld::GetLowerWorldCoord(_playerHitBox.BottomLeft());
@@ -51,7 +50,7 @@ void Player::Draw(const glm::mat4& projection, trv2::SpriteRenderer* renderer)
 			{
 				auto fRect = trv2::Rectf(glm::vec2(x * GameWorld::TILE_SIZE, y * GameWorld::TILE_SIZE), glm::vec2(GameWorld::TILE_SIZE));
 				renderer->Draw(fRect.Position, fRect.Size, glm::vec2(0), 0.f, glm::vec4(0.1, 0.6, 0.2, 0.5));
-				if (world->GetTile(x, y).GetColor() == glm::vec3(1)) continue;
+				if (world->GetTile(x, y).IsEmpty()) continue;
 				if (trv2::RectIntersects(_playerHitBox, fRect))
 				{
 					renderer->Draw(fRect.Position, fRect.Size, glm::vec2(0), 0.f, glm::vec4(0.7, 0.1, 0.2, 0.5));
@@ -142,10 +141,6 @@ void Player::handleMovement()
 	_velocity.y = std::max(-30.f, _velocity.y - _gravity);
 }
 
-struct Edge
-{
-	float L, R;
-};
 
 void Player::applyConstrains()
 {
@@ -163,7 +158,7 @@ void Player::applyConstrains()
 }
 
 trv2::Rectf Player::tryMoveWithCollide(const trv2::Rectf& oldBox, glm::vec2 displacement, float timeDelta)
-{
+{ 
 	auto world = TRGame::GetInstance()->GetGameWorld();
 
 	trv2::Rectf newBox = oldBox;
@@ -180,7 +175,7 @@ trv2::Rectf Player::tryMoveWithCollide(const trv2::Rectf& oldBox, glm::vec2 disp
 	{
 		for (int x = tileRect.Position.x; x <= tileRect.Position.x + tileRect.Size.x; x++)
 		{
-			if (world->GetTile(x, y).GetColor() == glm::vec3(1)) continue;
+			if (world->GetTile(x, y).IsEmpty()) continue;
 			auto fRect = trv2::Rectf(glm::vec2(x * GameWorld::TILE_SIZE, y * GameWorld::TILE_SIZE), glm::vec2(GameWorld::TILE_SIZE));
 			if (!trv2::RectIntersects(newBox, fRect)) continue;
 

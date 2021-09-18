@@ -89,6 +89,48 @@ enum class TextureWarpMethod
 	__COUNT
 };
 
+enum class BlendingMode
+{
+	None,
+	AlphaBlend,
+
+	__COUNT
+};
+
+enum class DepthTestingMode
+{
+	None,
+	DepthTest,
+	DepthTestNoApply,
+
+	__COUNT
+};
+
+enum class CullingMode
+{
+	None,
+	CullCCW,
+	CullCW,
+
+	__COUNT
+};
+
+
+enum class DepthTestingFunction
+{
+	ALWAYS,
+	NEVER,
+	LESS,
+	EQUAL,
+	LEQUAL,
+	GREATER,
+	NEQUAL,
+	GEQUAL,
+
+	__COUNT
+};
+
+
 
 // Classes
 class VertexLayout;
@@ -235,6 +277,10 @@ public:
 	virtual void Clear(const glm::vec4& color) = 0;
 
 	virtual void UseShader(const ShaderProgram* shader) = 0;
+
+	virtual void SetBlendingMode(BlendingMode mode) = 0;
+	virtual void SetDepthTestingMode(DepthTestingMode mode, DepthTestingFunction func) = 0;
+	virtual void SetCullingMode(CullingMode mode) = 0;
 };
 
 
@@ -247,6 +293,9 @@ public:
 		PixelFormat internalFormat, PixelFormat srcFormat, 
 		EngineDataType dataType, const TextureParameters& parameters) = 0;
 	virtual void DeleteTexture2D(ITextureHandle handle) = 0;
+	virtual void ResizeTexture2D(ITextureHandle handle, int width, int height, const void* data,
+		PixelFormat internalFormat, PixelFormat srcFormat,
+		EngineDataType dataType, const TextureParameters& parameters) = 0;
 
 	virtual IShaderHandle CreateRawShader(const char* code, ShaderType shaderType, const char* fileName) = 0;
 	virtual void DeleteRawShader(IShaderHandle handle) = 0;

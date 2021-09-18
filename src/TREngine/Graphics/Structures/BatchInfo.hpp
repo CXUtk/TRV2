@@ -19,16 +19,10 @@ enum class SpriteSortMode
 	Texture,
 };
 
-enum class BlendMode
-{
-	None,
-	AlphaBlend,
-};
-
 struct BatchSettings
 {
 	SpriteSortMode SpriteSortMode = SpriteSortMode::Deferred;
-	BlendMode BlendMode = BlendMode::None;
+	BlendingMode BlendMode = BlendingMode::None;
 	ShaderProgram* Shader;
 
 	BatchSettings() : Shader(nullptr) {}
@@ -36,9 +30,9 @@ struct BatchSettings
 
 struct BatchState
 {
-	glm::mat4 WorldTransform;
-	bool IsBatchBegin;
-	BatchSettings Settings;
+	glm::mat4 WorldTransform{};
+	bool IsBatchBegin = false;
+	BatchSettings Settings{};
 	BatchState() = default;
 };
 

@@ -24,13 +24,16 @@ void OpenGLGraphicsDevice::SwitchRenderTarget(const RenderTarget2D* renderTarget
 {
 	if (renderTarget == nullptr)
 	{
-		auto windowSize = Engine::GetInstance()->GetGameWindow()->GetWindowSize();
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+		auto windowSize = Engine::GetInstance()->GetGameWindow()->GetWindowSize();
 		glViewport(0, 0, windowSize.x, windowSize.y);
 		return;
 	}
 	glBindFramebuffer(GL_FRAMEBUFFER, renderTarget->GetHandle());
-	glViewport(0, 0, renderTarget->GetWidth(), renderTarget->GetHeight());
+
+	auto size = renderTarget->GetSize();
+	glViewport(0, 0, size.x, size.y);
 }
 
 void OpenGLGraphicsDevice::SetViewPort(int x, int y, int width, int height)
@@ -47,6 +50,48 @@ void OpenGLGraphicsDevice::Clear(const glm::vec4& color)
 void OpenGLGraphicsDevice::UseShader(const ShaderProgram* shader)
 {
 	glUseProgram(shader->GetHandle());
+}
+
+void OpenGLGraphicsDevice::SetBlendingMode(BlendingMode mode)
+{
+	if (mode == BlendingMode::AlphaBlend)
+	{
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	}
+	else
+	{
+		glDisable(GL_BLEND);
+	}
+}
+
+void OpenGLGraphicsDevice::SetDepthTestingMode(DepthTestingMode mode, DepthTestingFunction func)
+{
+	if (mode == DepthTestingMode::None)
+	{
+		glDisable(GL_DEPTH_TEST);
+	}
+	else
+	{
+		glEnable(GL_DEPTH_TEST);
+		glDepthMask((mode == DepthTestingMode::DepthTestNoApply) ? GL_FALSE : GL_TRUE);
+
+		glDepthFunc(OpenGLProvider::MapDepthTestingFunctionType(func));
+	}
+}
+
+void OpenGLGraphicsDevice::SetCullingMode(CullingMode mode)
+{
+	if (mode == CullingMode::None)
+	{
+		glDisable(GL_CULL_FACE);
+	}
+	else
+	{
+		glEnable(GL_CULL_FACE);
+		glCullFace(GL_FRONT);
+		glFrontFace(mode == CullingMode::CullCW ? GL_CW : GL_CCW);
+	}
 }
 
 void OpenGLGraphicsDevice::initializeConstants()
