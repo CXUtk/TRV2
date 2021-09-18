@@ -9,6 +9,8 @@
 
 #include <TREngine/Core/Render/SpriteRenderer.h>
 
+constexpr int VIS_SIZE = 128 * 128;
+
 Lighting::Lighting()
 {}
 
@@ -27,11 +29,11 @@ struct LightNode
 	}
 };
 
-int dX[8] = { 1, 1, 1, -1, -1, -1, 0, 0 };
-int dY[8] = { 1, 0, -1, 1, 0, -1, 1, -1 };
-float distA[8] = { 1.4142f, 1.f, 1.4142f, 1.4142f, 1.f, 1.4142f, 1.f, 1.f };
-float distArray[100 * 100];
-bool visArray[100 * 100];
+static constexpr int dX[8] = { 1, 0, -1, 0, 1, 1, -1, -1 };
+static constexpr int dY[8] = { 0, 1, 0, -1, 1, -1, 1, -1 };
+static constexpr float distA[8] = { 1.f, 1.f, 1.f, 1.f, 1.4142f, 1.4142f, 1.4142f, 1.4142f };
+float distArray[VIS_SIZE];
+bool visArray[VIS_SIZE];
 
 constexpr float MAXDIST = 16.f;
 
@@ -87,11 +89,9 @@ void Lighting::CalculateLight(trv2::SpriteRenderer* renderer, const glm::mat4& p
 		Q.push({ lightTile, 0.f });
 	}
 
-
-
 	while (!Q.empty())
 	{
-		auto node = Q.top();
+		LightNode node = Q.top();
 		Q.pop();
 
 		int curId = getId(node.Pos - viewRect.Position);

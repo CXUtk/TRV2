@@ -66,10 +66,10 @@ private:
 	std::unique_ptr<const Texture2D*[]> _usedTextures;
 
 	// 用到的Shader
-	ShaderProgram* _spriteShaderPure;
+	ShaderProgram* _spriteShaderPure = nullptr;
 
 	// 用到的Texture
-	Texture2D* _whiteTexture;
+	Texture2D* _whiteTexture = nullptr;
 
 
 	void pushTextureQuad(const Texture2D* texture, glm::vec2 tpos, glm::vec2 size, glm::vec2 origin, float rotation, const glm::vec4& color);

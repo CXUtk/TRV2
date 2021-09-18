@@ -46,21 +46,31 @@ private:
     void logGameInfo();
     void loadGameContent();
 
-    trv2::Engine* _engine;
-    std::shared_ptr<trv2::Logger> _logger;
+    void drawTiles();
+    void drawShadowMaps();
+    void drawPlayers();
 
-    trv2::SpriteRenderer* _spriteRenderer;
+    trv2::Engine* _engine = nullptr;
+    trv2::SpriteRenderer* _spriteRenderer = nullptr;
+
+    std::shared_ptr<trv2::Logger> _logger; 
     std::unique_ptr<GameWorld> _gameWorld;
     std::unique_ptr<Player> _mainPlayer;
     
-    trv2::Rectf _screenRect;
-    trv2::RectI _tileRect;
-    glm::mat4 _projection;
-    float _expScale;
-    glm::vec2 _mouseDragStart;
-    glm::vec2 _oldScreenPos;
+    trv2::Rectf _screenRect{};
+    trv2::RectI _tileRect{};
+
+    glm::mat4 _worldProjection{};
+    glm::mat4 _screenProjection{};
+
+
+    float _expScale = 0.f;
+    glm::vec2 _mouseDragStart{};
+    glm::vec2 _oldScreenPos{};
 
     std::shared_ptr<trv2::RenderTarget2D> _tileTarget;
+
+    // Shadow map components: lighting
     std::shared_ptr<trv2::RenderTarget2D> _shadowMap;
     std::shared_ptr<trv2::RenderTarget2D> _shadowMapSwap[2];
 
