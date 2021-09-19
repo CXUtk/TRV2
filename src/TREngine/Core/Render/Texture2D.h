@@ -6,6 +6,7 @@
 #include <Core.h>
 
 TRV2_NAMESPACE_BEGIN
+
 class Texture2D : public IGraphicsResource
 {
 public:
@@ -16,7 +17,7 @@ public:
 	 * @param height Height of the image
 	 * @param data Data of the image
 	*/
-	Texture2D(IGraphicsResourceManager* resourceManager, int width, int height, const void* data);
+	Texture2D(IGraphicsResourceManager* resourceManager, glm::ivec2 size, const void* data);
 
 	/**
 	 * @brief Creates a texture 2d object from file
@@ -36,20 +37,21 @@ public:
 	 * @param dataType Data type used in source image
 	 * @param parameters Texture parameters in the generating process
 	*/
-	Texture2D(IGraphicsResourceManager* resourceManager, int width, int height, const void* data,
-		PixelFormat internalFormat, PixelFormat srcFormat, EngineDataType dataType, const TextureParameters& parameters);
+	Texture2D(IGraphicsResourceManager* resourceManager, glm::ivec2 size,
+		 const TextureParameters& parameters, PixelFormat srcFormat, EngineDataType dataType, const void* data);
 
 	~Texture2D();
 
-	ITextureHandle GetHandle() const { return _handle; }
-	void Resize(glm::ivec2 size);
+	void ChangeBuffer(glm::ivec2 size,
+		 const TextureParameters& parameters, PixelFormat srcFormat, EngineDataType dataType, const void* data);
 
-	int GetWidth() const { return _width; }
-	int GetHeight() const { return _height; }
+
+	ITextureHandle GetHandle() const { return _handle; }
+	glm::ivec2 GetSize() const { return _size; }
 
 private:
 	ITextureHandle _handle;
-	int _width, _height;
+	glm::ivec2 _size;
 	TextureParameters _parameters;
 };
 TRV2_NAMESPACE_END

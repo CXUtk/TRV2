@@ -136,7 +136,6 @@ GameWorld::GameWorld(int width, int height) : _tileMaxX(width), _tileMaxY(height
 
 	auto engine = TRGame::GetInstance()->GetEngine();
 	auto logger = engine->GetLogger();
-	auto graphicsDevice = engine->GetGraphicsDevice();
 	auto resourceManager = engine->GetGraphicsResourceManager();
 
 
@@ -150,8 +149,6 @@ GameWorld::GameWorld(int width, int height) : _tileMaxX(width), _tileMaxY(height
 				auto coord = glm::vec2((float)x / width, (float)y / height) * 18.f;
 
 				auto v = fBm(coord, 8, s);
-
-				auto& tile = GetTile(x, y);
 
 				_worldGenLayouts[y * width + x].v[s] = v;
 			}
@@ -282,7 +279,6 @@ trv2::RectI GameWorld::GetTileRect(const trv2::Rectf& worldRect) const
 
 void GameWorld::RenderWorld(const glm::mat4& projection, trv2::SpriteRenderer* renderer, const trv2::Rect2D<float>& renderRect)
 {
-	auto graphicsDevice = TRGame::GetInstance()->GetEngine()->GetGraphicsDevice();
 	auto assetsManager = TRGame::GetInstance()->GetEngine()->GetAssetsManager();
 	auto clientSize = TRGame::GetInstance()->GetEngine()->GetGameWindow()->GetWindowSize();
 

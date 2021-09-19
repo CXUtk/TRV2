@@ -90,7 +90,7 @@ inline std::vector<Interval> GetCollidingSegmentsRev(const Rectf& rect, glm::vec
 
 inline float GetNearestCollisionTime(const Interval& subject, glm::vec2 velocity, const std::vector<Interval>& intervals)
 {
-	float minimalTime = std::numeric_limits<float>::infinity();
+	double minimalTime = std::numeric_limits<double>::infinity();
 	for (auto& inv : intervals)
 	{
 		if (subject.horizontal)

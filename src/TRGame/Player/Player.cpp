@@ -144,8 +144,6 @@ void Player::handleMovement()
 
 void Player::applyConstrains()
 {
-	auto world = TRGame::GetInstance()->GetGameWorld();
-
 	float T = 0.f;
 	while (T < 1.f)
 	{

@@ -53,7 +53,7 @@ void TRGame::loadGameContent()
 
     trv2::TextureParameters texPara{};
     texPara.SampleMethod = trv2::TextureSampleMethod::NEAREST;
-    texPara.TextureWarpMethod = trv2::TextureWarpMethod::CLAMP_TO_EDGE;
+    texPara.WarpMethod = trv2::TextureWarpMethod::CLAMP_TO_EDGE;
 
     _tileTarget = std::make_shared<trv2::RenderTarget2D>(_engine->GetGraphicsResourceManager(), clientSize, texPara);
     _shadowMap = std::make_shared<trv2::RenderTarget2D>(_engine->GetGraphicsResourceManager(), clientSize, texPara);
