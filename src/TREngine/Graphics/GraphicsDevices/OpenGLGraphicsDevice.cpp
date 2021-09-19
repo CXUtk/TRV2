@@ -13,7 +13,7 @@
 #include <Platform/Platform_Interfaces.h>
 
 #include <Graphics/Graphics_Interfaces.h>
-#include <Graphics/Structures/VertexLayout.hpp>
+#include <Graphics/Structures/VertexLayout.h>
 #include <Graphics/OpenGLProvider.h>
 
 
