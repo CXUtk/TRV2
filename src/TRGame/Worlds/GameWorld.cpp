@@ -29,7 +29,8 @@ static const glm::vec4 tempColorTable[5] = {
 static constexpr int DIM = 50;
 static constexpr float Magnifier = DIM;
 static constexpr unsigned int MAX_UINT = 0xffffffff;
-static constexpr int BASE = 341243;
+static constexpr int BASE1 = 998244353;
+static constexpr int BASE2 = 993244853;
 static constexpr int MOD = 1e9 + 7;
 static constexpr int SEED = 1;
 static constexpr int PNUM = 512;
@@ -46,10 +47,10 @@ static float GetRandFloat()
 	return (double)mt() / s;
 }
 
-static float GetRandValueGrid(unsigned int x, unsigned int y, int seed)
+static float GetRandValueGrid(int x, int y, int seed)
 {
-	return glm::fract(std::sin(glm::dot(glm::vec2(x, y), glm::vec2(12.9898, 78.233))) * 43758.5453
-		+ 114.514 * (x + y));
+	int v = ((ull)BASE1 * x % MOD + (ull)BASE2 * y % MOD + seed) % MOD;
+	return (double)v / MOD;
 }
 
 
@@ -133,6 +134,7 @@ GameWorld::GameWorld(int width, int height) : _tileMaxX(width), _tileMaxY(height
 {
 	_tiles = std::make_unique<Tile[]>(width * height);
 	_worldGenLayouts = std::make_unique<TileGenLayout[]>(width * height);
+	_worldMapCache = std::make_unique<BYTE_Color[]>(width * height * 4);
 
 	auto engine = TRGame::GetInstance()->GetEngine();
 	auto logger = engine->GetLogger();
@@ -148,7 +150,7 @@ GameWorld::GameWorld(int width, int height) : _tileMaxX(width), _tileMaxY(height
 			{
 				auto coord = glm::vec2((float)x / width, (float)y / height) * 18.f;
 
-				auto v = fBm(coord, 8, s);
+				auto v = fBm(coord, 20, s);
 
 				_worldGenLayouts[y * width + x].v[s] = v;
 			}
@@ -238,6 +240,13 @@ GameWorld::GameWorld(int width, int height) : _tileMaxX(width), _tileMaxY(height
 		}
 	}
 
+	for (int y = 0; y < height; y++)
+	{
+		for (int x = 0; x < width; x++)
+		{
+
+		}
+	}
 
 }
 

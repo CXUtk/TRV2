@@ -44,10 +44,10 @@ struct BatchState
 
 struct BYTE_Color
 {
-	unsigned char R;
-	unsigned char G;
-	unsigned char B;
-	unsigned char A;
+	byte8 R;
+	byte8 G;
+	byte8 B;
+	byte8 A;
 };
 
 inline BYTE_Color vec4ToByteColor(const glm::vec4& color)

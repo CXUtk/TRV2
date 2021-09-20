@@ -5,6 +5,15 @@
 #include <TREngine/Core/Structures/Rect.hpp>
 #include "Tile.hpp"
 
+struct BYTE_Color
+{
+	byte8 R;
+	byte8 G;
+	byte8 B;
+	byte8 A;
+};
+
+
 class GameWorld
 {
 public:
@@ -29,6 +38,8 @@ public:
 private:
 	std::unique_ptr<Tile[]> _tiles;
 	std::unique_ptr<TileGenLayout[]> _worldGenLayouts;
+
+	std::unique_ptr<BYTE_Color[]> _worldMapCache;
 
 	int _tileMaxX, _tileMaxY;
 };

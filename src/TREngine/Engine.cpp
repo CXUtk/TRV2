@@ -99,14 +99,14 @@ void Engine::loadSupportiveSystem()
 {
     _logger->Log(SeverityLevel::Info, "Loading platform specifics");
     _gameTimer = std::make_shared<GameTimer>();
-    _platformProvider = std::make_shared<GLFWProvider>(*_engineSettings);
+    _platformProvider = std::make_shared<GLFWProvider>(trv2::cref(_engineSettings));
     _inputController = std::make_shared<InputController>();
 }
 
 void Engine::loadGraphicsSystem()
 {
     _logger->Log(SeverityLevel::Info, "Loading graphics system");
-    _graphicsProvider = std::make_shared<OpenGLProvider>(*_engineSettings);
+    _graphicsProvider = std::make_shared<OpenGLProvider>(trv2::cref(_engineSettings));
 }
 
 void Engine::loadLaunchSettings()

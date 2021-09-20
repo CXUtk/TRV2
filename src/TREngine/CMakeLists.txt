@@ -39,7 +39,7 @@ add_library("TRV2_Engine" STATIC
 "Core/Utils/GameTimer.h"
 "Core/Utils/GameTimer.cpp"
 "Platform/GLFWProvider.h"
-"Platform/GLFWProvider.cpp" "Core/Utils/Collision.h")
+"Platform/GLFWProvider.cpp" "Core/Utils/Collision.h" "Core/Gamplay/Scene.h" "Core/render.h" "Core/assets.h" "Core/gameplay.h")
 
 
 message(STATUS "${PROJECT_SOURCE_DIR}")
