@@ -33,5 +33,9 @@ public:
 	 * @brief Specify things to do when application should exit
 	*/
 	virtual void Exit() = 0;
+
+	virtual bool ShouldSkipFrame(double elapsedFromFrameBegin) = 0;
+
+	virtual void OnFrameEnd() = 0;
 };
 TRV2_NAMESPACE_END

@@ -44,7 +44,12 @@ void Engine::Run()
             gameWindow->BeginFrame();
             {
                 _application->Update(elapsed);
-                _application->Draw(elapsed);
+
+                if (!_application->ShouldSkipFrame(_gameTimer->GetTimeFromGameStartInSeconds() - prevTimestamp))
+                {
+                    _application->Draw(elapsed);
+                }
+                _application->OnFrameEnd();
             }
             gameWindow->EndFrame();
             controller->ClearInput();

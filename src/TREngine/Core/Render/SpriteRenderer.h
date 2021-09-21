@@ -25,6 +25,13 @@ enum class SpriteSortMode
 	Texture,
 };
 
+enum class SpriteFlipMode
+{
+	None,
+	FlipHorizontal,
+	FlipVertical
+};
+
 struct BatchSettings
 {
 	SpriteSortMode SpriteSortMode = SpriteSortMode::Deferred;
@@ -103,7 +110,8 @@ public:
 	 * @param rotation Rotation of this quad
 	 * @param color Color of this sprite (multiply with original texture)
 	*/
-	void Draw(glm::vec2 pos, glm::vec2 size, glm::vec2 origin, float rotation, const glm::vec4& color);
+	void Draw(glm::vec2 pos, glm::vec2 size, glm::vec2 origin, float rotation, const glm::vec4& color,
+		SpriteFlipMode flipMode = SpriteFlipMode::None);
 
 	/**
 	 * @brief Push a sprite drawing task to the batch list
@@ -115,7 +123,8 @@ public:
 	 * @param color Color of this sprite (multiply with original texture)
 	*/
 	void Draw(const Texture2D* texture, glm::vec2 pos, glm::vec2 size,
-		glm::vec2 origin, float rotation, const glm::vec4& color);
+		glm::vec2 origin, float rotation, const glm::vec4& color,
+		SpriteFlipMode flipMode = SpriteFlipMode::None);
 
 private:
 	// 绘制用的
@@ -139,7 +148,8 @@ private:
 	Texture2D* _whiteTexture = nullptr;
 
 
-	void pushTextureQuad(const Texture2D* texture, glm::vec2 tpos, glm::vec2 size, glm::vec2 origin, float rotation, const glm::vec4& color);
+	void pushTextureQuad(const Texture2D* texture, glm::vec2 tpos, glm::vec2 size, 
+		glm::vec2 origin, float rotation, const glm::vec4& color, SpriteFlipMode flipMode);
 	void flushBatch();
 	int findUsedTexture(const Texture2D* texture) const;
 	void bindTextures() const;

@@ -17,6 +17,7 @@ constexpr std::array<KeyCode, N> generateKeyCodeMapper()
     M[GLFW_KEY_A] = KeyCode::TRV2_A_KEY;
     M[GLFW_KEY_S] = KeyCode::TRV2_S_KEY;
     M[GLFW_KEY_D] = KeyCode::TRV2_D_KEY;
+    M[GLFW_KEY_M] = KeyCode::TRV2_M_KEY;
 
     M[GLFW_KEY_ENTER] = KeyCode::TRV2_ENTER_KEY;
     M[GLFW_KEY_LEFT_CONTROL] = KeyCode::TRV2_CTRL_KEY;
@@ -42,6 +43,7 @@ constexpr std::array<KeyCode, N> generateKeyCodeMapper()
     M[GLFW_KEY_GRAVE_ACCENT] = KeyCode::TRV2_TILDE_KEY;
 
     M[GLFW_KEY_SPACE] = KeyCode::TRV2_SPACE_KEY;
+    M[GLFW_KEY_ESCAPE] = KeyCode::TRV2_ESC_KEY;
 
     /*M[(int)KeyCode::TRV2_W_KEY] = { GLFW_KEY_W };
     M[(int)KeyCode::TRV2_S_KEY] = { GLFW_KEY_S };

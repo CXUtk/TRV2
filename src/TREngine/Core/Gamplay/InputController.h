@@ -13,6 +13,7 @@ enum class KeyCode
 	TRV2_A_KEY,
 	TRV2_S_KEY,
 	TRV2_D_KEY,
+	TRV2_M_KEY,
 
 	TRV2_ENTER_KEY,
 	TRV2_CTRL_KEY,
@@ -34,6 +35,7 @@ enum class KeyCode
 	TRV2_TILDE_KEY,
 
 	TRV2_SPACE_KEY,
+	TRV2_ESC_KEY,
 
 	__COUNT,
 };

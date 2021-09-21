@@ -8,6 +8,12 @@
 #include <TREngine/Application.h>
 #include <TREngine/Core/Structures/Rect.hpp>
 
+enum class GameState
+{
+    MENU,
+    MAP,
+    MAIN,
+};
 
 class TRGame : public trv2::Application
 {
@@ -17,9 +23,18 @@ public:
     ~TRGame() override;
 
     virtual void Initialize(trv2::Engine* engine) override;
+
     virtual void Update(double deltaTime) override;
+
     virtual void Draw(double deltaTime) override;
+
     virtual void Exit() override;
+
+    virtual bool ShouldSkipFrame(double elapsedFromFrameBegin) override;
+
+    virtual void OnFrameEnd() override;
+
+    void ChangeState(const GameState& state);
 
     trv2::Engine* GetEngine() { return _engine; }
 
@@ -44,7 +59,8 @@ private:
     std::unique_ptr<MainGameScene> _mainGameScene;
     std::unique_ptr<MapScene> _mapScene;
 
-    bool _isMapEnabled = true;
+    GameState _gameState = GameState::MAIN;
+    GameState _nextGameState = GameState::MAIN;
 
     static TRGame* _instance;
 };

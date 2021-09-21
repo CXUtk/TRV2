@@ -17,6 +17,16 @@ static const BatchVertex2D simpleQuadVertices[4] = {
 	BatchVertex2D(glm::vec2(1, 1), glm::vec2(1, 1), glm::vec4(1))
 };
 
+static const unsigned int defaultSpriteTexOrder[4] = {
+	0, 1, 2, 3
+};
+static const unsigned int flipHorizontalSpriteTexOrder[4] = {
+	1, 0, 3, 2
+};
+static const unsigned int flipVerticalSpriteTexOrder[4] = {
+	2, 3, 0, 1
+};
+
 static constexpr unsigned int simpleQuadIndicies[6] = { 0, 1, 3, 0, 3, 2 };
 static constexpr int MaxQuadsPerBatch = 1 << 16;
 static constexpr int MaxVerticesPerBatch = MaxQuadsPerBatch * 4;
@@ -103,18 +113,23 @@ void SpriteRenderer::End()
 	}
 }
 
-void SpriteRenderer::Draw(glm::vec2 pos, glm::vec2 size, glm::vec2 origin, float rotation, const glm::vec4& color)
+
+void SpriteRenderer::Draw(glm::vec2 pos, glm::vec2 size, glm::vec2 origin, float rotation, 
+	const glm::vec4& color, SpriteFlipMode flipMode)
 {
-	pushTextureQuad(_whiteTexture, pos, size, origin, rotation, color);
+	pushTextureQuad(_whiteTexture, pos, size, origin, rotation, color, flipMode);
 }
+
 
 void SpriteRenderer::Draw(const Texture2D* texture, glm::vec2 pos, glm::vec2 size,
-	glm::vec2 origin, float rotation, const glm::vec4& color)
+	glm::vec2 origin, float rotation, const glm::vec4& color,
+	SpriteFlipMode flipMode)
 {
-	pushTextureQuad(texture, pos, size, origin, rotation, color);
+	pushTextureQuad(texture, pos, size, origin, rotation, color, flipMode);
 }
 
-void SpriteRenderer::pushTextureQuad(const Texture2D* texture, glm::vec2 tpos, glm::vec2 size, glm::vec2 origin, float rotation, const glm::vec4& color)
+void SpriteRenderer::pushTextureQuad(const Texture2D* texture, glm::vec2 tpos, glm::vec2 size, glm::vec2 origin, 
+	float rotation, const glm::vec4& color, SpriteFlipMode flipMode)
 {
 	if (_currentVertex == MaxVerticesPerBatch)
 	{
@@ -142,6 +157,16 @@ void SpriteRenderer::pushTextureQuad(const Texture2D* texture, glm::vec2 tpos, g
 		transform[1][1] = cosr;
 	}
 	auto bColor = vec4ToByteColor(color);
+
+	const unsigned int* texCoordTable = defaultSpriteTexOrder;
+	if (flipMode == SpriteFlipMode::FlipHorizontal)
+	{
+		texCoordTable = flipHorizontalSpriteTexOrder;
+	}
+	else if (flipMode == SpriteFlipMode::FlipVertical)
+	{
+		texCoordTable = flipVerticalSpriteTexOrder;
+	}
 	for (int i = 0; i < 4; i++)
 	{
 		auto pos = (simpleQuadVertices[i].Position - origin) * size;
@@ -149,7 +174,7 @@ void SpriteRenderer::pushTextureQuad(const Texture2D* texture, glm::vec2 tpos, g
 
 		auto& curV = _vertices[_currentVertex];
 		curV.Position = vpos + tpos;
-		curV.TextureCoords = simpleQuadVertices[i].TextureCoords;
+		curV.TextureCoords = simpleQuadVertices[texCoordTable[i]].TextureCoords;
 		curV.Color = bColor;
 		curV.TextureIndex = (float)slotId;
 

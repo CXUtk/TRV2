@@ -152,7 +152,7 @@ GameWorld::GameWorld(int width, int height) : _tileMaxX(width), _tileMaxY(height
 			{
 				auto coord = glm::vec2((float)x / width, (float)y / height) * 18.f;
 
-				auto v = fBm(coord, 20, s);
+				auto v = fBm(coord, 8, s);
 
 				_worldGenLayouts[y * width + x].v[s] = v;
 			}

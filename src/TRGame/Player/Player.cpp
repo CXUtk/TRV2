@@ -101,6 +101,7 @@ void Player::handleMovement()
 {
 	if (_controlLeft)
 	{
+		_direction = -1;
 		if (_velocity.x > -_maxMovementSpeedX)
 		{
 			_velocity.x -= _runAcceleration;
@@ -112,6 +113,7 @@ void Player::handleMovement()
 	}
 	if (_controlRight)
 	{
+		_direction = 1;
 		if (_velocity.x < _maxMovementSpeedX)
 		{
 			_velocity.x += _runAcceleration;

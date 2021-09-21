@@ -17,7 +17,9 @@ public:
 
 	void SetVelocity(glm::vec2 value) { _velocity = value; }
 
+
 	glm::vec2 GetVelocity() const { return _velocity; }
+	int GetDirection() const { return _direction; }
 
 private:
 	trv2::Rect2D<float> _playerHitBox{};
@@ -37,6 +39,7 @@ private:
 	bool _collideX = false;
 	bool _collideY = false;
 
+	int _direction = 1;
 
 	void clearState();
 	void updateInput();

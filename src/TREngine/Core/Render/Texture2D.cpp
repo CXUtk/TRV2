@@ -23,6 +23,8 @@ Texture2D::Texture2D(IGraphicsResourceManager* resourceManager, const std::strin
     : IGraphicsResource(resourceManager)
 {
     assert(resourceManager != nullptr);
+    stbi_set_flip_vertically_on_load(true);
+
     int width, height, nrChannels;
     unsigned char* data = stbi_load(fileName.c_str(), &width, &height, &nrChannels, 0);
     if (!data)
@@ -30,7 +32,9 @@ Texture2D::Texture2D(IGraphicsResourceManager* resourceManager, const std::strin
         throw std::exception(string_format("Cannot load texture %s: %s", fileName.c_str(), stbi_failure_reason()).c_str());
     }
     _size = glm::ivec2(width, height);
-    _handle = resourceManager->CreateTexture2D(_size, TextureParameters(),
+    TextureParameters parameters{};
+    parameters.InternalFormat = PixelFormat::RGBA;
+    _handle = resourceManager->CreateTexture2D(_size, parameters,
          PixelFormat::RGBA, EngineDataType::UNSIGNED_BYTE, data);
     stbi_image_free(data);
 }

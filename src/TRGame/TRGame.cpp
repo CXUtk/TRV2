@@ -68,29 +68,66 @@ void TRGame::Initialize(trv2::Engine* engine)
 
 void TRGame::Update(double deltaTime)
 {
-    if (_isMapEnabled)
-    {
-        _mapScene->Update(deltaTime);
-    }
-    else
+    auto inputController = _engine->GetInputController();
+    if (_gameState == GameState::MAIN)
     {
         _mainGameScene->Update(deltaTime);
+    }
+    else if (_gameState == GameState::MAP)
+    {
+        _mapScene->Update(deltaTime);
+        if (inputController->IsKeyJustPressed(trv2::KeyCode::TRV2_ESC_KEY))
+        {
+            ChangeState(GameState::MAIN);
+        }
+    }
+
+    if ((_gameState == GameState::MAIN ||
+        _gameState == GameState::MAP) && inputController->IsKeyJustPressed(trv2::KeyCode::TRV2_M_KEY))
+    {
+        if (_gameState == GameState::MAIN)
+        {
+            ChangeState(GameState::MAP);
+            _mapScene->FocusOnPlayer();
+        }
+        else if (_gameState == GameState::MAP)
+        {
+            ChangeState(GameState::MAIN);
+        }
     }
 }
 
 void TRGame::Draw(double deltaTime)
 {
-    if (_isMapEnabled)
-    {
-        _mapScene->Draw(deltaTime);
-    }
-    else
+    if (_gameState == GameState::MAIN)
     {
         _mainGameScene->Draw(deltaTime);
+    }
+    else if (_gameState == GameState::MAP)
+    {
+        _mapScene->Draw(deltaTime);
     }
 }
 
 void TRGame::Exit()
 {
     
+}
+
+bool TRGame::ShouldSkipFrame(double elapsedFromFrameBegin)
+{
+    return false;
+}
+
+void TRGame::OnFrameEnd()
+{
+    if (_nextGameState != _gameState)
+    {
+        _gameState = _nextGameState;
+    }
+}
+
+void TRGame::ChangeState(const GameState& state)
+{
+    _nextGameState = state;
 }
