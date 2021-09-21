@@ -28,7 +28,7 @@ add_executable("TRV2_Game"
  "src/TRGame/Player/Player.cpp" 
  "src/TRGame/Lighting/Lighting.h" 
  "src/TRGame/Lighting/Lighting.cpp" 
- "src/TRGame/Scenes/MainGameScene.h" "src/TRGame/Scenes/MainGameScene.cpp" "src/TRGame/Scenes/MapScene.h" "src/TRGame/Scenes/MapScene.cpp" "src/TRGame/Worlds/WorldMap.h")
+ "src/TRGame/Scenes/MainGameScene.h" "src/TRGame/Scenes/MainGameScene.cpp" "src/TRGame/Scenes/MapScene.h" "src/TRGame/Scenes/MapScene.cpp" "src/TRGame/Worlds/WorldMap.h" "src/TRGame/Worlds/WorldMap.cpp")
 
 # 编译选项
 set(CMAKE_CXX_STANDARD 17)

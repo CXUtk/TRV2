@@ -12,7 +12,7 @@
 #include <TREngine/Core/Render/Texture2D.h>
 
 #include <TREngine/Platform/Platform_Interfaces.h>
-#include <TRGame/Worlds/GameWorld.hpp>
+#include <TRGame/Worlds/GameWorld.h>
 #include <TRGame/Player/Player.h>
 #include <TRGame/Lighting/Lighting.h>
 #include <TRGame/Scenes/MainGameScene.h>

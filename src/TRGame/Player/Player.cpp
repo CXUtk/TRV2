@@ -3,9 +3,11 @@
 #include <TREngine/Engine.h>
 #include <TREngine/Core/Gamplay/InputController.h>
 #include <TREngine/Core/Utils/Logging/Logger.h>
-#include <TRGame/Worlds/GameWorld.hpp>
 #include <TREngine/Core/Utils/Collision.h>
 #include <TREngine/Core/Render/SpriteRenderer.h>
+
+#include <TRGame/Worlds/GameWorld.h>
+#include <TRGame/Worlds/Tile.hpp>
 
 Player::Player()
 {

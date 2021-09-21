@@ -9,7 +9,7 @@
 #include <TREngine/Core/assets.h>
 
 #include <TRGame/Lighting/Lighting.h>
-#include <TRGame/Worlds/GameWorld.hpp>
+#include <TRGame/Worlds/GameWorld.h>
 #include <TRGame/Player/Player.h>
 #include <TRGame/TRGame.hpp>
 

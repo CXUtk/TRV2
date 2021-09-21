@@ -1,5 +1,6 @@
-﻿#include "GameWorld.hpp"
+﻿#include "GameWorld.h"
 #include "Tile.hpp"
+#include "WorldMap.h"
 
 
 #include <random>
@@ -134,7 +135,7 @@ GameWorld::GameWorld(int width, int height) : _tileMaxX(width), _tileMaxY(height
 {
 	_tiles = std::make_unique<Tile[]>(width * height);
 	_worldGenLayouts = std::make_unique<TileGenLayout[]>(width * height);
-	_worldMapCache = std::make_unique<BYTE_Color[]>(width * height * 4);
+	_worldMap = std::make_unique<WorldMap>(glm::ivec2(width, height));
 
 	auto engine = TRGame::GetInstance()->GetEngine();
 	auto logger = engine->GetLogger();
@@ -244,11 +245,15 @@ GameWorld::GameWorld(int width, int height) : _tileMaxX(width), _tileMaxY(height
 	{
 		for (int x = 0; x < width; x++)
 		{
-
+			const auto& tile = GetTile(x, y);
+			_worldMap->SetColor(glm::ivec2(x, y), tile.IsEmpty() ? glm::vec3(1) : tile.GetColor());
 		}
 	}
 
 }
+
+GameWorld::~GameWorld()
+{}
 
 Tile& GameWorld::GetTile(int x, int y)
 {
@@ -316,6 +321,11 @@ void GameWorld::RenderWorld(const glm::mat4& projection, trv2::SpriteRenderer* r
 		}
 	}
 	renderer->End();
+}
+
+trv2::Texture2D* GameWorld::GetMapTexture()
+{
+	return _worldMap->GetTexture();
 }
 
 glm::ivec2 GameWorld::GetLowerWorldCoord(glm::vec2 pos)

@@ -1,10 +1,10 @@
-#include "MapScene.h"
+ï»¿#include "MapScene.h"
 #include <glm/glm.hpp>
 #include <glm/gtx/transform.hpp>
 
 #include <TRGame/TRGame.hpp>
 #include <TRGame/Player/Player.h>
-#include <TRGame/Worlds/GameWorld.hpp>
+#include <TRGame/Worlds/GameWorld.h>
 
 #include <TREngine/Engine.h>
 #include <TREngine/Core/gameplay.h>
@@ -24,7 +24,7 @@ void MapScene::Update(double deltaTime)
     auto mousePos = controller->GetMousePos();
     auto clientSize = _engine->GetGameWindow()->GetWindowSize();
 
-    // Ëõ·ÅÊÓ¾à
+    // Ã‹ÃµÂ·Ã…ÃŠÃ“Â¾Ã 
     float factor = std::exp(_expScale);
     if (controller->GetScrollValue().y != 0)
     {
@@ -55,18 +55,10 @@ void MapScene::Update(double deltaTime)
 
 void MapScene::Draw(double deltaTime)
 {
-    auto gameWorld = _game->GetGameWorld();
+    //auto gameWorld = _game->GetGameWorld();
+    //auto mapTex = gameWorld->GetMapTexture();
 
-    int width = gameWorld->GetTileMaxX();
-    int height = gameWorld->GetTileMaxY();
 
-    for (int y = 0; y < height; y++)
-    {
-        for (int x = 0; x < width; x++)
-        {
-
-        }
-    }
 }
 
 void MapScene::FocusOnPlayer()
