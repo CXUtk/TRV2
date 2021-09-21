@@ -44,7 +44,7 @@ private:
     std::unique_ptr<MainGameScene> _mainGameScene;
     std::unique_ptr<MapScene> _mapScene;
 
-    bool _isMapEnabled = false;
+    bool _isMapEnabled = true;
 
     static TRGame* _instance;
 };

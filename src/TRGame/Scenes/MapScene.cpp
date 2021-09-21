@@ -13,10 +13,14 @@
 
 MapScene::MapScene(trv2::Engine* engine, TRGame* game)
     :Scene(engine), _game(game)
-{}
+{
+    FocusOnPlayer();
+}
 
 MapScene::~MapScene()
-{}
+{
+
+}
 
 void MapScene::Update(double deltaTime)
 {
@@ -24,7 +28,6 @@ void MapScene::Update(double deltaTime)
     auto mousePos = controller->GetMousePos();
     auto clientSize = _engine->GetGameWindow()->GetWindowSize();
 
-    // Ëõ·ÅÊÓ¾à
     float factor = std::exp(_expScale);
     if (controller->GetScrollValue().y != 0)
     {
@@ -51,14 +54,27 @@ void MapScene::Update(double deltaTime)
         auto moveDir = (controller->GetMousePos() - _mouseDragStart) / factor;
         _screenRect.Position = _oldScreenPos - moveDir;
     }
+
+    _worldProjection = glm::ortho(_screenRect.Position.x, _screenRect.Position.x + _screenRect.Size.x,
+           _screenRect.Position.y, _screenRect.Position.y + _screenRect.Size.y);
 }
 
 void MapScene::Draw(double deltaTime)
 {
-    //auto gameWorld = _game->GetGameWorld();
-    //auto mapTex = gameWorld->GetMapTexture();
+    auto gameWorld = _game->GetGameWorld();
+    auto mapTex = gameWorld->GetMapTexture();
+    auto spriteRenderer = _engine->GetSpriteRenderer();
+    auto graphicsDevice = _engine->GetGraphicsDevice();
 
+    graphicsDevice->Clear(glm::vec4(0));
 
+    trv2::BatchSettings defaultSetting{};
+    spriteRenderer->Begin(_worldProjection, defaultSetting);
+    {
+        spriteRenderer->Draw(mapTex, glm::vec2(0), mapTex->GetSize() * 16,
+            glm::vec2(0), 0.f, glm::vec4(1));
+    }
+    spriteRenderer->End();
 }
 
 void MapScene::FocusOnPlayer()
@@ -67,9 +83,9 @@ void MapScene::FocusOnPlayer()
     auto center = player->GetPlayerHitbox().Center();
     auto clientSize = _engine->GetGameWindow()->GetWindowSize();
 
-    _expScale = -1.f;
+    _expScale = 0.f;
     float factor = std::exp(_expScale);
     
-    _screenRect.Position = glm::vec2(center.x - clientSize.x * 0.5f / factor, center.x - clientSize.y * 0.5f / factor);
+    _screenRect.Position = glm::vec2(center.x - clientSize.x * 0.5f / factor, center.y - clientSize.y * 0.5f / factor);
     _screenRect.Size = glm::vec2(clientSize) / factor;
 }

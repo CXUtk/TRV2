@@ -50,9 +50,10 @@ static float GetRandFloat()
 
 static float GetRandValueGrid(int x, int y, int seed)
 {
-	int v = ((ull)BASE1 * x % MOD + (ull)BASE2 * y % MOD + seed) % MOD;
-	return (double)v / MOD;
+	return glm::fract(std::sin(glm::dot(glm::vec2(x, y), glm::vec2(12.9898, 78.233))) * 43758.5453
+		+ std::cos(0.114514 * (x * y * seed)));
 }
+
 
 
 
