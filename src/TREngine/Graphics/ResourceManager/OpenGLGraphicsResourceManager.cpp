@@ -22,28 +22,12 @@ OpenGLGraphicsResourceManager::~OpenGLGraphicsResourceManager()
 {
 }
 
-ITextureHandle OpenGLGraphicsResourceManager::CreateTexture2D(int width, int height, const void* data,
-    PixelFormat internalFormat, PixelFormat srcFormat, EngineDataType dataType, const TextureParameters& parameters)
+ITextureHandle OpenGLGraphicsResourceManager::CreateTexture2D(glm::ivec2 size,
+    const TextureParameters& parameters, PixelFormat srcFormat, EngineDataType dataType, const void* data)
 {
     ITextureHandle handle;
     glGenTextures(1, &handle);
-    glBindTexture(GL_TEXTURE_2D, handle);
-
-    glTexImage2D(GL_TEXTURE_2D, 0, OpenGLProvider::MapPixelFormat(internalFormat), width, height, 0, OpenGLProvider::MapPixelFormat(srcFormat),
-        OpenGLProvider::MapDataType(dataType), data);
-
-    auto sampleMethod = OpenGLProvider::MapTextureSampleMethod(parameters.SampleMethod);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, sampleMethod[0]);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, sampleMethod[1]);
-    if (parameters.SampleMethod == TextureSampleMethod::BI_LINEAR_MIPMAP)
-    {
-        glGenerateMipmap(GL_TEXTURE_2D);
-    }
-
-    auto warpMethod = OpenGLProvider::MapTextureWarpMethod(parameters.TextureWarpMethod);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, warpMethod);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, warpMethod);
-
+    ChangeTexture2D(handle, size, parameters, srcFormat, dataType, data);
     return handle;
 }
 
@@ -52,11 +36,13 @@ void OpenGLGraphicsResourceManager::DeleteTexture2D(ITextureHandle handle)
     glDeleteTextures(1, &handle);
 }
 
-void OpenGLGraphicsResourceManager::ResizeTexture2D(ITextureHandle handle, int width, int height, const void* data, PixelFormat internalFormat, PixelFormat srcFormat, EngineDataType dataType, const TextureParameters& parameters)
+void OpenGLGraphicsResourceManager::ChangeTexture2D(ITextureHandle handle, glm::ivec2 size, const TextureParameters& parameters,
+    PixelFormat srcFormat, EngineDataType dataType, const void* data)
 {
     glBindTexture(GL_TEXTURE_2D, handle);
 
-    glTexImage2D(GL_TEXTURE_2D, 0, OpenGLProvider::MapPixelFormat(internalFormat), width, height, 0, OpenGLProvider::MapPixelFormat(srcFormat),
+    glTexImage2D(GL_TEXTURE_2D, 0, OpenGLProvider::MapPixelFormat(parameters.InternalFormat), size.x, size.y,
+        0, OpenGLProvider::MapPixelFormat(srcFormat),
     OpenGLProvider::MapDataType(dataType), data);
 
     auto sampleMethod = OpenGLProvider::MapTextureSampleMethod(parameters.SampleMethod);
@@ -67,11 +53,13 @@ void OpenGLGraphicsResourceManager::ResizeTexture2D(ITextureHandle handle, int w
         glGenerateMipmap(GL_TEXTURE_2D);
     }
 
-    auto warpMethod = OpenGLProvider::MapTextureWarpMethod(parameters.TextureWarpMethod);
+    auto warpMethod = OpenGLProvider::MapTextureWarpMethod(parameters.WarpMethod);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, warpMethod);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, warpMethod);
 
+    glBindTexture(GL_TEXTURE_2D, 0);
 }
+
 
 IShaderHandle OpenGLGraphicsResourceManager::CreateRawShader(const char* code, ShaderType shaderType, const char* fileName)
 {
@@ -126,7 +114,7 @@ void OpenGLGraphicsResourceManager::DeleteShaderProgram(IShaderProgramHandle han
     glDeleteProgram(handle);
 }
 
-IRenderTarget2DHandle OpenGLGraphicsResourceManager::CreateRenderTarget2D(Texture2D* receiver, int width, int height)
+IRenderTarget2DHandle OpenGLGraphicsResourceManager::CreateRenderTarget2D(Texture2D* receiver, glm::ivec2 size)
 {
     IRenderTarget2DHandle handle;
     glGenFramebuffers(1, &handle);

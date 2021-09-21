@@ -5,10 +5,84 @@
 
 #include <Core.h>
 #include <Graphics/Graphics_Interfaces.h>
-#include <Graphics/Structures/BatchInfo.hpp>
-#include <Graphics/Structures/VertexLayout.hpp>
+#include <Graphics/Structures/VertexLayout.h>
 
 TRV2_NAMESPACE_BEGIN
+
+struct BatchInfo
+{
+	glm::vec2 Position, Size;
+	glm::vec4 Color;
+	BatchInfo() = default;
+	BatchInfo(glm::vec2 pos, glm::vec2 size, const glm::vec4& color) : Position(pos), Size(size), Color(color) {}
+};
+
+enum class SpriteSortMode
+{
+	Deferred,
+	FrontToBack,
+	BackToFront,
+	Texture,
+};
+
+enum class SpriteFlipMode
+{
+	None,
+	FlipHorizontal,
+	FlipVertical
+};
+
+struct BatchSettings
+{
+	SpriteSortMode SpriteSortMode = SpriteSortMode::Deferred;
+	BlendingMode BlendMode = BlendingMode::None;
+	ShaderProgram* Shader;
+
+	BatchSettings() : Shader(nullptr) {}
+};
+
+struct BatchState
+{
+	glm::mat4 WorldTransform{};
+	bool IsBatchBegin = false;
+	BatchSettings Settings{};
+	BatchState() = default;
+};
+
+struct BYTE_Color
+{
+	byte8 R;
+	byte8 G;
+	byte8 B;
+	byte8 A;
+};
+
+inline BYTE_Color vec4ToByteColor(const glm::vec4& color)
+{
+	BYTE_Color C;
+	C.R = (unsigned char)(std::min(OneMinusEpsilon, color.r) * 256);
+	C.G = (unsigned char)(std::min(OneMinusEpsilon, color.g) * 256);
+	C.B = (unsigned char)(std::min(OneMinusEpsilon, color.b) * 256);
+	C.A = (unsigned char)(std::min(OneMinusEpsilon, color.a) * 256);
+	return C;
+}
+
+struct BatchVertex2D
+{
+	glm::vec2 Position;
+	glm::vec2 TextureCoords;
+	BYTE_Color Color;
+	float TextureIndex;
+
+	BatchVertex2D() = default;
+	BatchVertex2D(glm::vec2 pos, glm::vec2 texCoords, const glm::vec4& color) : Position(pos),
+		TextureCoords(texCoords), TextureIndex(0.f)
+	{
+		Color = vec4ToByteColor(color);
+	}
+};
+
+
 class SpriteRenderer
 {
 public:
@@ -36,7 +110,8 @@ public:
 	 * @param rotation Rotation of this quad
 	 * @param color Color of this sprite (multiply with original texture)
 	*/
-	void Draw(glm::vec2 pos, glm::vec2 size, glm::vec2 origin, float rotation, const glm::vec4& color);
+	void Draw(glm::vec2 pos, glm::vec2 size, glm::vec2 origin, float rotation, const glm::vec4& color,
+		SpriteFlipMode flipMode = SpriteFlipMode::None);
 
 	/**
 	 * @brief Push a sprite drawing task to the batch list
@@ -48,7 +123,8 @@ public:
 	 * @param color Color of this sprite (multiply with original texture)
 	*/
 	void Draw(const Texture2D* texture, glm::vec2 pos, glm::vec2 size,
-		glm::vec2 origin, float rotation, const glm::vec4& color);
+		glm::vec2 origin, float rotation, const glm::vec4& color,
+		SpriteFlipMode flipMode = SpriteFlipMode::None);
 
 private:
 	// 绘制用的
@@ -72,7 +148,8 @@ private:
 	Texture2D* _whiteTexture = nullptr;
 
 
-	void pushTextureQuad(const Texture2D* texture, glm::vec2 tpos, glm::vec2 size, glm::vec2 origin, float rotation, const glm::vec4& color);
+	void pushTextureQuad(const Texture2D* texture, glm::vec2 tpos, glm::vec2 size, 
+		glm::vec2 origin, float rotation, const glm::vec4& color, SpriteFlipMode flipMode);
 	void flushBatch();
 	int findUsedTexture(const Texture2D* texture) const;
 	void bindTextures() const;

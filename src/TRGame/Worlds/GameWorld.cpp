@@ -1,5 +1,6 @@
-﻿#include "GameWorld.hpp"
+﻿#include "GameWorld.h"
 #include "Tile.hpp"
+#include "WorldMap.h"
 
 
 #include <random>
@@ -29,7 +30,8 @@ static const glm::vec4 tempColorTable[5] = {
 static constexpr int DIM = 50;
 static constexpr float Magnifier = DIM;
 static constexpr unsigned int MAX_UINT = 0xffffffff;
-static constexpr int BASE = 341243;
+static constexpr int BASE1 = 998244353;
+static constexpr int BASE2 = 993244853;
 static constexpr int MOD = 1e9 + 7;
 static constexpr int SEED = 1;
 static constexpr int PNUM = 512;
@@ -46,11 +48,12 @@ static float GetRandFloat()
 	return (double)mt() / s;
 }
 
-static float GetRandValueGrid(unsigned int x, unsigned int y, int seed)
+static float GetRandValueGrid(int x, int y, int seed)
 {
 	return glm::fract(std::sin(glm::dot(glm::vec2(x, y), glm::vec2(12.9898, 78.233))) * 43758.5453
-		+ 114.514 * (x + y));
+		+ std::cos(0.114514 * (x * y * seed)));
 }
+
 
 
 
@@ -133,10 +136,10 @@ GameWorld::GameWorld(int width, int height) : _tileMaxX(width), _tileMaxY(height
 {
 	_tiles = std::make_unique<Tile[]>(width * height);
 	_worldGenLayouts = std::make_unique<TileGenLayout[]>(width * height);
+	_worldMap = std::make_unique<WorldMap>(glm::ivec2(width, height));
 
 	auto engine = TRGame::GetInstance()->GetEngine();
 	auto logger = engine->GetLogger();
-	auto graphicsDevice = engine->GetGraphicsDevice();
 	auto resourceManager = engine->GetGraphicsResourceManager();
 
 
@@ -150,8 +153,6 @@ GameWorld::GameWorld(int width, int height) : _tileMaxX(width), _tileMaxY(height
 				auto coord = glm::vec2((float)x / width, (float)y / height) * 18.f;
 
 				auto v = fBm(coord, 8, s);
-
-				auto& tile = GetTile(x, y);
 
 				_worldGenLayouts[y * width + x].v[s] = v;
 			}
@@ -241,8 +242,19 @@ GameWorld::GameWorld(int width, int height) : _tileMaxX(width), _tileMaxY(height
 		}
 	}
 
+	for (int y = 0; y < height; y++)
+	{
+		for (int x = 0; x < width; x++)
+		{
+			const auto& tile = GetTile(x, y);
+			_worldMap->SetColor(glm::ivec2(x, y), tile.IsEmpty() ? glm::vec3(1) : tile.GetColor());
+		}
+	}
 
 }
+
+GameWorld::~GameWorld()
+{}
 
 Tile& GameWorld::GetTile(int x, int y)
 {
@@ -282,7 +294,6 @@ trv2::RectI GameWorld::GetTileRect(const trv2::Rectf& worldRect) const
 
 void GameWorld::RenderWorld(const glm::mat4& projection, trv2::SpriteRenderer* renderer, const trv2::Rect2D<float>& renderRect)
 {
-	auto graphicsDevice = TRGame::GetInstance()->GetEngine()->GetGraphicsDevice();
 	auto assetsManager = TRGame::GetInstance()->GetEngine()->GetAssetsManager();
 	auto clientSize = TRGame::GetInstance()->GetEngine()->GetGameWindow()->GetWindowSize();
 
@@ -311,6 +322,11 @@ void GameWorld::RenderWorld(const glm::mat4& projection, trv2::SpriteRenderer* r
 		}
 	}
 	renderer->End();
+}
+
+trv2::Texture2D* GameWorld::GetMapTexture()
+{
+	return _worldMap->GetTexture();
 }
 
 glm::ivec2 GameWorld::GetLowerWorldCoord(glm::vec2 pos)

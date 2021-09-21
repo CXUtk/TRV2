@@ -90,7 +90,7 @@ inline std::vector<Interval> GetCollidingSegmentsRev(const Rectf& rect, glm::vec
 
 inline float GetNearestCollisionTime(const Interval& subject, glm::vec2 velocity, const std::vector<Interval>& intervals)
 {
-	float minimalTime = std::numeric_limits<float>::infinity();
+	double minimalTime = std::numeric_limits<double>::infinity();
 	for (auto& inv : intervals)
 	{
 		if (subject.horizontal)
@@ -127,96 +127,5 @@ inline float GetNearestCollisionTime(const Interval& subject, glm::vec2 velocity
 		}
 	}
 	return minimalTime;
-}
-
-inline CollisionSide GetCollisionSide(const Rectf& oldRect, glm::vec2 velocity, const Rectf& targetRect)
-{
-	// Need to make sure oldRect does not intersects with target
-	// And newRect must intersects with target
-	if (velocity.x > 0)
-	{
-		auto distX = targetRect.Position.x - (oldRect.Position.x + oldRect.Size.x);
-		if (distX >= 0)
-		{
-			double t = (double)distX / velocity.x;
-			double newY1 = oldRect.Position.y + velocity.y * t;
-			double newY2 = newY1 + oldRect.Size.y;
-
-			// If Y axis collide, then it's left side collide
-			if (std::max(newY1, (double)targetRect.Position.y) < std::min(newY2, (double)(targetRect.Position.y + targetRect.Size.y)))
-			{
-				return CollisionSide::LEFT;
-			}
-			else
-			{
-				return velocity.y > 0 ? CollisionSide::BOTTOM : CollisionSide::TOP;
-			}
-		}
-		else
-		{
-			return velocity.y > 0 ? CollisionSide::BOTTOM :  CollisionSide::TOP;
-		}
-	}
-	else
-	{
-		auto distX = oldRect.Position.x - (targetRect.Position.x + targetRect.Size.x);
-		if (distX >= 0)
-		{
-			double t = (double)distX / velocity.x;
-			if (std::isnan(t)) return CollisionSide::RIGHT;
-
-			double newY1 = oldRect.Position.y + velocity.y * t;
-			double newY2 = newY1 + oldRect.Size.y;
-
-			// If Y axis collide, then it's right side collide
-			if (std::max(newY1, (double)targetRect.Position.y) < std::min(newY2, (double)(targetRect.Position.y + targetRect.Size.y)))
-			{
-				return CollisionSide::RIGHT;
-			}
-			else
-			{
-				return velocity.y > 0 ? CollisionSide::BOTTOM : CollisionSide::TOP;
-			}
-		}
-		else
-		{
-			return velocity.y > 0 ? CollisionSide::BOTTOM : CollisionSide::TOP;
-		}
-	}
-
-	//if (velocity.x > 0)
-	//{
-	//	auto distX = targetRect.x - (oldRect.Position.x + oldRect.Size.x);
-	//	if (dist > 0)
-	//	{
-	//		double t = (double)distX / velocity.x;
-	//		double newY1 = oldRect.Position.y + velocity.y * t;
-	//		double newY2 = newY1 + oldRect.Size.y;
-
-	//		// If Y axis collide, then it's left side collide
-	//		if (std::max(newY1, targetRect.Position.y) <= std::min(newY2, targetRect.Position.y + targetRect.Size.y))
-	//		{
-	//			return CollisionSide::LEFT;
-	//		}
-	//	}
-	//}
-	//else
-	//{
-	//	auto distX = targetRect.x + targetRect.Size.x - oldRect.Position.x;
-	//	if (dist > 0)
-	//	{
-	//		double t = (double)distX / velocity.x;
-	//		if (std::isnan(t)) return CollisionSide::RIGHT;
-
-	//		double newY1 = oldRect.Position.y + velocity.y * t;
-	//		double newY2 = newY1 + oldRect.Size.y;
-
-	//		// If Y axis collide, then it's right side collide
-	//		if (std::max(newY1, targetRect.Position.y) <= std::min(newY2, targetRect.Position.y + targetRect.Size.y))
-	//		{
-	//			return CollisionSide::RIGHT;
-	//		}
-	//	}
-	//}
 }
 TRV2_NAMESPACE_END

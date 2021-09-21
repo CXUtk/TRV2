@@ -24,7 +24,7 @@ public:
 	glm::vec3 GetColor() const { return _color; }
 	void SetColor(glm::vec3 value) { _color = value; }
 private:
-	glm::vec3 _color;
+	glm::vec3 _color{};
 
 	bool _empty = false;
 	bool _solid = false;

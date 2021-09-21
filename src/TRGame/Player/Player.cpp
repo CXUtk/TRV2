@@ -3,9 +3,11 @@
 #include <TREngine/Engine.h>
 #include <TREngine/Core/Gamplay/InputController.h>
 #include <TREngine/Core/Utils/Logging/Logger.h>
-#include <TRGame/Worlds/GameWorld.hpp>
 #include <TREngine/Core/Utils/Collision.h>
 #include <TREngine/Core/Render/SpriteRenderer.h>
+
+#include <TRGame/Worlds/GameWorld.h>
+#include <TRGame/Worlds/Tile.hpp>
 
 Player::Player()
 {
@@ -99,6 +101,7 @@ void Player::handleMovement()
 {
 	if (_controlLeft)
 	{
+		_direction = -1;
 		if (_velocity.x > -_maxMovementSpeedX)
 		{
 			_velocity.x -= _runAcceleration;
@@ -110,6 +113,7 @@ void Player::handleMovement()
 	}
 	if (_controlRight)
 	{
+		_direction = 1;
 		if (_velocity.x < _maxMovementSpeedX)
 		{
 			_velocity.x += _runAcceleration;
@@ -144,8 +148,6 @@ void Player::handleMovement()
 
 void Player::applyConstrains()
 {
-	auto world = TRGame::GetInstance()->GetGameWorld();
-
 	float T = 0.f;
 	while (T < 1.f)
 	{

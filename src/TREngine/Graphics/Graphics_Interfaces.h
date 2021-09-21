@@ -137,11 +137,13 @@ class VertexLayout;
 
 struct TextureParameters
 {
-	TextureSampleMethod SampleMethod;
-	TextureWarpMethod TextureWarpMethod;
+	TextureSampleMethod SampleMethod = TextureSampleMethod::NEAREST;
+	TextureWarpMethod WarpMethod = TextureWarpMethod::REPEAT;
+	PixelFormat InternalFormat = PixelFormat::RGB;
 
-	TextureParameters() : SampleMethod(TextureSampleMethod::NEAREST), TextureWarpMethod(TextureWarpMethod::REPEAT) {}
+	TextureParameters() {}
 };
+
 
 // Handles
 using IVertexBufferHandle = unsigned int;
@@ -289,13 +291,13 @@ class IGraphicsResourceManager
 public:
 	virtual ~IGraphicsResourceManager() = 0 {};
 
-	virtual ITextureHandle CreateTexture2D(int width, int height, const void* data,
-		PixelFormat internalFormat, PixelFormat srcFormat, 
-		EngineDataType dataType, const TextureParameters& parameters) = 0;
+	virtual ITextureHandle CreateTexture2D(glm::ivec2 size,
+	const TextureParameters& parameters, PixelFormat srcFormat,
+		EngineDataType dataType, const void* data) = 0;
 	virtual void DeleteTexture2D(ITextureHandle handle) = 0;
-	virtual void ResizeTexture2D(ITextureHandle handle, int width, int height, const void* data,
-		PixelFormat internalFormat, PixelFormat srcFormat,
-		EngineDataType dataType, const TextureParameters& parameters) = 0;
+	virtual void ChangeTexture2D(ITextureHandle handle, glm::ivec2 size,
+		const TextureParameters& parameters, PixelFormat srcFormat,
+		EngineDataType dataType, const void* data) = 0;
 
 	virtual IShaderHandle CreateRawShader(const char* code, ShaderType shaderType, const char* fileName) = 0;
 	virtual void DeleteRawShader(IShaderHandle handle) = 0;
@@ -303,7 +305,7 @@ public:
 	virtual IShaderProgramHandle CreateShaderProgram(const std::vector<const RawShader*>& shaders) = 0;
 	virtual void DeleteShaderProgram(IShaderProgramHandle handle) = 0;
 
-	virtual IRenderTarget2DHandle CreateRenderTarget2D(Texture2D* receiver, int width, int height) = 0;
+	virtual IRenderTarget2DHandle CreateRenderTarget2D(Texture2D* receiver, glm::ivec2 size) = 0;
 	virtual void DeleteRenderTarget2D(IRenderTarget2DHandle handle) = 0;
 
 

@@ -11,45 +11,49 @@
 
 TRV2_NAMESPACE_BEGIN
 
-Texture2D::Texture2D(IGraphicsResourceManager* resourceManager, int width, int height, const void* data)
-    : IGraphicsResource(resourceManager), _width(width), _height(height), _parameters()
+Texture2D::Texture2D(IGraphicsResourceManager* resourceManager, glm::ivec2 size, const void* data)
+    : IGraphicsResource(resourceManager), _size(size), _parameters()
 {
     assert(resourceManager != nullptr);
-    _handle = resourceManager->CreateTexture2D(width, height, data,
-        PixelFormat::RGB, PixelFormat::RGBA, EngineDataType::UNSIGNED_BYTE, _parameters);
+    _handle = resourceManager->CreateTexture2D(size,
+       _parameters, PixelFormat::RGBA, EngineDataType::UNSIGNED_BYTE, data);
 }
 
-Texture2D::Texture2D(IGraphicsResourceManager* resourceManager, const std::string& fileName) 
+Texture2D::Texture2D(IGraphicsResourceManager* resourceManager, const std::string& fileName)
     : IGraphicsResource(resourceManager)
 {
     assert(resourceManager != nullptr);
-    int nrChannels;
-    unsigned char* data = stbi_load(fileName.c_str(), &_width, &_height, &nrChannels, 0);
+    stbi_set_flip_vertically_on_load(true);
+
+    int width, height, nrChannels;
+    unsigned char* data = stbi_load(fileName.c_str(), &width, &height, &nrChannels, 0);
     if (!data)
     {
         throw std::exception(string_format("Cannot load texture %s: %s", fileName.c_str(), stbi_failure_reason()).c_str());
     }
-    _handle = resourceManager->CreateTexture2D(_width, _height, data,
-        PixelFormat::RGB, PixelFormat::RGBA, EngineDataType::UNSIGNED_BYTE, TextureParameters());
+    _size = glm::ivec2(width, height);
+    TextureParameters parameters{};
+    parameters.InternalFormat = PixelFormat::RGBA;
+    _handle = resourceManager->CreateTexture2D(_size, parameters,
+         PixelFormat::RGBA, EngineDataType::UNSIGNED_BYTE, data);
     stbi_image_free(data);
 }
 
-Texture2D::Texture2D(IGraphicsResourceManager* resourceManager, int width, int height, const void* data,
-    PixelFormat internalFormat, PixelFormat srcFormat, EngineDataType dataType, const TextureParameters& parameters):
-    IGraphicsResource(resourceManager), _width(width), _height(height), _parameters(parameters)
+Texture2D::Texture2D(IGraphicsResourceManager* resourceManager, glm::ivec2 size, const TextureParameters& parameters,
+    PixelFormat srcFormat, EngineDataType dataType, const void* data)
+    : IGraphicsResource(resourceManager), _size(size), _parameters(parameters)
 {
-    _handle = resourceManager->CreateTexture2D(width, height, data, internalFormat, srcFormat, dataType, parameters);
+    _handle = resourceManager->CreateTexture2D(size, parameters, srcFormat, dataType, data);
 }
 
 Texture2D::~Texture2D()
 {
     _resourceManager->DeleteTexture2D(_handle);
 }
-void Texture2D::Resize(glm::ivec2 size)
+void Texture2D::ChangeBuffer(glm::ivec2 size, const TextureParameters& parameters, PixelFormat srcFormat, EngineDataType dataType, const void* data)
 {
-    _width = size.x;
-    _height = size.y;
-    _resourceManager->ResizeTexture2D(_handle, size.x, size.y, nullptr, 
-        PixelFormat::RGB, PixelFormat::RGBA, EngineDataType::UNSIGNED_BYTE, _parameters);
+    _size = size;
+    _parameters = parameters;
+    _resourceManager->ChangeTexture2D(_handle, size, _parameters, srcFormat, dataType, data);
 }
 TRV2_NAMESPACE_END

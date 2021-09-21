@@ -1,7 +1,8 @@
 ﻿#include "Lighting.h"
 #include <TRGame/TRGame.hpp>
 #include <TRGame/Player/Player.h>
-#include <TRGame/Worlds/GameWorld.hpp>
+#include <TRGame/Worlds/GameWorld.h>
+#include <TRGame/Worlds/Tile.hpp>
 
 #include <algorithm>
 #include <vector>

@@ -28,7 +28,10 @@ void AssetsManager::loadBuiltinAssets()
 	trv2::cptr(vs_pure), trv2::cptr(fs_shadow));
 
 	int whitePixel = 0xffffffff;
-	_texture2DTable["builtin::sprite"] = std::make_shared<Texture2D>(_resourceManager, 1, 1, (unsigned char*)&whitePixel);
+	_texture2DTable["builtin::sprite"] = std::make_shared<Texture2D>(_resourceManager, glm::ivec2(1), (unsigned char*)&whitePixel);
+
+	_texture2DTable["builtin::player"] = std::make_shared<Texture2D>(_resourceManager, "Resources/Images/Player.png");
+
 }
 
 AssetsManager::AssetsManager(IGraphicsResourceManager* resourceManager)

@@ -12,9 +12,11 @@
 #include <TREngine/Core/Render/Texture2D.h>
 
 #include <TREngine/Platform/Platform_Interfaces.h>
-#include <TRGame/Worlds/GameWorld.hpp>
+#include <TRGame/Worlds/GameWorld.h>
 #include <TRGame/Player/Player.h>
 #include <TRGame/Lighting/Lighting.h>
+#include <TRGame/Scenes/MainGameScene.h>
+#include <TRGame/Scenes/MapScene.h>
 
 
 #include <glm/gtx/transform.hpp>
@@ -43,116 +45,13 @@ void TRGame::logGameInfo()
 void TRGame::loadGameContent()
 {
     _gameWorld = std::make_unique<GameWorld>(1000, 1000);
-
-    auto controller = _engine->GetInputController();
-    auto window = _engine->GetGameWindow();
-    auto clientSize = window->GetWindowSize();
-
-    _screenRect = trv2::Rect2D<float>(glm::vec2(0), clientSize);
     _mainPlayer = std::make_unique<Player>();
 
-    trv2::TextureParameters texPara{};
-    texPara.SampleMethod = trv2::TextureSampleMethod::NEAREST;
-    texPara.TextureWarpMethod = trv2::TextureWarpMethod::CLAMP_TO_EDGE;
-
-    _tileTarget = std::make_shared<trv2::RenderTarget2D>(_engine->GetGraphicsResourceManager(), clientSize, texPara);
-    _shadowMap = std::make_shared<trv2::RenderTarget2D>(_engine->GetGraphicsResourceManager(), clientSize, texPara);
-
-    _tileRect = _gameWorld->GetTileRect(_screenRect);
-
-    texPara.SampleMethod = trv2::TextureSampleMethod::BI_LINEAR;
-    _shadowMapSwap[0] = std::make_shared<trv2::RenderTarget2D>(_engine->GetGraphicsResourceManager(), _tileRect.Size, texPara);
-    _shadowMapSwap[1] = std::make_shared<trv2::RenderTarget2D>(_engine->GetGraphicsResourceManager(), _tileRect.Size, texPara);
+    _mainGameScene = std::make_unique<MainGameScene>(_engine, this);
+    _mapScene = std::make_unique<MapScene>(_engine, this);
 }
 
-void TRGame::drawTiles()
-{
-    auto graphicsDevice = _engine->GetGraphicsDevice();
-    auto assetManager = _engine->GetAssetsManager();
 
-    // render tile map
-    graphicsDevice->SwitchRenderTarget(trv2::ptr(_tileTarget));
-    graphicsDevice->Clear(glm::vec4(0));
-    _gameWorld->RenderWorld(_worldProjection, _spriteRenderer, _screenRect);
-
-
-    trv2::BatchSettings defaultSetting{};
-
-    // Blending
-    defaultSetting.Shader = assetManager->GetShader("blendShadow");
-    graphicsDevice->UseShader(defaultSetting.Shader);
-    graphicsDevice->SwitchRenderTarget(nullptr);
-    graphicsDevice->Clear(glm::vec4(0));
-    _spriteRenderer->Begin(_screenProjection, defaultSetting);
-    {
-        graphicsDevice->BindTexture2DSlot(1, _tileTarget->GetTexture2D());
-        graphicsDevice->BindTexture2DSlot(2, _shadowMap->GetTexture2D());
-        defaultSetting.Shader->SetParameter1i("uOriginalMap", 1);
-        defaultSetting.Shader->SetParameter1i("uShadowMap", 2);
-
-        _spriteRenderer->Draw(glm::vec2(0), _screenRect.Size, glm::vec2(0), 0.f, glm::vec4(1));
-    }
-    _spriteRenderer->End();
-}
-
-void TRGame::drawShadowMaps()
-{
-    auto graphicsDevice = _engine->GetGraphicsDevice();
-    auto assetManager = _engine->GetAssetsManager();
-
-    glm::mat4 renderScreenProjection = glm::ortho(0.f, _screenRect.Size.x,
-        0.f, _screenRect.Size.y);
-    glm::mat4 renderTileProjection = glm::ortho(0.f, (float)_tileRect.Size.x,
-        0.f, (float)_tileRect.Size.y);
-
-    trv2::BatchSettings defaultSetting{};
-
-    _shadowMapSwap[0]->Resize(_tileRect.Size);
-    _shadowMapSwap[1]->Resize(_tileRect.Size);
-
-    // render shadow map
-    graphicsDevice->SwitchRenderTarget(trv2::ptr(_shadowMapSwap[0]));
-    graphicsDevice->Clear(glm::vec4(0));
-    Lighting::CalculateLight(_spriteRenderer, renderTileProjection, trv2::ptr(_gameWorld), _screenRect);
-
-
-    // Blur shadow map
-    for (int i = 0; i < 2; i++)
-    {
-        int index = i & 1;
-        graphicsDevice->SwitchRenderTarget(trv2::ptr(_shadowMapSwap[!index]));
-        graphicsDevice->Clear(glm::vec4(0));
-        //defaultSetting.Shader = nullptr;
-        defaultSetting.Shader = assetManager->GetShader("blur");
-        _spriteRenderer->Begin(renderTileProjection, defaultSetting);
-        {
-            graphicsDevice->UseShader(defaultSetting.Shader);
-            graphicsDevice->BindTexture2DSlot(1, _shadowMapSwap[index]->GetTexture2D());
-            defaultSetting.Shader->SetParameter1i("uOriginalMap", 1);
-            defaultSetting.Shader->SetParameter1i("horizontal", (int)(!index));
-
-            _spriteRenderer->Draw(glm::vec2(0), _tileRect.Size,
-                glm::vec2(0), 0.f, glm::vec4(1));
-        }
-        _spriteRenderer->End();
-    }
-
-    graphicsDevice->SwitchRenderTarget(trv2::ptr(_shadowMap));
-    graphicsDevice->Clear(glm::vec4(0));
-    defaultSetting.Shader = nullptr;
-    _spriteRenderer->Begin(_worldProjection, defaultSetting);
-    {
-        auto texture = _shadowMapSwap[0]->GetTexture2D();
-        _spriteRenderer->Draw(texture, _tileRect.Position * 16, _tileRect.Size * 16,
-            glm::vec2(0), 0.f, glm::vec4(1));
-    }
-    _spriteRenderer->End();
-}
-
-void TRGame::drawPlayers()
-{
-    _mainPlayer->Draw(_worldProjection, _spriteRenderer);
-}
 
 
 void TRGame::Initialize(trv2::Engine* engine)
@@ -160,7 +59,6 @@ void TRGame::Initialize(trv2::Engine* engine)
     _logger = std::make_unique<trv2::Logger>();
 
     _engine = engine;
-    _spriteRenderer = _engine->GetSpriteRenderer();
 
     logGameInfo();
     loadGameContent();
@@ -170,67 +68,66 @@ void TRGame::Initialize(trv2::Engine* engine)
 
 void TRGame::Update(double deltaTime)
 {
-    auto controller = _engine->GetInputController();
-    auto window = _engine->GetGameWindow();
-    auto clientSize = window->GetWindowSize();
-
-
-    auto pos = controller->GetMousePos();
-
-    // 缩放视距
-    float factor = std::exp(_expScale);
-    //if (controller->GetScrollValue().y != 0)
-    //{
-    //    _expScale += controller->GetScrollValue().y * 0.1f;
-    //    factor = std::exp(_expScale);
-
-    //    auto unproject = glm::inverse(_projection);
-    //    
-    //    auto mouseScreen = controller->GetMousePos();
-    //    auto mousePos = controller->GetMousePos() / glm::vec2(clientSize) * 2.f - glm::vec2(1.f);
-    //    auto worldPos = glm::vec2(unproject * glm::vec4(mousePos, 0, 1));
-
-    //    _screenRect.Position = glm::vec2(worldPos.x - mouseScreen.x / factor, worldPos.y - mouseScreen.y / factor);
-    //    _screenRect.Size = glm::vec2(clientSize) / factor;
-    //}
-
-
-
-    if (controller->IsMouseJustPressed(trv2::MouseButtonCode::LEFT_BUTTON))
+    auto inputController = _engine->GetInputController();
+    if (_gameState == GameState::MAIN)
     {
-        _mouseDragStart = controller->GetMousePos();
-        _oldScreenPos = _screenRect.Position;
+        _mainGameScene->Update(deltaTime);
     }
-    if (controller->IsMouseDowned(trv2::MouseButtonCode::LEFT_BUTTON))
+    else if (_gameState == GameState::MAP)
     {
-        auto moveDir = (controller->GetMousePos() - _mouseDragStart) / factor;
-        _screenRect.Position = _oldScreenPos - moveDir;
+        _mapScene->Update(deltaTime);
+        if (inputController->IsKeyJustPressed(trv2::KeyCode::TRV2_ESC_KEY))
+        {
+            ChangeState(GameState::MAIN);
+        }
     }
 
-    _mainPlayer->Update();
-
-    _screenRect.Size = window->GetWindowSize();
-    _screenRect.Position = glm::mix(_screenRect.Position, _mainPlayer->GetPlayerHitbox().Center() - _screenRect.Size * 0.5f, 0.4f);
-    _tileRect = _gameWorld->GetTileRect(_screenRect);
-
-
-    // Set projection matricies
-    _worldProjection = glm::ortho(_screenRect.Position.x, _screenRect.Position.x + _screenRect.Size.x,
-        _screenRect.Position.y, _screenRect.Position.y + _screenRect.Size.y);
-    _screenProjection = glm::ortho(0.f, _screenRect.Size.x,
-         0.f, _screenRect.Size.y);
+    if ((_gameState == GameState::MAIN ||
+        _gameState == GameState::MAP) && inputController->IsKeyJustPressed(trv2::KeyCode::TRV2_M_KEY))
+    {
+        if (_gameState == GameState::MAIN)
+        {
+            ChangeState(GameState::MAP);
+            _mapScene->FocusOnPlayer();
+        }
+        else if (_gameState == GameState::MAP)
+        {
+            ChangeState(GameState::MAIN);
+        }
+    }
 }
 
 void TRGame::Draw(double deltaTime)
 {
-    drawShadowMaps();
-
-    drawTiles();
-
-    drawPlayers();
+    if (_gameState == GameState::MAIN)
+    {
+        _mainGameScene->Draw(deltaTime);
+    }
+    else if (_gameState == GameState::MAP)
+    {
+        _mapScene->Draw(deltaTime);
+    }
 }
 
 void TRGame::Exit()
 {
     
+}
+
+bool TRGame::ShouldSkipFrame(double elapsedFromFrameBegin)
+{
+    return false;
+}
+
+void TRGame::OnFrameEnd()
+{
+    if (_nextGameState != _gameState)
+    {
+        _gameState = _nextGameState;
+    }
+}
+
+void TRGame::ChangeState(const GameState& state)
+{
+    _nextGameState = state;
 }

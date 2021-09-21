@@ -18,12 +18,11 @@ public:
 
 	IRenderTarget2DHandle GetHandle() const { return _handle; }
 	Texture2D* GetTexture2D() const { return trv2::ptr(_renderTexture); }
-	glm::ivec2 GetSize() const { return glm::ivec2(_width, _height); }
+	glm::ivec2 GetSize() const;
 
 private:
 	IRenderTarget2DHandle _handle;
 
-	int _width, _height;
 	TextureParameters _parameters;
 	std::shared_ptr<Texture2D> _renderTexture;
 };

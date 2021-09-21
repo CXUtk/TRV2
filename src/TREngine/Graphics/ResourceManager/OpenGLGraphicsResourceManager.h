@@ -14,13 +14,13 @@ public:
 	explicit OpenGLGraphicsResourceManager(const EngineSettings& clientConfig);
 	~OpenGLGraphicsResourceManager() override;
 
-	virtual ITextureHandle CreateTexture2D(int width, int height, const void* data,
-		PixelFormat internalFormat, PixelFormat srcFormat, EngineDataType dataType, 
-		const TextureParameters& parameters) override;
+	virtual ITextureHandle CreateTexture2D(glm::ivec2 size,
+		const TextureParameters& parameters, PixelFormat srcFormat, 
+		EngineDataType dataType, const void* data) override;
+	virtual void ChangeTexture2D(ITextureHandle handle, glm::ivec2 size,
+		const TextureParameters& parameters, PixelFormat srcFormat,
+		EngineDataType dataType, const void* data) override;
 	virtual void DeleteTexture2D(ITextureHandle handle) override;
-	virtual void ResizeTexture2D(ITextureHandle handle, int width, int height, const void* data,
-		PixelFormat internalFormat, PixelFormat srcFormat,
-		EngineDataType dataType, const TextureParameters& parameters) override;
 
 	virtual IShaderHandle CreateRawShader(const char* code, ShaderType shaderType, const char* fileName) override;
 	virtual void DeleteRawShader(IShaderHandle handle) override;
@@ -28,7 +28,7 @@ public:
 	virtual IShaderProgramHandle CreateShaderProgram(const std::vector<const RawShader*>& shaders) override;
 	virtual void DeleteShaderProgram(IShaderProgramHandle handle) override;
 
-	virtual IRenderTarget2DHandle CreateRenderTarget2D(Texture2D* receiver, int width, int height) override;
+	virtual IRenderTarget2DHandle CreateRenderTarget2D(Texture2D* receiver, glm::ivec2 size) override;
 	virtual void DeleteRenderTarget2D(IRenderTarget2DHandle handle) override;
 
 	virtual void SetShaderParameterMat4x4(ShaderProgram* shader, const std::string& name, const glm::mat4& mat, bool normalized) override;
