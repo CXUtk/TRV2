@@ -12,12 +12,7 @@ public:
 	GameWorld(int width, int height);
 	~GameWorld();
 
-	Tile& GetTile(int x, int y);
-	const Tile& GetTile(int x, int y) const;
-	void SetTile(int x, int y, const Tile& tile);
-
-	int GetTileMaxX() const { return _tileMaxX; }
-	int GetTileMaxY() const { return _tileMaxY; }
+	
 
 	trv2::RectI GetTileRect(const trv2::Rectf& worldRect) const;
 
@@ -31,9 +26,7 @@ public:
 	static glm::ivec2 GetUpperWorldCoord(glm::vec2 pos);
 
 private:
-	std::unique_ptr<Tile[]> _tiles;
-	std::unique_ptr<TileGenLayout[]> _worldGenLayouts;
-	std::unique_ptr<WorldMap> _worldMap;
 
-	int _tileMaxX, _tileMaxY;
+
+
 };

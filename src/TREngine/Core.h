@@ -100,3 +100,4 @@ TRV2_NAMESPACE_END
 
 constexpr float OneMinusEpsilon = 0.99999994f;
 using byte8 = unsigned char;
+using uint = unsigned int;
