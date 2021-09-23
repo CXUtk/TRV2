@@ -19,13 +19,6 @@
 
 
 
-static const glm::vec4 tempColorTable[5] = {
-	glm::vec4(1),
-	glm::vec4(0.6, 0.5, 0.3, 1.0),
-	glm::vec4(0, 0, 1.0, 1.0),
-	glm::vec4(0.3, 1.0, 0.1, 1.0),
-	glm::vec4(0.4, 0.4, 0.4, 1.0),
-};
 
 
 

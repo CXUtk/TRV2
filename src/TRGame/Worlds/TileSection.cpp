@@ -17,6 +17,15 @@
 
 #include <TRGame/Lighting/Lighting.h>
 
+static const glm::vec3 tempColorTable[5] = {
+	glm::vec3(0.f, 0.f, 0.f),
+	glm::vec3(0.5, 0.5, 0.5),
+	glm::vec3(1.0, 0.5, 0.2),
+	glm::vec3(0.6, 0.6, 0.1),
+	glm::vec3(0.4, 0.4, 0.4),
+};
+
+
 constexpr int MAXIMAL_SURFACE_HEIGHT = 950;
 constexpr int MINIMAL_SURFACE_HEIGHT = 800;
 constexpr int MINIMAL_SURFACE_THICKNESS = 50;
@@ -241,7 +250,7 @@ TileSection::TileSection(glm::ivec2 start, glm::ivec2 size) : _sectionStart(star
 		for (int x = 0; x < size.x; x++)
 		{
 			const auto& tile = GetTile(glm::ivec2(x, y));
-			_sectionMap->SetColor(glm::ivec2(x, y), tile.IsEmpty() ? glm::vec3(1) : tile.GetColor());
+			_sectionMap->SetColor(glm::ivec2(x, y), tempColorTable[tile.Type]);
 		}
 	}
 }
