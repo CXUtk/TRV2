@@ -7,9 +7,9 @@
 #include <TRGame/Worlds/GameWorld.h>
 
 #include <TREngine/Engine.h>
-#include <TREngine/Core/gameplay.h>
-#include <TREngine/Core/render.h>
-#include <TREngine/Core/assets.h>
+#include <TREngine/Core/Gamplay/gameplay.h>
+#include <TREngine/Core/Render/render.h>
+#include <TREngine/Core/Assets/assets.h>
 #include <TREngine/Platform/Platform_Interfaces.h>
 
 MapScene::MapScene(trv2::Engine* engine, TRGame* game)

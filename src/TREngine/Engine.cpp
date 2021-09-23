@@ -1,16 +1,15 @@
 ﻿#include "Engine.h"
 #include "Application.h"
 
-#include <Graphics/OpenGLProvider.h>
-#include <Platform/GLFWProvider.h>
+#include "Graphics/Graphics_opengl.h"
+#include "Platform/Platform_glfw.h"
 
-#include <Core/Utils/Logging/Logger.h>
-#include <Core/Assets/AssetsManager.h>
-#include <Core/Structures/EngineSettings.h>
-#include <Core/Render/SpriteRenderer.h>
-#include <Core/Gamplay/InputController.h>
-#include <Core/Utils/GameTimer.h>
-
+#include "Core/Utils/Logging/Logger.h"
+#include "Core/Utils/GameTimer.h"
+#include "Core/Assets/assets.h"
+#include "Core/Render/render.h"
+#include "Core/Gamplay/gameplay.h"
+#include "Core/Structures/EngineSettings.h"
 
 TRV2_NAMESPACE_BEGIN
 

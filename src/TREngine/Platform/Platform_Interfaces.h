@@ -4,8 +4,6 @@
 #include <Core.h>
 
 TRV2_NAMESPACE_BEGIN
-
-
 class IPlatformProvider
 {
 public:

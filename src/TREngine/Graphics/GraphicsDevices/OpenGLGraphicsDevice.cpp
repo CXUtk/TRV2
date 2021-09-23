@@ -7,13 +7,12 @@
 
 #include <Engine.h>
 #include <Core/Structures/EngineSettings.h>
-#include <Core/Render/Texture2D.h>
-#include <Core/Render/RenderTarget2D.h>
-#include <Core/Render/ShaderProgram.h>
+#include <Core/Render/render.h>
+#include <Core/Structures/VertexLayout.h>
 #include <Platform/Platform_Interfaces.h>
 
 #include <Graphics/Graphics_Interfaces.h>
-#include <Graphics/Structures/VertexLayout.h>
+
 #include <Graphics/OpenGLProvider.h>
 
 

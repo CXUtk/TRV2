@@ -95,24 +95,6 @@ inline T* ptr(const std::unique_ptr<T>& ptr) { return static_cast<T*>(ptr.get())
 template<typename T>
 inline const T* cptr(const std::unique_ptr<T>& ptr) { return static_cast<const T*>(ptr.get()); }
 
-
-// Enums
-enum class GraphicsAPIType {
-	None,
-	OpenGL,
-	DirectX
-};
-
-enum class PlatformType
-{
-	GLFW,
-	WINDOWS,
-};
-
-
-
-// Global Constants
-
 TRV2_NAMESPACE_END
 
 

@@ -4,9 +4,9 @@
 #include <TREngine/Engine.h>
 #include <TREngine/Platform/Platform_Interfaces.h>
 
-#include <TREngine/Core/gameplay.h>
-#include <TREngine/Core/render.h>
-#include <TREngine/Core/assets.h>
+#include <TREngine/Core/Gamplay/gameplay.h>
+#include <TREngine/Core/Render/render.h>
+#include <TREngine/Core/Assets/assets.h>
 
 #include <TRGame/Lighting/Lighting.h>
 #include <TRGame/Worlds/GameWorld.h>

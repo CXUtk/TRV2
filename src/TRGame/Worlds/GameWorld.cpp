@@ -2,22 +2,22 @@
 #include "Tile.hpp"
 #include "WorldMap.h"
 
+#include <glm/gtx/transform.hpp>
+#include <algorithm>
 
 #include <random>
 #include <TRGame/TRGame.hpp>
 #include <TREngine/Engine.h>
-#include <TREngine/Core/Assets/AssetsManager.h>
-#include <TREngine/Core/Render/SpriteRenderer.h>
+#include <TREngine/Core/Assets/assets.h>
+#include <TREngine/Core/Render/render.h>
 #include <TREngine/Core/Utils/Logging/Logger.h>
 
-#include <TREngine/Core/Render/RenderTarget2D.h>
 #include <TREngine/Graphics/Graphics_Interfaces.h>
 #include <TREngine/Platform/Platform_Interfaces.h>
 
 #include <TRGame/Lighting/Lighting.h>
 
-#include <glm/gtx/transform.hpp>
-#include <algorithm>
+
 
 static const glm::vec4 tempColorTable[5] = {
 	glm::vec4(1),
