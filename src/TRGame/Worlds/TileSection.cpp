@@ -1,4 +1,4 @@
-#include "TileSection.h"
+﻿#include "TileSection.h"
 #include "Tile.h"
 #include "WorldMap.h"
 
@@ -16,6 +16,7 @@
 #include <TREngine/Platform/Platform_Interfaces.h>
 
 #include <TRGame/Lighting/Lighting.h>
+#include <TRGame/Worlds/GameWorld.h>
 
 static const glm::vec3 tempColorTable[5] = {
 	glm::vec3(0.f, 0.f, 0.f),
@@ -57,8 +58,6 @@ static float GetRandValueGrid(int x, int y, int seed)
 	return glm::fract(std::sin(glm::dot(glm::vec2(x, y), glm::vec2(12.9898, 78.233))) * 43758.5453
 		+ std::cos(0.114514 * (x * y * seed)));
 }
-
-
 
 
 float GetRandValueGrid2(int x, int y, int seed)
@@ -131,12 +130,16 @@ static float fBm(glm::vec2 coord, int X, int type)
 	return v;
 }
 
-TileSection::TileSection(glm::ivec2 start, glm::ivec2 size) : _sectionStart(start), _sectionSize(size)
+TileSection::TileSection(glm::ivec2 tileStart, glm::ivec2 tileSize) : _sectionStart(tileStart), _sectionSize(tileSize)
 {
-	_tiles = std::make_unique<Tile[]>(size.x * size.y);
-	_worldGenLayouts = std::make_unique<TileGenLayout[]>(size.x * size.y);
+	_tiles = std::make_unique<Tile[]>(_sectionSize.x * _sectionSize.y);
+	_worldGenLayouts = std::make_unique<TileGenLayout[]>(_sectionSize.x * _sectionSize.y);
 
-	_sectionMap = std::make_unique<WorldMap>(size);
+	_sectionMap = std::make_unique<WorldMap>(_sectionSize);
+
+	trv2::TextureParameters texPara{};
+	_cacheRenderTarget = std::make_unique<trv2::RenderTarget2D>(trv2::Engine::GetInstance()->GetGraphicsResourceManager(),
+		tileSize * GameWorld::TILE_SIZE, texPara);
 
 	auto engine = TRGame::GetInstance()->GetEngine();
 	auto logger = engine->GetLogger();
@@ -147,28 +150,28 @@ TileSection::TileSection(glm::ivec2 start, glm::ivec2 size) : _sectionStart(star
 	{
 		logger->Log(trv2::SeverityLevel::Info, "Generating Loop %d", s);
 
-		float dx = 1.0 / size.x;
-		float dy = 1.0 / size.y;
-		for (int y = 0; y < size.y; y++)
+		float dx = 1.0 / _sectionSize.x;
+		float dy = 1.0 / _sectionSize.y;
+		for (int y = 0; y < _sectionSize.y; y++)
 		{
-			for (int x = 0; x < size.x; x++)
+			for (int x = 0; x < _sectionSize.x; x++)
 			{
-				auto coord = glm::vec2(x * dx, y * dy) * 18.f;
+				auto coord = glm::vec2((x + _sectionStart.x) * dx, (y + _sectionStart.y) * dy) * 1.f;
 
-				auto v = fBm(coord, 8, s);
+				auto v = fBm(coord, 4, s);
 
-				_worldGenLayouts[y * size.x + x].v[s] = v;
+				_worldGenLayouts[y * _sectionSize.x + x].v[s] = v;
 			}
 		}
 	}
 
-	for (int y = 0; y < size.y; y++)
+	for (int y = 0; y < _sectionSize.y; y++)
 	{
-		for (int x = 0; x < size.x; x++)
+		for (int x = 0; x < _sectionSize.x; x++)
 		{
 			glm::ivec2 coord(x, y);
-			float v = _worldGenLayouts[y * size.x + x].v[0];
-			float v2 = _worldGenLayouts[y * size.x + x].v[1];
+			float v = _worldGenLayouts[y * _sectionSize.x + x].v[0];
+			float v2 = _worldGenLayouts[y * _sectionSize.x + x].v[1];
 
 			float threashold = 0.15f;
 			auto& tile = GetTile(coord);
@@ -198,56 +201,56 @@ TileSection::TileSection(glm::ivec2 start, glm::ivec2 size) : _sectionStart(star
 	}
 
 
-	for (int x = 0; x < size.x; x++)
+	//for (int x = 0; x < size.x; x++)
+	//{
+
+	//	float X = (x + 0.5f) / size.x;
+	//	float v = fBm(glm::vec2(1.5, X * 5), 4, 0);
+	//	v = sin(v) * 0.5 + 0.5;
+
+	//	int BlockH = MAXIMAL_SURFACE_HEIGHT - MINIMAL_SURFACE_HEIGHT - MINIMAL_SURFACE_THICKNESS;
+	//	float BaseLine = MINIMAL_SURFACE_HEIGHT + BlockH * v;
+
+	//	float v1 = fBm(glm::vec2(2.5, X * 5), 4, 0);
+	//	float v2 = fBm(glm::vec2(3.5, X * 5), 4, 0);
+	//	float v3 = fBm(glm::vec2(4.5, X * 5), 4, 0);
+	//	float bottom = BaseLine - MINIMAL_SURFACE_THICKNESS * v1;
+
+	//	float AVHeight = MAXIMAL_SURFACE_HEIGHT - bottom - MINIMAL_SURFACE_THICKNESS;
+	//	float top = bottom + MINIMAL_SURFACE_THICKNESS + AVHeight * v2;
+
+	//	float botbot = bottom - MINIMAL_SURFACE_THICKNESS * 2 - MINIMAL_SURFACE_THICKNESS * 2 * v3;
+
+	//	//for (int i = bottom; i <= top; i++)
+	//	//{
+	//	//	auto& tile = GetTile(x, i);
+
+	//	//	tile.SetColor(glm::vec3(0.6, 0.5, 0.3));
+
+	//	//}
+
+	//	for (int i = botbot; i <= top; i++)
+	//	{
+	//		auto& tile = GetTile(glm::ivec2(x, i));
+
+	//		if (!tile.IsEmpty())
+	//		{
+	//			tile.Type = 3;
+	//			tile.Solid = true;
+	//		}
+	//	}
+
+
+	//	for (int i = top; i < size.y; i++)
+	//	{
+	//		auto& tile = GetTile(glm::ivec2(x, i));
+	//		tile.Type = 0;
+	//	}
+	//}
+
+	for (int y = 0; y < _sectionSize.y; y++)
 	{
-
-		float X = (x + 0.5f) / size.x;
-		float v = fBm(glm::vec2(1.5, X * 5), 4, 0);
-		v = sin(v) * 0.5 + 0.5;
-
-		int BlockH = MAXIMAL_SURFACE_HEIGHT - MINIMAL_SURFACE_HEIGHT - MINIMAL_SURFACE_THICKNESS;
-		float BaseLine = MINIMAL_SURFACE_HEIGHT + BlockH * v;
-
-		float v1 = fBm(glm::vec2(2.5, X * 5), 4, 0);
-		float v2 = fBm(glm::vec2(3.5, X * 5), 4, 0);
-		float v3 = fBm(glm::vec2(4.5, X * 5), 4, 0);
-		float bottom = BaseLine - MINIMAL_SURFACE_THICKNESS * v1;
-
-		float AVHeight = MAXIMAL_SURFACE_HEIGHT - bottom - MINIMAL_SURFACE_THICKNESS;
-		float top = bottom + MINIMAL_SURFACE_THICKNESS + AVHeight * v2;
-
-		float botbot = bottom - MINIMAL_SURFACE_THICKNESS * 2 - MINIMAL_SURFACE_THICKNESS * 2 * v3;
-
-		//for (int i = bottom; i <= top; i++)
-		//{
-		//	auto& tile = GetTile(x, i);
-
-		//	tile.SetColor(glm::vec3(0.6, 0.5, 0.3));
-
-		//}
-
-		for (int i = botbot; i <= top; i++)
-		{
-			auto& tile = GetTile(glm::ivec2(x, i));
-
-			if (!tile.IsEmpty())
-			{
-				tile.Type = 3;
-				tile.Solid = true;
-			}
-		}
-
-
-		for (int i = top; i < size.y; i++)
-		{
-			auto& tile = GetTile(glm::ivec2(x, i));
-			tile.Type = 0;
-		}
-	}
-
-	for (int y = 0; y < size.y; y++)
-	{
-		for (int x = 0; x < size.x; x++)
+		for (int x = 0; x < _sectionSize.x; x++)
 		{
 			const auto& tile = GetTile(glm::ivec2(x, y));
 			_sectionMap->SetColor(glm::ivec2(x, y), tempColorTable[tile.Type]);
@@ -263,19 +266,108 @@ TileSection::~TileSection()
 
 Tile& TileSection::GetTile(glm::ivec2 pos)
 {
-	pos.x = std::max(0, std::min(_sectionStart.x + _sectionSize.x - 1, pos.x));
-	pos.y = std::max(0, std::min(_sectionStart.y + _sectionSize.y - 1, pos.y));
+	assert(pos.x >= 0 && pos.x < _sectionSize.x);
+	assert(pos.y >= 0 && pos.y < _sectionSize.y);
 	return _tiles[pos.y * _sectionSize.x + pos.x];
 }
 
 const Tile& TileSection::GetTile(glm::ivec2 pos) const
 {
-	pos.x = std::max(0, std::min(_sectionStart.x + _sectionSize.x - 1, pos.x));
-	pos.y = std::max(0, std::min(_sectionStart.y + _sectionSize.y - 1, pos.y));
+	assert(pos.x >= 0 && pos.x < _sectionSize.x);
+	assert(pos.y >= 0 && pos.y < _sectionSize.y);
 	return _tiles[pos.y * _sectionSize.x + pos.x];
 }
 
 void TileSection::SetTile(glm::ivec2 pos, const Tile& tile)
 {
+	assert(pos.x >= 0 && pos.x < _sectionSize.x);
+	assert(pos.y >= 0 && pos.y < _sectionSize.y);
 	_tiles[pos.y * _sectionSize.x + pos.x] = tile;
+}
+
+bool TileSection::Intersects(const trv2::RectI& tileRect) const
+{
+	return RectIntersects(trv2::RectI(_sectionStart, _sectionSize), tileRect);
+}
+
+void TileSection::RenderSection(const glm::mat4& projection, trv2::SpriteRenderer* renderer, trv2::RenderTarget2D* renderTarget)
+{
+	if (_isDirty)
+	{
+		reDrawCache(renderTarget);
+	}
+
+	//_spriteRenderer->Draw(glm::vec2((int)(worldPos.x / 16) * 16, (int)(worldPos.y / 16) * 16), glm::vec2(16), glm::vec2(0), 0.f, glm::vec4(1, 0, 0, 1));
+	trv2::BatchSettings setting{};
+	setting.SpriteSortMode = trv2::SpriteSortMode::Deferred;
+
+	setting.Shader = nullptr;
+	renderer->Begin(projection, setting);
+	{
+		//auto assetManager = TRGame::GetInstance()->GetEngine()->GetAssetsManager();
+		//for (int i = 0; i < _sectionSize.x; i++)
+		//{
+		//	for (int j = 0; j < _sectionSize.y; j++)
+		//	{
+		//		auto coord = glm::ivec2(i, j);
+		//		auto startPos = glm::vec2(coord) * (float)GameWorld::TILE_SIZE;
+		//		auto& tile = GetTile(coord);
+		//		if (tile.IsEmpty()) continue;
+
+		//		renderer->Draw(startPos, glm::vec2(GameWorld::TILE_SIZE), glm::vec2(0),
+		//			0.f, glm::vec4(tempColorTable[tile.Type], 1.f));
+		//	}
+		//}
+		renderer->Draw(_cacheRenderTarget->GetTexture2D(), glm::vec2(0), _sectionSize * GameWorld::TILE_SIZE, glm::vec2(0), 0.f, glm::vec4(1));
+
+		// DEBUG
+		renderer->Draw(glm::vec2(0), glm::vec2(_sectionSize.x * 16, 1), glm::vec2(0),
+					0.f, glm::vec4(0, 1, 0, 1));
+		renderer->Draw(glm::vec2(0), glm::vec2(1, _sectionSize.y * 16), glm::vec2(0),
+			0.f, glm::vec4(0, 1, 0, 1));
+		renderer->Draw(glm::vec2(0, _sectionSize.y * 16 - 1), glm::vec2(_sectionSize.x * 16, 1), glm::vec2(0),
+			0.f, glm::vec4(0, 1, 0, 1));
+		renderer->Draw(glm::vec2(_sectionSize.x * 16 - 1, 0), glm::vec2(1, _sectionSize.y * 16), glm::vec2(0),
+			0.f, glm::vec4(0, 1, 0, 1));
+	}
+	renderer->End();
+}
+
+void TileSection::reDrawCache(trv2::RenderTarget2D* renderTarget)
+{
+	auto graphicsDevice = trv2::Engine::GetInstance()->GetGraphicsDevice();
+	auto renderer = trv2::Engine::GetInstance()->GetSpriteRenderer();
+
+	graphicsDevice->SwitchRenderTarget(trv2::ptr(_cacheRenderTarget));
+	graphicsDevice->Clear(glm::vec4(0));
+
+	auto canvasSize = _sectionSize * GameWorld::TILE_SIZE;
+	auto projection = glm::ortho(0.f, (float)canvasSize.x, 0.f, (float)canvasSize.y);
+
+	trv2::BatchSettings setting{};
+	setting.SpriteSortMode = trv2::SpriteSortMode::Deferred;
+	setting.Shader = nullptr;
+	renderer->Begin(projection, setting);
+	{
+		for (int y = 0; y < _sectionSize.y; y++)
+		{
+			for (int x = 0; x < _sectionSize.x; x++)
+			{
+				auto coord = glm::ivec2(x, y);
+				auto startPos = glm::vec2(coord) * (float)GameWorld::TILE_SIZE;
+				auto& tile = GetTile(coord);
+				if (tile.IsEmpty())
+				{
+					continue;
+				}
+
+				renderer->Draw(startPos, glm::vec2(GameWorld::TILE_SIZE), glm::vec2(0),
+					0.f, glm::vec4(tempColorTable[tile.Type], 1.f));
+			}
+		}
+	}
+	renderer->End();
+	graphicsDevice->SwitchRenderTarget(renderTarget);
+
+	_isDirty = false;
 }

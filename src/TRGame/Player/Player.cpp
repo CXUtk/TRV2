@@ -8,12 +8,12 @@
 #include <TREngine/Core/Render/SpriteRenderer.h>
 
 #include <TRGame/Worlds/GameWorld.h>
-#include <TRGame/Worlds/Tile.hpp>
+#include <TRGame/Worlds/Tile.h>
 
 Player::Player()
 {
 	_playerHitBox.Size = glm::vec2(16, 32);
-	_playerHitBox.Position = glm::vec2(1050, 14600);
+	_playerHitBox.Position = glm::vec2(0, 0);
 }
 
 Player::~Player()
@@ -166,6 +166,7 @@ trv2::Rectf Player::tryMoveWithCollide(const trv2::Rectf& oldBox, glm::vec2 disp
 
 	trv2::Rectf newBox = oldBox;
 	newBox.Position += displacement;
+	return newBox;
 
 	auto start = GameWorld::GetLowerWorldCoord(newBox.BottomLeft());
 	trv2::RectI tileRect(start,
@@ -178,7 +179,7 @@ trv2::Rectf Player::tryMoveWithCollide(const trv2::Rectf& oldBox, glm::vec2 disp
 	{
 		for (int x = tileRect.Position.x; x <= tileRect.Position.x + tileRect.Size.x; x++)
 		{
-			if (world->GetTile(x, y).IsEmpty()) continue;
+			if (world->GetTile(glm::ivec2(x, y)).IsEmpty()) continue;
 			auto fRect = trv2::Rectf(glm::vec2(x * GameWorld::TILE_SIZE, y * GameWorld::TILE_SIZE), glm::vec2(GameWorld::TILE_SIZE));
 			if (!trv2::RectIntersects(newBox, fRect)) continue;
 

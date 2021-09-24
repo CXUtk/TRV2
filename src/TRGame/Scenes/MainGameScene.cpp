@@ -83,7 +83,7 @@ void MainGameScene::drawTiles()
     // render tile map
     graphicsDevice->SwitchRenderTarget(trv2::ptr(_tileTarget));
     graphicsDevice->Clear(glm::vec4(0));
-    gameWorld->RenderWorld(_worldProjection, spriteRenderer, _screenRect);
+    gameWorld->RenderWorld(_worldProjection, spriteRenderer, _screenRect, trv2::ptr(_tileTarget));
 
 
     trv2::BatchSettings defaultSetting{};

@@ -40,7 +40,7 @@ void TRGame::logGameInfo()
 
 void TRGame::loadGameContent()
 {
-    _gameWorld = std::make_unique<GameWorld>(1000, 1000);
+    _gameWorld = std::make_unique<GameWorld>();
     _mainPlayer = std::make_unique<Player>();
 
     _mainGameScene = std::make_unique<MainGameScene>(_engine, this);

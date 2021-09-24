@@ -2,7 +2,7 @@
 #include <TRGame/TRGame.hpp>
 #include <TRGame/Player/Player.h>
 #include <TRGame/Worlds/GameWorld.h>
-#include <TRGame/Worlds/Tile.hpp>
+#include <TRGame/Worlds/Tile.h>
 
 #include <algorithm>
 #include <vector>
@@ -41,22 +41,12 @@ constexpr float MAXDIST = 16.f;
 void Lighting::CalculateLight(trv2::SpriteRenderer* renderer, const glm::mat4& projection, 
 	const GameWorld* world, const trv2::Rect2D<float>& screenRect)
 {
-	glm::ivec2 botLeft = GameWorld::GetLowerWorldCoord(screenRect.BottomLeft());
-	botLeft.x = std::max(0, std::min(world->GetTileMaxX() - 1, botLeft.x));
-	botLeft.y = std::max(0, std::min(world->GetTileMaxY() - 1, botLeft.y));
-
-
-
-	glm::ivec2 topRight = GameWorld::GetUpperWorldCoord(screenRect.TopRight());
-	topRight.x = std::max(0, std::min(world->GetTileMaxX() - 1, topRight.x));
-	topRight.y = std::max(0, std::min(world->GetTileMaxY() - 1, topRight.y));
-
-	trv2::Rect2D<int> viewRect(botLeft, topRight - botLeft);
+	auto tileRect = GameWorld::GetTileRect(screenRect);
 
 	auto player = TRGame::GetInstance()->GetLocalPlayer();
 
 
-	for (int i = 0; i < viewRect.Size.x * viewRect.Size.y; i++)
+	for (int i = 0; i < tileRect.Size.x * tileRect.Size.y; i++)
 	{
 		distArray[i] = MAXDIST;
 		visArray[i] = false;
@@ -64,26 +54,26 @@ void Lighting::CalculateLight(trv2::SpriteRenderer* renderer, const glm::mat4& p
 
 	glm::ivec2 lightTile = GameWorld::GetUpperWorldCoord(player->GetPlayerHitbox().BottomLeft());
 
-	auto getId = [&viewRect](glm::ivec2 pos) {
+	auto getId = [&tileRect](glm::ivec2 pos) {
 		int x = pos.x;
 		int y = pos.y;
-		return y * viewRect.Size.x + x;
+		return y * tileRect.Size.x + x;
 	};
 
-	auto valid = [&viewRect, world](glm::ivec2 pos, bool isSolid) {
-		if (pos.x < viewRect.Position.x || pos.x >= viewRect.Position.x + viewRect.Size.x 
-			|| pos.y < viewRect.Position.y || pos.y >= viewRect.Position.y+ viewRect.Size.y) return false;
-		const auto& tile = world->GetTile(pos.x, pos.y);
+	auto valid = [&tileRect, world](glm::ivec2 pos, bool isSolid) {
+		if (pos.x < tileRect.Position.x || pos.x >= tileRect.Position.x + tileRect.Size.x
+			|| pos.y < tileRect.Position.y || pos.y >= tileRect.Position.y + tileRect.Size.y) return false;
+		const auto& tile = world->GetTile(pos);
 		if (tile.IsEmpty())return true;
-		if (isSolid) return false;
+		//if (isSolid) return false;
 		return true;
 	};
 
 	std::priority_queue<LightNode> Q;
 
-	auto v = lightTile - viewRect.Position;
+	auto v = lightTile - tileRect.Position;
 
-	if (v.x >= 0 && v.x < viewRect.Size.x && v.y >= 0 && v.y < viewRect.Size.y)
+	if (v.x >= 0 && v.x < tileRect.Size.x && v.y >= 0 && v.y < tileRect.Size.y)
 	{
 		int id = getId(v);
 		distArray[id] = 0.f;
@@ -95,17 +85,17 @@ void Lighting::CalculateLight(trv2::SpriteRenderer* renderer, const glm::mat4& p
 		LightNode node = Q.top();
 		Q.pop();
 
-		int curId = getId(node.Pos - viewRect.Position);
+		int curId = getId(node.Pos - tileRect.Position);
 		if (visArray[curId]) continue;
 		visArray[curId] = true;
 
-		bool solid = world->GetTile(node.Pos.x, node.Pos.y).IsSolid();
+		bool solid = world->GetTile(node.Pos).IsSolid();
 		for (int i = 0; i < 8; i++)
 		{
 			glm::ivec2 nxtPos(node.Pos.x + dX[i], node.Pos.y + dY[i]);
 			if (valid(nxtPos, solid))
 			{
-				int nxtId = getId(nxtPos - viewRect.Position);
+				int nxtId = getId(nxtPos - tileRect.Position);
 				if (distArray[nxtId] > distA[i] + distArray[curId])
 				{
 					distArray[nxtId] = distA[i] + distArray[curId];
@@ -117,14 +107,14 @@ void Lighting::CalculateLight(trv2::SpriteRenderer* renderer, const glm::mat4& p
 	trv2::BatchSettings setting{};
 	renderer->Begin(projection, setting);
 	{
-		auto start = glm::vec2(viewRect.Position);
-		for (int i = 0; i < viewRect.Size.x; i++)
+		auto start = glm::vec2(tileRect.Position);
+		for (int i = 0; i < tileRect.Size.x; i++)
 		{
-			for (int j = 0; j < viewRect.Size.y; j++)
+			for (int j = 0; j < tileRect.Size.y; j++)
 			{
-				auto coord = viewRect.BottomLeft() + glm::ivec2(i, j);
+				auto coord = tileRect.BottomLeft() + glm::ivec2(i, j);
 				auto startPos = glm::vec2(coord) * (float)GameWorld::TILE_SIZE;
-				auto& tile = world->GetTile(coord.x, coord.y);
+				auto& tile = world->GetTile(coord);
 				if (tile.IsEmpty())
 				{
 					renderer->Draw(glm::ivec2(i, j), glm::vec2(1), glm::vec2(0),
