@@ -148,7 +148,7 @@ TileSection::TileSection(glm::ivec2 tileStart, glm::ivec2 tileSize) : _sectionSt
 
 	for (int s = 0; s < 1; s++)
 	{
-		logger->Log(trv2::SeverityLevel::Info, "Generating Loop %d", s);
+		logger->Log(trv2::SeverityLevel::Info, "Generating Tile Section at (%d, %d)", tileStart.x, tileStart.y);
 
 		float dx = 1.0 / _sectionSize.x;
 		float dy = 1.0 / _sectionSize.y;
@@ -320,15 +320,15 @@ void TileSection::RenderSection(const glm::mat4& projection, trv2::SpriteRendere
 		//}
 		renderer->Draw(_cacheRenderTarget->GetTexture2D(), glm::vec2(0), _sectionSize * GameWorld::TILE_SIZE, glm::vec2(0), 0.f, glm::vec4(1));
 
-		// DEBUG
-		renderer->Draw(glm::vec2(0), glm::vec2(_sectionSize.x * 16, 1), glm::vec2(0),
-					0.f, glm::vec4(0, 1, 0, 1));
-		renderer->Draw(glm::vec2(0), glm::vec2(1, _sectionSize.y * 16), glm::vec2(0),
-			0.f, glm::vec4(0, 1, 0, 1));
-		renderer->Draw(glm::vec2(0, _sectionSize.y * 16 - 1), glm::vec2(_sectionSize.x * 16, 1), glm::vec2(0),
-			0.f, glm::vec4(0, 1, 0, 1));
-		renderer->Draw(glm::vec2(_sectionSize.x * 16 - 1, 0), glm::vec2(1, _sectionSize.y * 16), glm::vec2(0),
-			0.f, glm::vec4(0, 1, 0, 1));
+		//// DEBUG
+		//renderer->Draw(glm::vec2(0), glm::vec2(_sectionSize.x * 16, 1), glm::vec2(0),
+		//			0.f, glm::vec4(0, 1, 0, 1));
+		//renderer->Draw(glm::vec2(0), glm::vec2(1, _sectionSize.y * 16), glm::vec2(0),
+		//	0.f, glm::vec4(0, 1, 0, 1));
+		//renderer->Draw(glm::vec2(0, _sectionSize.y * 16 - 1), glm::vec2(_sectionSize.x * 16, 1), glm::vec2(0),
+		//	0.f, glm::vec4(0, 1, 0, 1));
+		//renderer->Draw(glm::vec2(_sectionSize.x * 16 - 1, 0), glm::vec2(1, _sectionSize.y * 16), glm::vec2(0),
+		//	0.f, glm::vec4(0, 1, 0, 1));
 	}
 	renderer->End();
 }

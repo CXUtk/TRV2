@@ -29,17 +29,17 @@ GameWorld::~GameWorld()
 	
 }
 
-trv2::RectI GameWorld::GetTileRect(const trv2::Rectf& worldRect)
+trv2::RectI GameWorld::GetTileRect(const trv2::RectI& worldRect)
 {
 	// calculate draw rect
-	glm::ivec2 botLeft = GetLowerWorldCoord(worldRect.BottomLeft());
-	glm::ivec2 topRight = GetUpperWorldCoord(worldRect.TopRight());
+	glm::ivec2 botLeft = GetLowerWorldCoord(worldRect.BottomLeft(), 32);
+	glm::ivec2 topRight = GetUpperWorldCoord(worldRect.TopRight(), 32);
 	return trv2::RectI(botLeft, topRight - botLeft);
 }
 
 trv2::RectI GameWorld::GetTileSectionRect(const trv2::RectI& tileRect)
 {
-	// calculate draw rect
+	// calculate section rect
 	glm::ivec2 botLeft = RoundDown(tileRect.BottomLeft(), TILE_SECTION_SIZE);
 	glm::ivec2 topRight = RoundUp(tileRect.TopRight(), TILE_SECTION_SIZE);
 	return trv2::RectI(botLeft, topRight - botLeft);
@@ -95,9 +95,8 @@ const TileSection* GameWorld::checkInCache(glm::ivec2 sectionPos) const
 }
 
 
-void GameWorld::RenderWorld(const glm::mat4& projection, trv2::SpriteRenderer* renderer, const trv2::Rect2D<float>& renderRect, trv2::RenderTarget2D* renderTarget)
+void GameWorld::RenderWorld(const glm::mat4& projection, trv2::SpriteRenderer* renderer, const trv2::RectI& renderRect, trv2::RenderTarget2D* renderTarget)
 {
-	auto assetsManager = trv2::Engine::GetInstance()->GetAssetsManager();
 	auto clientSize = trv2::Engine::GetInstance()->GetGameWindow()->GetWindowSize();
 
 	auto tileRect = GetTileRect(renderRect);
@@ -137,17 +136,23 @@ const Tile& GameWorld::GetTile(glm::ivec2 pos) const
 	return section->GetTile(pos - section->GetSectionStartPos());
 }
 
+bool GameWorld::TileExists(glm::ivec2 pos) const
+{
+	auto sectionPos = RoundDown(pos, TILE_SECTION_SIZE);
+	return checkInCache(sectionPos) != nullptr;
+}
+
 trv2::Texture2D* GameWorld::GetMapTexture()
 {
 	return nullptr;
 }
 
-glm::ivec2 GameWorld::GetLowerWorldCoord(glm::vec2 pos)
+glm::ivec2 GameWorld::GetLowerWorldCoord(glm::vec2 pos, int offscreenTiles)
 {
-	return glm::ivec2((pos.x - TILE_SIZE) / TILE_SIZE, (pos.y - TILE_SIZE) / TILE_SIZE);
+	return RoundDown(glm::ivec2(pos - glm::vec2(offscreenTiles * TILE_SIZE)), TILE_SIZE);
 }
 
-glm::ivec2 GameWorld::GetUpperWorldCoord(glm::vec2 pos)
+glm::ivec2 GameWorld::GetUpperWorldCoord(glm::vec2 pos, int offscreenTiles)
 {
-	return glm::ivec2((pos.x + TILE_SIZE) / TILE_SIZE, (pos.y + TILE_SIZE) / TILE_SIZE);
+	return RoundUp(glm::ivec2(pos + glm::vec2(offscreenTiles * TILE_SIZE)), TILE_SIZE);
 }

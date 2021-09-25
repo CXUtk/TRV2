@@ -7,6 +7,8 @@ class TileSection;
 class TileGenLayout;
 class WorldMap;
 
+class Lighting;
+
 class GameWorld;
 class Player;
 

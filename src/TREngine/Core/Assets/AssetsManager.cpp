@@ -18,6 +18,7 @@ void AssetsManager::loadBuiltinAssets()
 	auto vs_pure = std::make_shared<RawShader>(_resourceManager, ReadAllStringFromFile("Resources/Shaders/procedure.vert").c_str(), ShaderType::VERTEX_SHADER, "procedure.vert");
 	auto fs_blur = std::make_shared<RawShader>(_resourceManager, ReadAllStringFromFile("Resources/Shaders/blur.frag").c_str(), ShaderType::FRAGMENT_SHADER, "blur.frag");
 	auto fs_shadow = std::make_shared<RawShader>(_resourceManager, ReadAllStringFromFile("Resources/Shaders/shadowBlend.frag").c_str(), ShaderType::FRAGMENT_SHADER, "shadowBlend.frag");
+	auto fs_temporal = std::make_shared<RawShader>(_resourceManager, ReadAllStringFromFile("Resources/Shaders/shadow_temporal_blend.frag").c_str(), ShaderType::FRAGMENT_SHADER, "shadow_temporal_blend.frag");
 	_shadersTable["builtin::sprite"] = std::make_shared<ShaderProgram>(_resourceManager, 
 		trv2::cptr(vs), trv2::cptr(fs));
 
@@ -25,7 +26,10 @@ void AssetsManager::loadBuiltinAssets()
 		trv2::cptr(vs_pure), trv2::cptr(fs_blur));
 
 	_shadersTable["blendShadow"] = std::make_shared<ShaderProgram>(_resourceManager,
-	trv2::cptr(vs_pure), trv2::cptr(fs_shadow));
+		trv2::cptr(vs_pure), trv2::cptr(fs_shadow));
+
+	_shadersTable["temporalBlend"] = std::make_shared<ShaderProgram>(_resourceManager,
+		trv2::cptr(vs_pure), trv2::cptr(fs_temporal));
 
 	int whitePixel = 0xffffffff;
 	_texture2DTable["builtin::sprite"] = std::make_shared<Texture2D>(_resourceManager, glm::ivec2(1), (unsigned char*)&whitePixel);

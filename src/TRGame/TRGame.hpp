@@ -44,6 +44,8 @@ public:
 
     Player* GetLocalPlayer() const { return trv2::ptr(_mainPlayer); }
 
+    Lighting* GetLighting() const { return trv2::ptr(_lighting); }
+
 private:
     // Other
     void logGameInfo();
@@ -54,6 +56,7 @@ private:
     std::shared_ptr<trv2::Logger> _logger;
 
     std::unique_ptr<GameWorld> _gameWorld;
+    std::unique_ptr<Lighting> _lighting;
     std::unique_ptr<Player> _mainPlayer;
 
     std::unique_ptr<MainGameScene> _mainGameScene;
