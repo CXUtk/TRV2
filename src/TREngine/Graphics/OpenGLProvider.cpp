@@ -31,6 +31,7 @@ static constexpr std::array<int, T> generatePixelFormat()
     M[(int)PixelFormat::RG] = GL_RG;
     M[(int)PixelFormat::RGB] = GL_RGB;
     M[(int)PixelFormat::RGBA] = GL_RGBA;
+    M[(int)PixelFormat::RGB16F] = GL_RGB16F;
     M[(int)PixelFormat::DEPTH] = GL_DEPTH_COMPONENT;
     M[(int)PixelFormat::STENCIL] = GL_STENCIL_INDEX;
     M[(int)PixelFormat::DEPTH_STENCIL] = GL_DEPTH_STENCIL;

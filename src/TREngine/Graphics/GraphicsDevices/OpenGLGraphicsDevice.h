@@ -47,6 +47,8 @@ public:
 	virtual void SetDepthTestingMode(DepthTestingMode mode, DepthTestingFunction func) override;
 
 	virtual void SetCullingMode(CullingMode mode) override;
+
+	virtual byte_color ReadPixelFromTexture(const Texture2D* texture, int x, int y) override;
 private:
 	void initializeConstants();
 

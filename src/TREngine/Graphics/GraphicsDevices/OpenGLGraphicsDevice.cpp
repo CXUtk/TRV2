@@ -58,10 +58,16 @@ void OpenGLGraphicsDevice::SetBlendingMode(BlendingMode mode)
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	}
+	else if (mode == BlendingMode::Additive)
+	{
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_ONE, GL_ONE);
+	}
 	else
 	{
 		glDisable(GL_BLEND);
 	}
+
 }
 
 void OpenGLGraphicsDevice::SetDepthTestingMode(DepthTestingMode mode, DepthTestingFunction func)
@@ -91,6 +97,15 @@ void OpenGLGraphicsDevice::SetCullingMode(CullingMode mode)
 		glCullFace(GL_FRONT);
 		glFrontFace(mode == CullingMode::CullCW ? GL_CW : GL_CCW);
 	}
+}
+
+byte_color OpenGLGraphicsDevice::ReadPixelFromTexture(const Texture2D* texture, int x, int y)
+{
+	assert(x >= 0 && x < texture->GetSize().x);
+	assert(y >= 0 && y < texture->GetSize().y);
+	byte_color color;
+	glReadPixels(x, y, 1, 1, GL_RGB, GL_UNSIGNED_BYTE, &color);
+	return color;
 }
 
 void OpenGLGraphicsDevice::initializeConstants()

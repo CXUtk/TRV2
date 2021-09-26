@@ -56,7 +56,6 @@ add_custom_command(TARGET "TRV2_Game" PRE_BUILD
                    COMMAND python ${PROJECT_SOURCE_DIR}/encoding.py "${TRV2_GAME_SRC_DIR}" "utf-8-sig")
 add_custom_command(TARGET "TRV2_Game" PRE_BUILD
                    COMMAND python ${PROJECT_SOURCE_DIR}/encoding.py "${PROJECT_SOURCE_DIR}/Resources" "utf-8-sig")
-add_custom_command(TARGET "TRV2_Game" POST_BUILD
-                   COMMAND python ${PROJECT_SOURCE_DIR}/build.py "${PROJECT_SOURCE_DIR}/Resources" "${PROJECT_BINARY_DIR}")
+execute_process(COMMAND python ${PROJECT_SOURCE_DIR}/build.py "${PROJECT_SOURCE_DIR}/Resources" "${PROJECT_BINARY_DIR}")
 
 

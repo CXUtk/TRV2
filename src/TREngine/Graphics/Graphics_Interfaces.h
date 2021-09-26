@@ -64,6 +64,7 @@ enum class PixelFormat
 	RG,
 	RGB,
 	RGBA,
+	RGB16F,
 	DEPTH,
 	STENCIL,
 	DEPTH_STENCIL,
@@ -93,6 +94,7 @@ enum class BlendingMode
 {
 	None,
 	AlphaBlend,
+	Additive,
 
 	__COUNT
 };
@@ -142,6 +144,11 @@ struct TextureParameters
 	PixelFormat InternalFormat = PixelFormat::RGB;
 
 	TextureParameters() {}
+};
+
+struct byte_color
+{
+	byte8 r, g, b;
 };
 
 
@@ -283,6 +290,8 @@ public:
 	virtual void SetBlendingMode(BlendingMode mode) = 0;
 	virtual void SetDepthTestingMode(DepthTestingMode mode, DepthTestingFunction func) = 0;
 	virtual void SetCullingMode(CullingMode mode) = 0;
+
+	virtual byte_color ReadPixelFromTexture(const Texture2D* texture, int x, int y) = 0;
 };
 
 

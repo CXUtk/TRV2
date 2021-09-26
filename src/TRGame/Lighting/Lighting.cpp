@@ -41,6 +41,16 @@ constexpr float MAXDIST = 16.f;
 
 static trv2::RectI _tileRect;
 
+static glm::vec3 Gamma(const glm::vec3 color)
+{
+	return glm::pow(color, glm::vec3(2.2));
+}
+
+static glm::vec3 InvGamma(const glm::vec3 color)
+{
+	return glm::pow(color, glm::vec3(1 / 2.2));
+}
+
 void Lighting::ClearLights()
 {
 	_lights.clear();
@@ -51,9 +61,9 @@ void Lighting::AddLight(const Light& light)
 	_lights.push_back(light);
 }
 
-void Lighting::CalculateLight(trv2::SpriteRenderer* renderer, const glm::mat4& projection, const trv2::RectI& tileRect)
+void Lighting::CalculateLight(trv2::SpriteRenderer* renderer, const glm::mat4& projection, const trv2::RectI& pretileRect)
 {
-	auto sectionRect = GameWorld::GetTileSectionRect(tileRect);
+	auto sectionRect = GameWorld::GetTileSectionRect(pretileRect);
 	_tileRect = trv2::RectI(sectionRect.Position * GameWorld::TILE_SECTION_SIZE,
 		sectionRect.Size * GameWorld::TILE_SECTION_SIZE);
 
@@ -70,21 +80,21 @@ void Lighting::CalculateLight(trv2::SpriteRenderer* renderer, const glm::mat4& p
 	trv2::BatchSettings setting{};
 	renderer->Begin(projection, setting);
 	{
-		for (int y = 0; y < _tileRect.Size.y; y++)
+		for (int y = pretileRect.Position.y; y < pretileRect.Position.y + pretileRect.Size.y; y++)
 		{
-			for (int x = 0; x < _tileRect.Size.x; x++)
+			for (int x = pretileRect.Position.x; x < pretileRect.Position.x + pretileRect.Size.x; x++)
 			{
-				auto coord = _tileRect.BottomLeft() + glm::ivec2(x, y);
-				if (!isValidCoordCached(coord))
+				auto coord = glm::ivec2(x, y);
+				auto& tile = _gameWorld->GetTile(coord);
+				if(tile.IsEmpty())
 				{
 					renderer->Draw(coord, glm::vec2(1), glm::vec2(0),
 						0.f, glm::vec4(1));
 					continue;
 				}
-				int id = this->getBlockId(glm::ivec2(x, y));
+				int id = this->getBlockId(coord - _tileRect.Position);
 				auto color = colorArray[id];
 				if (color == glm::vec3(0)) continue;
-				color = glm::pow(color, glm::vec3(1 / 2.2));
 
 				renderer->Draw(coord, glm::vec2(1), glm::vec2(0),
 					0.f, glm::vec4(color, 1.f));
@@ -129,8 +139,7 @@ bool Lighting::isValidCoordCached(glm::ivec2 worldCoord)
 {
 	if (worldCoord.x < _tileRect.Position.x || worldCoord.x >= _tileRect.Position.x + _tileRect.Size.x
 		|| worldCoord.y < _tileRect.Position.y || worldCoord.y >= _tileRect.Position.y + _tileRect.Size.y) return false;
-	if (!_gameWorld->TileExists(worldCoord)) return false;
-	return true;
+	return _gameWorld->TileExists(worldCoord);
 }
 
 bool Lighting::canTilePropagateLight(glm::ivec2 worldCoord)
@@ -193,6 +202,7 @@ void Lighting::calculateOneLight(const Light& light)
 		}
 	}
 
+	auto linearColor = Gamma(light.Color);
 	// Reset BFS info in that range
 	for (int y = -light.Radius; y <= light.Radius; y++)
 	{
@@ -204,8 +214,7 @@ void Lighting::calculateOneLight(const Light& light)
 				int id = getBlockId(curTilePos - _tileRect.Position);
 				auto dist = distArray[id];
 				if (dist >= MAXDIST || glm::isnan(dist) || glm::isinf(dist)) continue;
-				auto c = light.Color * glm::mix(0.f, 1.f, 1.f - dist / light.Radius);
-				c = glm::pow(c, glm::vec3(2.2f));
+				auto c = linearColor * glm::mix(0.f, 1.f, 1.f - dist / light.Radius);
 				colorArray[id] += c;
 			}
 		}

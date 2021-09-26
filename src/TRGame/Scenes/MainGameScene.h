@@ -18,6 +18,7 @@ public:
 
 private:
 	void drawTiles();
+	void drawTilesToScreen();
 	void drawShadowMaps();
 	void drawPlayers();
 
@@ -34,6 +35,7 @@ private:
 
 	// Shadow map components: lighting
 	std::shared_ptr<trv2::RenderTarget2D> _prevShadowMap;
+	std::shared_ptr<trv2::RenderTarget2D> _tempShadowMap;
 	trv2::RectI _prevTileRect{};
 
 	std::shared_ptr<trv2::RenderTarget2D> _shadowMapSwap[2];

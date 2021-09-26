@@ -9,12 +9,11 @@ uniform sampler2D uShadowMap;
 void main() {
 	vec4 baseC = texture(uOriginalMap, fTexCoord);
 	vec4 maskC = texture(uShadowMap, fTexCoord);
-	vec4 tmp = baseC * maskC;
 
 	// Gamma Correction
-	tmp.r = pow(tmp.r, 1 / 2.2);
-	tmp.g = pow(tmp.g, 1 / 2.2);
-	tmp.b = pow(tmp.b, 1 / 2.2);
+	maskC.r = pow(maskC.r, 1 / 2.2);
+	maskC.g = pow(maskC.g, 1 / 2.2);
+	maskC.b = pow(maskC.b, 1 / 2.2);
 
-	color = tmp;
+	color = baseC * maskC;
 }
