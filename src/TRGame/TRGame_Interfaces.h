@@ -14,3 +14,6 @@ class Player;
 
 class MainGameScene;
 class MapScene;
+
+
+class VideoSettings;

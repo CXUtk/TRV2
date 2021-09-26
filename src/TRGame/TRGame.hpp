@@ -5,8 +5,11 @@
 #include <TREngine/Core.h>
 
 #include <TRGame/TRGame_Interfaces.h>
+#include <TRGame/Configs/VideoSettings.h>
+
 #include <TREngine/Application.h>
 #include <TREngine/Core/Structures/Rect.hpp>
+
 
 enum class GameState
 {
@@ -46,6 +49,8 @@ public:
 
     Lighting* GetLighting() const { return trv2::ptr(_lighting); }
 
+    VideoSettings* GetVideoSettings() const { return trv2::ptr(_videoSettings); }
+
 private:
     // Other
     void logGameInfo();
@@ -61,6 +66,8 @@ private:
 
     std::unique_ptr<MainGameScene> _mainGameScene;
     std::unique_ptr<MapScene> _mapScene;
+
+    std::unique_ptr<VideoSettings> _videoSettings;
 
     GameState _gameState = GameState::MAIN;
     GameState _nextGameState = GameState::MAIN;

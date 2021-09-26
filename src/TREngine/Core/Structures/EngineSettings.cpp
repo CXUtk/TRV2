@@ -19,5 +19,7 @@ EngineSettings::EngineSettings()
 		TRV2_ENGINE_VERSION_TWEAK);
 
 	_windowResizable = false;
+
+	_prevFrameBlendingRatio = 0.8f;
 }
 TRV2_NAMESPACE_END

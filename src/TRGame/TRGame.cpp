@@ -41,6 +41,8 @@ void TRGame::logGameInfo()
 
 void TRGame::loadGameContent()
 {
+    _videoSettings = std::make_unique<VideoSettings>();
+
     _gameWorld = std::make_unique<GameWorld>();
     _lighting = std::make_unique<Lighting>();
     _mainPlayer = std::make_unique<Player>();

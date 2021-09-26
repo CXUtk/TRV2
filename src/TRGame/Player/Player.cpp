@@ -13,7 +13,7 @@
 Player::Player()
 {
 	_playerHitBox.Size = glm::vec2(16, 32);
-	_playerHitBox.Position = glm::vec2(0, 0);
+	_playerHitBox.Position = glm::vec2(100, 200);
 }
 
 Player::~Player()
@@ -166,7 +166,7 @@ trv2::Rectf Player::tryMoveWithCollide(const trv2::Rectf& oldBox, glm::vec2 disp
 
 	trv2::Rectf newBox = oldBox;
 	newBox.Position += displacement;
-	return newBox;
+	//return newBox;
 
 	auto start = GameWorld::GetLowerWorldCoord(newBox.BottomLeft());
 	trv2::RectI tileRect(start,

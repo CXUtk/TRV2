@@ -88,8 +88,8 @@ void Lighting::CalculateLight(trv2::SpriteRenderer* renderer, const glm::mat4& p
 				auto& tile = _gameWorld->GetTile(coord);
 				if(tile.IsEmpty())
 				{
-					renderer->Draw(coord, glm::vec2(1), glm::vec2(0),
-						0.f, glm::vec4(1));
+					/*renderer->Draw(coord, glm::vec2(1), glm::vec2(0),
+						0.f, glm::vec4(1));*/
 					continue;
 				}
 				int id = this->getBlockId(coord - _tileRect.Position);
@@ -142,9 +142,20 @@ bool Lighting::isValidCoordCached(glm::ivec2 worldCoord)
 	return _gameWorld->TileExists(worldCoord);
 }
 
-bool Lighting::canTilePropagateLight(glm::ivec2 worldCoord)
+float Lighting::calculateDistance(glm::ivec2 worldCoord, int dir, float curDist)
 {
 	auto& tile = _gameWorld->GetTile(worldCoord);
+	float newDist = curDist + distA[dir];
+	if (tile.Solid)
+	{
+		if (newDist < 10) newDist = 10;
+		newDist += distA[dir];
+	}
+	return newDist;
+}
+
+bool Lighting::canTilePropagateLight(glm::ivec2 worldCoord)
+{
 	return true;
 }
 
@@ -186,23 +197,25 @@ void Lighting::calculateOneLight(const Light& light)
 		if (visArray[curId]) continue;
 		visArray[curId] = true;
 
-		if (!canTilePropagateLight(node.Pos)) continue;
+		// if (!canTilePropagateLight(node.Pos)) continue;
 		for (int i = 0; i < 8; i++)
 		{
 			glm::ivec2 nxtPos(node.Pos.x + dX[i], node.Pos.y + dY[i]);
 			if (isValidCoord(nxtPos))
 			{
 				int nxtId = getBlockId(nxtPos - _tileRect.Position);
-				if (distArray[nxtId] > distA[i] + distArray[curId])
+				
+				float dist = calculateDistance(nxtPos, i, distArray[curId]);
+				if (distArray[nxtId] > dist)
 				{
-					distArray[nxtId] = distA[i] + distArray[curId];
+					distArray[nxtId] = dist;
 					Q.push({ nxtPos, distArray[nxtId] });
 				}
 			}
 		}
 	}
 
-	auto linearColor = Gamma(light.Color);
+	auto color = Gamma(light.Color);
 	// Reset BFS info in that range
 	for (int y = -light.Radius; y <= light.Radius; y++)
 	{
@@ -213,8 +226,8 @@ void Lighting::calculateOneLight(const Light& light)
 			{
 				int id = getBlockId(curTilePos - _tileRect.Position);
 				auto dist = distArray[id];
-				if (dist >= MAXDIST || glm::isnan(dist) || glm::isinf(dist)) continue;
-				auto c = linearColor * glm::mix(0.f, 1.f, 1.f - dist / light.Radius);
+				if (dist > MAXDIST || glm::isnan(dist) || glm::isinf(dist)) continue;
+				auto c = color * glm::mix(0.f, 1.f, 1.f - dist / light.Radius);
 				colorArray[id] += c;
 			}
 		}
