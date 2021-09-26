@@ -172,28 +172,28 @@ void SpriteRenderer::pushTextureQuad(const Texture2D* texture, glm::vec2 tpos, g
 		auto& curV1 = _vertices[_currentVertex];
 
 		curV1.Position = tpos + (simpleQuadVertices[0].Position - origin) * size;
-		curV1.TextureCoords = simpleQuadVertices[0].TextureCoords;
+		curV1.TextureCoords = simpleQuadVertices[texCoordTable[0]].TextureCoords;
 		curV1.Color = bColor;
 		curV1.TextureIndex = (float)slotId;
 
 		auto& curV2 = _vertices[_currentVertex + 1];
 
 		curV2.Position = tpos + (simpleQuadVertices[1].Position - origin) * size;
-		curV2.TextureCoords = simpleQuadVertices[1].TextureCoords;
+		curV2.TextureCoords = simpleQuadVertices[texCoordTable[1]].TextureCoords;
 		curV2.Color = bColor;
 		curV2.TextureIndex = (float)slotId;
 
 		auto& curV3 = _vertices[_currentVertex + 2];
 
 		curV3.Position = tpos + (simpleQuadVertices[2].Position - origin) * size;
-		curV3.TextureCoords = simpleQuadVertices[2].TextureCoords;
+		curV3.TextureCoords = simpleQuadVertices[texCoordTable[2]].TextureCoords;
 		curV3.Color = bColor;
 		curV3.TextureIndex = (float)slotId;
 
 		auto& curV4 = _vertices[_currentVertex + 3];
 
 		curV4.Position = tpos + (simpleQuadVertices[3].Position - origin) * size;
-		curV4.TextureCoords = simpleQuadVertices[3].TextureCoords;
+		curV4.TextureCoords = simpleQuadVertices[texCoordTable[3]].TextureCoords;
 		curV4.Color = bColor;
 		curV4.TextureIndex = (float)slotId;
 
@@ -204,28 +204,28 @@ void SpriteRenderer::pushTextureQuad(const Texture2D* texture, glm::vec2 tpos, g
 		auto& curV1 = _vertices[_currentVertex];
 
 		curV1.Position = tpos + transform * ((simpleQuadVertices[0].Position - origin) * size);
-		curV1.TextureCoords = simpleQuadVertices[0].TextureCoords;
+		curV1.TextureCoords = simpleQuadVertices[texCoordTable[0]].TextureCoords;
 		curV1.Color = bColor;
 		curV1.TextureIndex = slotId;
 
 		auto& curV2 = _vertices[_currentVertex + 1];
 
 		curV2.Position = tpos + transform * ((simpleQuadVertices[1].Position - origin) * size);
-		curV2.TextureCoords = simpleQuadVertices[1].TextureCoords;
+		curV2.TextureCoords = simpleQuadVertices[texCoordTable[1]].TextureCoords;
 		curV2.Color = bColor;
 		curV2.TextureIndex = slotId;
 
 		auto& curV3 = _vertices[_currentVertex + 2];
 
 		curV3.Position = tpos + transform * ((simpleQuadVertices[2].Position - origin) * size);
-		curV3.TextureCoords = simpleQuadVertices[2].TextureCoords;
+		curV3.TextureCoords = simpleQuadVertices[texCoordTable[2]].TextureCoords;
 		curV3.Color = bColor;
 		curV3.TextureIndex = slotId;
 
 		auto& curV4 = _vertices[_currentVertex + 3];
 
 		curV4.Position = tpos + transform * ((simpleQuadVertices[3].Position - origin) * size);
-		curV4.TextureCoords = simpleQuadVertices[3].TextureCoords;
+		curV4.TextureCoords = simpleQuadVertices[texCoordTable[3]].TextureCoords;
 		curV4.Color = bColor;
 		curV4.TextureIndex = slotId;
 

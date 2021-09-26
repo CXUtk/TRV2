@@ -5,7 +5,8 @@
 #include <TREngine/Core/Gamplay/InputController.h>
 #include <TREngine/Core/Utils/Logging/Logger.h>
 #include <TREngine/Core/Utils/Collision.h>
-#include <TREngine/Core/Render/SpriteRenderer.h>
+#include <TREngine/Core/Render/render.h>
+#include <TREngine/Core/Assets/assets.h>
 
 #include <TRGame/Worlds/GameWorld.h>
 #include <TRGame/Worlds/Tile.h>
@@ -30,6 +31,7 @@ void Player::Update()
 void Player::Draw(const glm::mat4& projection, trv2::SpriteRenderer* renderer)
 {
 	auto world = TRGame::GetInstance()->GetGameWorld();
+	auto assetManager = trv2::Engine::GetInstance()->GetAssetsManager();
 
 	trv2::BatchSettings setting{};
 	setting.SpriteSortMode = trv2::SpriteSortMode::Deferred;
@@ -38,6 +40,11 @@ void Player::Draw(const glm::mat4& projection, trv2::SpriteRenderer* renderer)
 	renderer->Begin(projection, setting);
 	{
 		renderer->Draw(_playerHitBox.Position, _playerHitBox.Size, glm::vec2(0), 0.f, glm::vec4(0.6, 0.9, 0.3, 1.0));
+		auto playerHead = assetManager->GetTexture2D("builtin::player");
+		renderer->Draw(playerHead, _playerHitBox.Position + glm::vec2(8, 24),
+			playerHead->GetSize(), glm::vec2(0.5f), 0.f, glm::vec4(0.6, 0.9, 0.3, 1.0),
+			_direction == -1 ? trv2::SpriteFlipMode::None : trv2::SpriteFlipMode::FlipHorizontal
+		);
 	}
 	renderer->End();
 

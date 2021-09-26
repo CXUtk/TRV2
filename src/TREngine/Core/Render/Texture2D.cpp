@@ -34,8 +34,14 @@ Texture2D::Texture2D(IGraphicsResourceManager* resourceManager, const std::strin
     _size = glm::ivec2(width, height);
     TextureParameters parameters{};
     parameters.InternalFormat = PixelFormat::RGBA;
+
+    PixelFormat targetFormat = PixelFormat::RGB;
+    if (nrChannels == 4)
+    {
+        targetFormat = PixelFormat::RGBA;
+    }
     _handle = resourceManager->CreateTexture2D(_size, parameters,
-         PixelFormat::RGBA, EngineDataType::UNSIGNED_BYTE, data);
+         targetFormat, EngineDataType::UNSIGNED_BYTE, data);
     stbi_image_free(data);
 }
 
