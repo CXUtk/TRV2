@@ -60,7 +60,7 @@ void Lighting::AddLight(const Light& light)
 {
 	_lights.push_back(light);
 }
-
+static int Num = 0;
 void Lighting::CalculateLight(trv2::SpriteRenderer* renderer, const glm::mat4& projection, const trv2::RectI& pretileRect)
 {
 	auto sectionRect = GameWorld::GetTileSectionRect(pretileRect);
@@ -72,11 +72,13 @@ void Lighting::CalculateLight(trv2::SpriteRenderer* renderer, const glm::mat4& p
 		colorArray[i] = glm::vec3(0);
 	}
 
+	Num = 0;
 	for (auto& light : _lights)
 	{
 		calculateOneLight(light);
 	}
 
+	printf("%d\n", Num);
 	trv2::BatchSettings setting{};
 	renderer->Begin(projection, setting);
 	{
@@ -166,7 +168,7 @@ void Lighting::calculateOneLight(const Light& light)
 
 	// Invalid light
 	if (!isValidCoord(lightTile)) return;
-
+	Num++;
 	// Reset BFS info in that range
 	for (int y = -light.Radius; y <= light.Radius; y++)
 	{
@@ -197,6 +199,8 @@ void Lighting::calculateOneLight(const Light& light)
 		if (visArray[curId]) continue;
 		visArray[curId] = true;
 
+		if (distArray[curId] >= light.Radius) continue;
+
 		// if (!canTilePropagateLight(node.Pos)) continue;
 		for (int i = 0; i < 8; i++)
 		{
@@ -206,7 +210,7 @@ void Lighting::calculateOneLight(const Light& light)
 				int nxtId = getBlockId(nxtPos - _tileRect.Position);
 				
 				float dist = calculateDistance(nxtPos, i, distArray[curId]);
-				if (distArray[nxtId] > dist)
+				if (dist <= light.Radius && distArray[nxtId] > dist)
 				{
 					distArray[nxtId] = dist;
 					Q.push({ nxtPos, distArray[nxtId] });

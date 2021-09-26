@@ -47,51 +47,28 @@ trv2::RectI GameWorld::GetTileSectionRect(const trv2::RectI& tileRect)
 
 TileSection* GameWorld::getTileSection(glm::ivec2 sectionPos, const trv2::RectI& tileViewRect)
 {
-	int emptyIndex = -1;
+	glm::ivec2 emptyIndex(-1, -1);
 	auto tileCoord = sectionPos * GameWorld::TILE_SECTION_SIZE;
-	for (int i = 0; i < TILE_SECTION_CACHE_SIZE; i++)
-	{
-		if (_cachedSections[i] == nullptr)
-		{
-			emptyIndex = i;
-		}
-		else if (_cachedSections[i]->GetSectionStartPos() == tileCoord)
-		{
-			return _cachedSections[i].get();
-		}
-	}
-	
 
-	if(emptyIndex == -1)
+	sectionPos.x = (sectionPos.x + TILE_SECTION_CACHE_SIZE) % TILE_SECTION_CACHE_SIZE;
+	sectionPos.y = (sectionPos.y + TILE_SECTION_CACHE_SIZE) % TILE_SECTION_CACHE_SIZE;
+
+	if (_cachedSections[sectionPos.x][sectionPos.y] == nullptr || _cachedSections[sectionPos.x][sectionPos.y]->GetSectionStartPos()
+		!= tileCoord)
 	{
-		for (int i = 0; i < TILE_SECTION_CACHE_SIZE; i++)
-		{
-			if (!_cachedSections[i]->Intersects(tileViewRect))
-			{
-				emptyIndex = i;
-				break;
-			}
-		}
+		_cachedSections[sectionPos.x][sectionPos.y] = std::make_shared<TileSection>(tileCoord,
+			glm::ivec2(TILE_SECTION_SIZE));
 	}
 
-	if (emptyIndex != -1)
-	{
-		_cachedSections[emptyIndex] = std::make_shared<TileSection>(tileCoord, glm::ivec2(TILE_SECTION_SIZE));
-	}
-	return _cachedSections[emptyIndex].get();
+	return trv2::ptr(_cachedSections[sectionPos.x][sectionPos.y]);
+
 }
 
 const TileSection* GameWorld::checkInCache(glm::ivec2 sectionPos) const
 {
-	auto tileCoord = sectionPos * GameWorld::TILE_SECTION_SIZE;
-	for (int i = 0; i < TILE_SECTION_CACHE_SIZE; i++)
-	{
-		if (_cachedSections[i] != nullptr && _cachedSections[i]->GetSectionStartPos() == tileCoord)
-		{
-			return trv2::cptr(_cachedSections[i]);
-		}
-	}
-	return nullptr;
+	sectionPos.x = (sectionPos.x + TILE_SECTION_CACHE_SIZE) % TILE_SECTION_CACHE_SIZE;
+	sectionPos.y = (sectionPos.y + TILE_SECTION_CACHE_SIZE) % TILE_SECTION_CACHE_SIZE;
+	return trv2::ptr(_cachedSections[sectionPos.x][sectionPos.y]);
 }
 
 
@@ -127,8 +104,7 @@ void GameWorld::RenderWorld(const glm::mat4& projection, trv2::SpriteRenderer* r
 
 const Tile& GameWorld::GetTile(glm::ivec2 pos) const
 {
-	static Tile empty;
-	empty.Type = 0;
+	static Tile empty{};
 
 	auto sectionPos = RoundDown(pos, TILE_SECTION_SIZE);
 	const TileSection* section = nullptr;

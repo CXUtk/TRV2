@@ -36,6 +36,7 @@ void AssetsManager::loadBuiltinAssets()
 
 	_texture2DTable["builtin::player"] = std::make_shared<Texture2D>(_resourceManager, "Resources/Images/Player.png");
 
+	_texture2DTable["builtin::stone"] = std::make_shared<Texture2D>(_resourceManager, "Resources/Images/Stone.png");
 }
 
 AssetsManager::AssetsManager(IGraphicsResourceManager* resourceManager)

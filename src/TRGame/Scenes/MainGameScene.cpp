@@ -141,10 +141,21 @@ void MainGameScene::drawShadowMaps()
     lighting->SetGameWorld(gameWorld);
     lighting->ClearLights();
 
-    lighting->AddLight(Light{ glm::vec2(0, 0), glm::vec3(1, 0, 0), 16 });
-    lighting->AddLight(Light{ glm::vec2(200, 200), glm::vec3(0, 1, 0), 16 });
-    lighting->AddLight(Light{ glm::vec2(400, 0), glm::vec3(0, 0, 1), 16 });
-    lighting->AddLight(Light{ player->GetPlayerHitbox().Position, glm::vec3(1.f), 16 });
+
+    for (int i = 0; i < 100; i++)
+    {
+        for (int j = 0; j < 100; j++)
+        {
+            glm::vec3 c = glm::vec3(0);
+            c[(i + j) % 3] = 1.f;
+            lighting->AddLight(Light{ glm::vec2(i * 20, j * 20), c, 16 });
+        }
+    }
+
+    //lighting->AddLight(Light{ glm::vec2(0, 0), glm::vec3(1, 0, 0), 16 });
+    //lighting->AddLight(Light{ glm::vec2(200, 200), glm::vec3(0, 1, 0), 16 });
+    //lighting->AddLight(Light{ glm::vec2(400, 0), glm::vec3(0, 0, 1), 16 });
+    //lighting->AddLight(Light{ player->GetPlayerHitbox().Position, glm::vec3(1.f), 16 });
 
     glm::mat4 renderScreenProjection = glm::ortho(0.f, (float)_screenRect.Size.x,
         0.f, (float)_screenRect.Size.y);
@@ -185,6 +196,24 @@ void MainGameScene::drawShadowMaps()
                 glm::vec2(0), 0.f, glm::vec4(1));
         }
         spriteRenderer->End();
+    }
+
+
+    if (videoSettings->EnabledFrameBlending())
+    {
+        // Blend with previous shadow map
+        graphicsDevice->SwitchRenderTarget(trv2::ptr(_shadowMapSwap[0]));
+        defaultSetting.Shader = nullptr;
+        defaultSetting.BlendMode = trv2::BlendingMode::AlphaBlend;
+        spriteRenderer->Begin(renderTileProjection, defaultSetting);
+        {
+            auto texture = _prevShadowMap->GetTexture2D();
+            spriteRenderer->Draw(texture, _prevTileRect.Position, _prevTileRect.Size,
+                glm::vec2(0), 0.f, 
+                glm::vec4(1, 1, 1, videoSettings->GetPrevFrameBlendingRatio()));
+        }
+        spriteRenderer->End();
+        defaultSetting.BlendMode = trv2::BlendingMode::None;
     }
 
 

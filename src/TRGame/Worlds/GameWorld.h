@@ -28,9 +28,9 @@ public:
 	static constexpr int TILE_SECTION_SIZE = 32;
 	static constexpr int TILE_OFF_SCREEN = 32;
 private:
-	static constexpr int TILE_SECTION_CACHE_SIZE = 32;
+	static constexpr int TILE_SECTION_CACHE_SIZE = 16;
 
-	std::shared_ptr<TileSection> _cachedSections[TILE_SECTION_CACHE_SIZE];
+	std::shared_ptr<TileSection> _cachedSections[TILE_SECTION_CACHE_SIZE][TILE_SECTION_CACHE_SIZE];
 
 	TileSection* getTileSection(glm::ivec2 sectionPos, const trv2::RectI& tileViewRect);
 	const TileSection* checkInCache(glm::ivec2 sectionPos) const;
