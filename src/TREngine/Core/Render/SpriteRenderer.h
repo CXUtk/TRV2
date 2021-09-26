@@ -5,7 +5,7 @@
 
 #include <Core.h>
 #include <Graphics/Graphics_Interfaces.h>
-#include <Graphics/Structures/VertexLayout.h>
+#include <Core/Structures/VertexLayout.h>
 
 TRV2_NAMESPACE_BEGIN
 

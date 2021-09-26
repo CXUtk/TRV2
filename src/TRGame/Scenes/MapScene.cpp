@@ -7,9 +7,9 @@
 #include <TRGame/Worlds/GameWorld.h>
 
 #include <TREngine/Engine.h>
-#include <TREngine/Core/gameplay.h>
-#include <TREngine/Core/render.h>
-#include <TREngine/Core/assets.h>
+#include <TREngine/Core/Gamplay/gameplay.h>
+#include <TREngine/Core/Render/render.h>
+#include <TREngine/Core/Assets/assets.h>
 #include <TREngine/Platform/Platform_Interfaces.h>
 
 MapScene::MapScene(trv2::Engine* engine, TRGame* game)
@@ -73,20 +73,20 @@ void MapScene::Draw(double deltaTime)
 
     graphicsDevice->Clear(glm::vec4(0));
 
-    trv2::BatchSettings defaultSetting{};
-    defaultSetting.BlendMode = trv2::BlendingMode::AlphaBlend;
-    spriteRenderer->Begin(_worldProjection, defaultSetting);
-    {
-        spriteRenderer->Draw(mapTex, glm::vec2(0), mapTex->GetSize() * 16,
-            glm::vec2(0), 0.f, glm::vec4(1));
-        float factor = std::exp(_expScale);
-        spriteRenderer->Draw(playerTexture, localPlayer->GetPlayerHitbox().Center(),
-            glm::vec2(playerTexture->GetSize()) / factor * 2.f,
-            glm::vec2(0.5), 0.f, glm::vec4(1), (localPlayer->GetDirection() == 1)
-            ? trv2::SpriteFlipMode::FlipHorizontal 
-            : trv2::SpriteFlipMode::None);
-    }
-    spriteRenderer->End();
+    //trv2::BatchSettings defaultSetting{};
+    //defaultSetting.BlendMode = trv2::BlendingMode::AlphaBlend;
+    //spriteRenderer->Begin(_worldProjection, defaultSetting);
+    //{
+    //    spriteRenderer->Draw(mapTex, glm::vec2(0), mapTex->GetSize() * 16,
+    //        glm::vec2(0), 0.f, glm::vec4(1));
+    //    float factor = std::exp(_expScale);
+    //    spriteRenderer->Draw(playerTexture, localPlayer->GetPlayerHitbox().Center(),
+    //        glm::vec2(playerTexture->GetSize()) / factor * 2.f,
+    //        glm::vec2(0.5), 0.f, glm::vec4(1), (localPlayer->GetDirection() == 1)
+    //        ? trv2::SpriteFlipMode::FlipHorizontal 
+    //        : trv2::SpriteFlipMode::None);
+    //}
+    //spriteRenderer->End();
 }
 
 void MapScene::FocusOnPlayer()

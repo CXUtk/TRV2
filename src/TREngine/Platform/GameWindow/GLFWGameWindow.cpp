@@ -1,9 +1,9 @@
 ﻿#include "GLFWGameWindow.h"
 #include <vector>
 #include <array>
+#include <Engine.h>
 #include <Core/Structures/EngineSettings.h>
 #include <Core/Gamplay/InputController.h>
-#include <Engine.h>
 #include <Core/Utils/Logging/Logger.h>
 
 TRV2_NAMESPACE_BEGIN
@@ -45,29 +45,6 @@ constexpr std::array<KeyCode, N> generateKeyCodeMapper()
     M[GLFW_KEY_SPACE] = KeyCode::TRV2_SPACE_KEY;
     M[GLFW_KEY_ESCAPE] = KeyCode::TRV2_ESC_KEY;
 
-    /*M[(int)KeyCode::TRV2_W_KEY] = { GLFW_KEY_W };
-    M[(int)KeyCode::TRV2_S_KEY] = { GLFW_KEY_S };
-    M[(int)KeyCode::TRV2_A_KEY] = { GLFW_KEY_A };
-    M[(int)KeyCode::TRV2_D_KEY] = { GLFW_KEY_D };
-
-    M[(int)KeyCode::TRV2_ENTER_KEY] = { GLFW_KEY_ENTER };
-    M[(int)KeyCode::TRV2_CTRL_KEY] = { GLFW_KEY_LEFT_CONTROL, GLFW_KEY_RIGHT_CONTROL };
-    M[(int)KeyCode::TRV2_ALT_KEY] = { GLFW_KEY_LEFT_ALT, GLFW_KEY_RIGHT_ALT };
-
-    M[(int)KeyCode::TRV2_0_KEY] = { GLFW_KEY_0 };
-    M[(int)KeyCode::TRV2_1_KEY] = { GLFW_KEY_1 };
-    M[(int)KeyCode::TRV2_2_KEY] = { GLFW_KEY_2 };
-    M[(int)KeyCode::TRV2_3_KEY] = { GLFW_KEY_3 };
-    M[(int)KeyCode::TRV2_4_KEY] = { GLFW_KEY_4 };
-    M[(int)KeyCode::TRV2_5_KEY] = { GLFW_KEY_5 };
-    M[(int)KeyCode::TRV2_6_KEY] = { GLFW_KEY_6 };
-    M[(int)KeyCode::TRV2_7_KEY] = { GLFW_KEY_7 };
-    M[(int)KeyCode::TRV2_8_KEY] = { GLFW_KEY_8 };
-    M[(int)KeyCode::TRV2_9_KEY] = { GLFW_KEY_9 };
-
-    M[(int)KeyCode::TRV2_PLUS_KEY] = { GLFW_KEY_EQUAL };
-    M[(int)KeyCode::TRV2_MINUS_KEY] = { GLFW_KEY_MINUS };
-    M[(int)KeyCode::TRV2_TILDE_KEY] = { GLFW_KEY_GRAVE_ACCENT };*/
     return M;
 }
 

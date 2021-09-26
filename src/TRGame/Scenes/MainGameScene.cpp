@@ -4,9 +4,9 @@
 #include <TREngine/Engine.h>
 #include <TREngine/Platform/Platform_Interfaces.h>
 
-#include <TREngine/Core/gameplay.h>
-#include <TREngine/Core/render.h>
-#include <TREngine/Core/assets.h>
+#include <TREngine/Core/Gamplay/gameplay.h>
+#include <TREngine/Core/Render/render.h>
+#include <TREngine/Core/Assets/assets.h>
 
 #include <TRGame/Lighting/Lighting.h>
 #include <TRGame/Worlds/GameWorld.h>
@@ -21,19 +21,24 @@ MainGameScene::MainGameScene(trv2::Engine* engine, TRGame* game)
     auto clientSize = window->GetWindowSize();
     auto resourceManager = _engine->GetGraphicsResourceManager();
     auto gameWorld = _game->GetGameWorld();
+    auto videoSettings = _game->GetVideoSettings();
 
-    _screenRect = trv2::Rect2D<float>(glm::vec2(0), clientSize);
+    _screenRect = trv2::RectI(glm::ivec2(0), clientSize);
 
     trv2::TextureParameters texPara{};
     texPara.SampleMethod = trv2::TextureSampleMethod::NEAREST;
     texPara.WarpMethod = trv2::TextureWarpMethod::CLAMP_TO_EDGE;
 
     _tileTarget = std::make_shared<trv2::RenderTarget2D>(resourceManager, clientSize, texPara);
-    _shadowMap = std::make_shared<trv2::RenderTarget2D>(resourceManager, clientSize, texPara);
-
     _tileRect = gameWorld->GetTileRect(_screenRect);
 
-    texPara.SampleMethod = trv2::TextureSampleMethod::BI_LINEAR;
+    texPara.SampleMethod = videoSettings->EnabledSmoothLight() ? 
+        trv2::TextureSampleMethod::BI_LINEAR :
+        trv2::TextureSampleMethod::NEAREST;
+    texPara.InternalFormat = trv2::PixelFormat::RGB16F;
+
+    _shadowMap = std::make_shared<trv2::RenderTarget2D>(resourceManager, clientSize, texPara);
+    _prevShadowMap = std::make_shared<trv2::RenderTarget2D>(resourceManager, _tileRect.Size, texPara);
     _shadowMapSwap[0] = std::make_shared<trv2::RenderTarget2D>(resourceManager, _tileRect.Size, texPara);
     _shadowMapSwap[1] = std::make_shared<trv2::RenderTarget2D>(resourceManager, _tileRect.Size, texPara);
 }
@@ -53,24 +58,31 @@ void MainGameScene::Update(double deltaTime)
     localPlayer->Update();
 
     _screenRect.Size = window->GetWindowSize();
-    _screenRect.Position = glm::mix(_screenRect.Position, localPlayer->GetPlayerHitbox().Center() - _screenRect.Size * 0.5f, 0.4f);
-    _tileRect = gameWorld->GetTileRect(_screenRect);
+    _screenRect.Position = glm::floor(glm::mix(glm::vec2(_screenRect.Position), 
+        localPlayer->GetPlayerHitbox().Center() - glm::vec2(_screenRect.Size) * 0.5f, 0.4f));
+
+
+    _tileRect = GameWorld::GetTileRect(_screenRect);
 
 
     // Set projection matricies
-    _worldProjection = glm::ortho(_screenRect.Position.x, _screenRect.Position.x + _screenRect.Size.x,
-        _screenRect.Position.y, _screenRect.Position.y + _screenRect.Size.y);
-    _screenProjection = glm::ortho(0.f, _screenRect.Size.x,
-         0.f, _screenRect.Size.y);
+    _worldProjection = glm::ortho((float)_screenRect.Position.x, (float)_screenRect.Position.x + _screenRect.Size.x,
+        (float)_screenRect.Position.y, (float)_screenRect.Position.y + _screenRect.Size.y);
+    _screenProjection = glm::ortho(0.f, (float)_screenRect.Size.x,
+         0.f, (float)_screenRect.Size.y);
 }
 
 void MainGameScene::Draw(double deltaTime)
 {
-    drawShadowMaps();
-
     drawTiles();
 
+    drawShadowMaps();
+
+    drawTilesToScreen();
+
     drawPlayers();
+
+    _prevTileRect = _tileRect;
 }
 
 void MainGameScene::drawTiles()
@@ -83,8 +95,15 @@ void MainGameScene::drawTiles()
     // render tile map
     graphicsDevice->SwitchRenderTarget(trv2::ptr(_tileTarget));
     graphicsDevice->Clear(glm::vec4(0));
-    gameWorld->RenderWorld(_worldProjection, spriteRenderer, _screenRect);
+    gameWorld->RenderWorld(_worldProjection, spriteRenderer, _screenRect, trv2::ptr(_tileTarget));
+}
 
+void MainGameScene::drawTilesToScreen()
+{
+    auto spriteRenderer = _engine->GetSpriteRenderer();
+    auto graphicsDevice = _engine->GetGraphicsDevice();
+    auto assetManager = _engine->GetAssetsManager();
+    auto gameWorld = _game->GetGameWorld();
 
     trv2::BatchSettings defaultSetting{};
 
@@ -106,17 +125,35 @@ void MainGameScene::drawTiles()
     spriteRenderer->End();
 }
 
+bool first = true;
+
 void MainGameScene::drawShadowMaps()
 {
     auto spriteRenderer = _engine->GetSpriteRenderer();
     auto graphicsDevice = _engine->GetGraphicsDevice();
     auto assetManager = _engine->GetAssetsManager();
     auto gameWorld = _game->GetGameWorld();
+    auto lighting = _game->GetLighting();
+    auto videoSettings = _game->GetVideoSettings();
 
-    glm::mat4 renderScreenProjection = glm::ortho(0.f, _screenRect.Size.x,
-        0.f, _screenRect.Size.y);
-    glm::mat4 renderTileProjection = glm::ortho(0.f, (float)_tileRect.Size.x,
-        0.f, (float)_tileRect.Size.y);
+    auto player = _game->GetLocalPlayer();
+
+    lighting->SetGameWorld(gameWorld);
+    lighting->ClearLights();
+
+    lighting->AddLight(Light{ glm::vec2(0, 0), glm::vec3(1, 0, 0), 16 });
+    lighting->AddLight(Light{ glm::vec2(200, 200), glm::vec3(0, 1, 0), 16 });
+    lighting->AddLight(Light{ glm::vec2(400, 0), glm::vec3(0, 0, 1), 16 });
+    lighting->AddLight(Light{ player->GetPlayerHitbox().Position, glm::vec3(1.f), 16 });
+
+    glm::mat4 renderScreenProjection = glm::ortho(0.f, (float)_screenRect.Size.x,
+        0.f, (float)_screenRect.Size.y);
+    glm::mat4 renderTileProjection = glm::ortho(
+        (float)_tileRect.Position.x,
+        (float)_tileRect.Position.x + _tileRect.Size.x,
+        (float)_tileRect.Position.y,
+        (float)_tileRect.Position.y + _tileRect.Size.y
+    );
 
     trv2::BatchSettings defaultSetting{};
 
@@ -125,13 +162,13 @@ void MainGameScene::drawShadowMaps()
 
     // render shadow map
     graphicsDevice->SwitchRenderTarget(trv2::ptr(_shadowMapSwap[0]));
-    graphicsDevice->Clear(glm::vec4(0));
-    Lighting::CalculateLight(spriteRenderer, renderTileProjection, gameWorld, _screenRect);
+    graphicsDevice->Clear(glm::vec4(0, 0, 0, 1));
+    lighting->CalculateLight(spriteRenderer, renderTileProjection, _tileRect);
 
 
     // Blur shadow map
     for (int i = 0; i < 2; i++)
-    {
+    { 
         int index = i & 1;
         graphicsDevice->SwitchRenderTarget(trv2::ptr(_shadowMapSwap[!index]));
         graphicsDevice->Clear(glm::vec4(0));
@@ -144,14 +181,35 @@ void MainGameScene::drawShadowMaps()
             defaultSetting.Shader->SetParameter1i("uOriginalMap", 1);
             defaultSetting.Shader->SetParameter1i("horizontal", (int)(!index));
 
-            spriteRenderer->Draw(glm::vec2(0), _tileRect.Size,
+            spriteRenderer->Draw(_tileRect.Position, _tileRect.Size,
                 glm::vec2(0), 0.f, glm::vec4(1));
         }
         spriteRenderer->End();
     }
 
+
+    if (videoSettings->EnabledFrameBlending())
+    {
+        // Blend with previous shadow map
+        graphicsDevice->SwitchRenderTarget(trv2::ptr(_shadowMapSwap[0]));
+        defaultSetting.Shader = nullptr;
+        defaultSetting.BlendMode = trv2::BlendingMode::AlphaBlend;
+        spriteRenderer->Begin(renderTileProjection, defaultSetting);
+        {
+            auto texture = _prevShadowMap->GetTexture2D();
+            spriteRenderer->Draw(texture, _prevTileRect.Position, _prevTileRect.Size,
+                glm::vec2(0), 0.f, 
+                glm::vec4(1, 1, 1, videoSettings->GetPrevFrameBlendingRatio()));
+        }
+        spriteRenderer->End();
+        defaultSetting.BlendMode = trv2::BlendingMode::None;
+    }
+
+
+
+    // Draw current shadow map
     graphicsDevice->SwitchRenderTarget(trv2::ptr(_shadowMap));
-    graphicsDevice->Clear(glm::vec4(0));
+    graphicsDevice->Clear(glm::vec4(0, 0, 0, 1));
     defaultSetting.Shader = nullptr;
     spriteRenderer->Begin(_worldProjection, defaultSetting);
     {
@@ -160,6 +218,22 @@ void MainGameScene::drawShadowMaps()
             glm::vec2(0), 0.f, glm::vec4(1));
     }
     spriteRenderer->End();
+
+
+    if (videoSettings->EnabledFrameBlending())
+    {
+        _prevShadowMap->Resize(_tileRect.Size);
+        // Record to prev shadow map
+        graphicsDevice->SwitchRenderTarget(trv2::ptr(_prevShadowMap));
+        graphicsDevice->Clear(glm::vec4(0));
+        defaultSetting.Shader = nullptr;
+        spriteRenderer->Begin(renderTileProjection, defaultSetting);
+        {
+            spriteRenderer->Draw(_shadowMapSwap[0]->GetTexture2D(), _tileRect.Position, _tileRect.Size,
+                glm::vec2(0), 0.f, glm::vec4(1));
+        }
+        spriteRenderer->End();
+    }
 }
 
 void MainGameScene::drawPlayers()

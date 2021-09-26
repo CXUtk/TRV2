@@ -7,7 +7,7 @@
 
 TRV2_NAMESPACE_BEGIN
 
-constexpr float EPS = 1e-5;
+constexpr float EPS = 1e-5f;
 
 enum class CollisionSide
 {

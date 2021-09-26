@@ -1,4 +1,5 @@
 ﻿#include "Player.h"
+
 #include <TRGame/TRGame.hpp>
 #include <TREngine/Engine.h>
 #include <TREngine/Core/Gamplay/InputController.h>
@@ -7,12 +8,12 @@
 #include <TREngine/Core/Render/SpriteRenderer.h>
 
 #include <TRGame/Worlds/GameWorld.h>
-#include <TRGame/Worlds/Tile.hpp>
+#include <TRGame/Worlds/Tile.h>
 
 Player::Player()
 {
 	_playerHitBox.Size = glm::vec2(16, 32);
-	_playerHitBox.Position = glm::vec2(1050, 14600);
+	_playerHitBox.Position = glm::vec2(100, 200);
 }
 
 Player::~Player()
@@ -40,27 +41,27 @@ void Player::Draw(const glm::mat4& projection, trv2::SpriteRenderer* renderer)
 	}
 	renderer->End();
 
-	setting.BlendMode = trv2::BlendingMode::AlphaBlend;
-	renderer->Begin(projection, setting);
-	{
-		auto start = GameWorld::GetLowerWorldCoord(_playerHitBox.BottomLeft());
-		trv2::RectI tileRect(start, 
-			GameWorld::GetUpperWorldCoord(_playerHitBox.TopRight()) - start);
-		for (int y = tileRect.Position.y; y <= tileRect.Position.y + tileRect.Size.y; y++)
-		{
-			for (int x = tileRect.Position.x; x <= tileRect.Position.x + tileRect.Size.x; x++)
-			{
-				auto fRect = trv2::Rectf(glm::vec2(x * GameWorld::TILE_SIZE, y * GameWorld::TILE_SIZE), glm::vec2(GameWorld::TILE_SIZE));
-				renderer->Draw(fRect.Position, fRect.Size, glm::vec2(0), 0.f, glm::vec4(0.1, 0.6, 0.2, 0.5));
-				if (world->GetTile(x, y).IsEmpty()) continue;
-				if (trv2::RectIntersects(_playerHitBox, fRect))
-				{
-					renderer->Draw(fRect.Position, fRect.Size, glm::vec2(0), 0.f, glm::vec4(0.7, 0.1, 0.2, 0.5));
-				}
-			}
-		}
-	}
-	renderer->End();
+	//setting.BlendMode = trv2::BlendingMode::AlphaBlend;
+	//renderer->Begin(projection, setting);
+	//{
+	//	auto start = GameWorld::GetLowerWorldCoord(_playerHitBox.BottomLeft());
+	//	trv2::RectI tileRect(start, 
+	//		GameWorld::GetUpperWorldCoord(_playerHitBox.TopRight()) - start);
+	//	for (int y = tileRect.Position.y; y <= tileRect.Position.y + tileRect.Size.y; y++)
+	//	{
+	//		for (int x = tileRect.Position.x; x <= tileRect.Position.x + tileRect.Size.x; x++)
+	//		{
+	//			auto fRect = trv2::Rectf(glm::vec2(x * GameWorld::TILE_SIZE, y * GameWorld::TILE_SIZE), glm::vec2(GameWorld::TILE_SIZE));
+	//			renderer->Draw(fRect.Position, fRect.Size, glm::vec2(0), 0.f, glm::vec4(0.1, 0.6, 0.2, 0.5));
+	//			if (world->GetTile(x, y).IsEmpty()) continue;
+	//			if (trv2::RectIntersects(_playerHitBox, fRect))
+	//			{
+	//				renderer->Draw(fRect.Position, fRect.Size, glm::vec2(0), 0.f, glm::vec4(0.7, 0.1, 0.2, 0.5));
+	//			}
+	//		}
+	//	}
+	//}
+	//renderer->End();
 }
 
 void Player::clearState()
@@ -165,6 +166,7 @@ trv2::Rectf Player::tryMoveWithCollide(const trv2::Rectf& oldBox, glm::vec2 disp
 
 	trv2::Rectf newBox = oldBox;
 	newBox.Position += displacement;
+	//return newBox;
 
 	auto start = GameWorld::GetLowerWorldCoord(newBox.BottomLeft());
 	trv2::RectI tileRect(start,
@@ -177,7 +179,7 @@ trv2::Rectf Player::tryMoveWithCollide(const trv2::Rectf& oldBox, glm::vec2 disp
 	{
 		for (int x = tileRect.Position.x; x <= tileRect.Position.x + tileRect.Size.x; x++)
 		{
-			if (world->GetTile(x, y).IsEmpty()) continue;
+			if (world->GetTile(glm::ivec2(x, y)).IsEmpty()) continue;
 			auto fRect = trv2::Rectf(glm::vec2(x * GameWorld::TILE_SIZE, y * GameWorld::TILE_SIZE), glm::vec2(GameWorld::TILE_SIZE));
 			if (!trv2::RectIntersects(newBox, fRect)) continue;
 

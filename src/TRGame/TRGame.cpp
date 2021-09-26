@@ -1,22 +1,18 @@
 ﻿#include "TRGame.hpp"
 
 #include <TREngine/Engine.h>
-#include <TREngine/Core/Render/SpriteRenderer.h>
+
 #include <TREngine/Core/Utils/Utils.h>
-
-#include <TREngine/Core/Gamplay/InputController.h>
 #include <TREngine/Core/Utils/Logging/Logger.h>
-#include <TREngine/Core/Render/RenderTarget2D.h>
-#include <TREngine/Core/Assets/AssetsManager.h>
-#include <TREngine/Core/Render/ShaderProgram.h>
-#include <TREngine/Core/Render/Texture2D.h>
 
-#include <TREngine/Platform/Platform_Interfaces.h>
-#include <TRGame/Worlds/GameWorld.h>
+#include <TREngine/Core/Gamplay/gameplay.h>
+#include <TREngine/Core/Render/render.h>
+
 #include <TRGame/Player/Player.h>
-#include <TRGame/Lighting/Lighting.h>
+#include <TRGame/Worlds/GameWorld.h>
 #include <TRGame/Scenes/MainGameScene.h>
 #include <TRGame/Scenes/MapScene.h>
+#include <TRGame/Lighting/Lighting.h>
 
 
 #include <glm/gtx/transform.hpp>
@@ -27,6 +23,7 @@ TRGame* TRGame::_instance = nullptr;
 
 TRGame::~TRGame()
 {
+
 }
 
 
@@ -44,7 +41,10 @@ void TRGame::logGameInfo()
 
 void TRGame::loadGameContent()
 {
-    _gameWorld = std::make_unique<GameWorld>(1000, 1000);
+    _videoSettings = std::make_unique<VideoSettings>();
+
+    _gameWorld = std::make_unique<GameWorld>();
+    _lighting = std::make_unique<Lighting>();
     _mainPlayer = std::make_unique<Player>();
 
     _mainGameScene = std::make_unique<MainGameScene>(_engine, this);

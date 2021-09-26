@@ -55,6 +55,8 @@ public:
 		return _fpsCap;
 	}
 
+
+
 private:
 	// Client properties
 	bool _windowResizable;
@@ -63,5 +65,7 @@ private:
 
 	int _windowWidth, _windowHeight;
 	int _fpsCap;
+
+	float _prevFrameBlendingRatio;
 };
 TRV2_NAMESPACE_END

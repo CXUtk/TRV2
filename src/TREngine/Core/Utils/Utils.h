@@ -8,6 +8,41 @@
 #include <sstream>
 #include <glm/glm.hpp>
 
+/**
+ * @brief Returns the greatest integer less than or equal to Q/D
+ * @param quotion 
+ * @param divisor 
+ * @return 
+*/
+inline int RoundDown(int quotion, int divisor)
+{
+    if (divisor < 0) divisor *= -1, quotion *= -1;
+    if (quotion < 0) return (quotion - divisor + 1) / divisor;
+    return quotion / divisor;
+}
+
+inline glm::ivec2 RoundDown(glm::ivec2 quotion, int divisor)
+{
+    return glm::ivec2(RoundDown(quotion.x, divisor), RoundDown(quotion.y, divisor));
+}
+
+/**
+ * @brief Returns the smallest integer greater than or equal to Q/D
+ * @param quotion
+ * @param divisor
+ * @return
+*/
+inline int RoundUp(int quotion, int divisor)
+{
+    if (divisor < 0) divisor *= -1, quotion *= -1;
+    if (quotion < 0) return quotion / divisor;
+    return (quotion + divisor - 1) / divisor;
+}
+
+inline glm::ivec2 RoundUp(glm::ivec2 quotion, int divisor)
+{
+    return glm::ivec2(RoundUp(quotion.x, divisor), RoundUp(quotion.y, divisor));
+}
 
 /**
  * @brief Get the formatted std::string

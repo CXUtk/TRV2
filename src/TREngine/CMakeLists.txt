@@ -21,7 +21,7 @@ add_library("TRV2_Engine" STATIC
 "Platform/GameWindow/GLFWGameWindow.cpp"
 "Core/Assets/AssetsManager.cpp"
 
-"Graphics/Structures/VertexLayout.cpp"
+"Core/Structures/VertexLayout.cpp"
 
 "Graphics/OpenGLProvider.cpp"   
 "Core/Gamplay/InputController.h" 
@@ -39,7 +39,7 @@ add_library("TRV2_Engine" STATIC
 "Core/Utils/GameTimer.h"
 "Core/Utils/GameTimer.cpp"
 "Platform/GLFWProvider.h"
-"Platform/GLFWProvider.cpp" "Core/Utils/Collision.h" "Core/Gamplay/Scene.h" "Core/render.h" "Core/assets.h" "Core/gameplay.h")
+"Platform/GLFWProvider.cpp" "Core/Utils/Collision.h" "Core/Gamplay/Scene.h" "Core/Render/render.h" "Core/Assets/assets.h" "Core/Gamplay/gameplay.h" "Platform/Platform_glfw.h" "Graphics/Graphics_opengl.h")
 
 
 message(STATUS "${PROJECT_SOURCE_DIR}")

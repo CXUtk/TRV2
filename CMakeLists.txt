@@ -28,7 +28,7 @@ add_executable("TRV2_Game"
  "src/TRGame/Player/Player.cpp" 
  "src/TRGame/Lighting/Lighting.h" 
  "src/TRGame/Lighting/Lighting.cpp" 
- "src/TRGame/Scenes/MainGameScene.h" "src/TRGame/Scenes/MainGameScene.cpp" "src/TRGame/Scenes/MapScene.h" "src/TRGame/Scenes/MapScene.cpp" "src/TRGame/Worlds/WorldMap.h" "src/TRGame/Worlds/WorldMap.cpp")
+ "src/TRGame/Scenes/MainGameScene.h" "src/TRGame/Scenes/MainGameScene.cpp" "src/TRGame/Scenes/MapScene.h" "src/TRGame/Scenes/MapScene.cpp" "src/TRGame/Worlds/WorldMap.h" "src/TRGame/Worlds/WorldMap.cpp" "src/TRGame/Configs/VideoSettings.h" "src/TRGame/Configs/VideoSettings.cpp")
 
 # 编译选项
 set(CMAKE_CXX_STANDARD 17)
@@ -58,5 +58,6 @@ add_custom_command(TARGET "TRV2_Game" PRE_BUILD
                    COMMAND python ${PROJECT_SOURCE_DIR}/encoding.py "${PROJECT_SOURCE_DIR}/Resources" "utf-8-sig")
 add_custom_command(TARGET "TRV2_Game" POST_BUILD
                    COMMAND python ${PROJECT_SOURCE_DIR}/build.py "${PROJECT_SOURCE_DIR}/Resources" "${PROJECT_BINARY_DIR}")
+execute_process(COMMAND python ${PROJECT_SOURCE_DIR}/build.py "${PROJECT_SOURCE_DIR}/Resources" "${PROJECT_BINARY_DIR}")
 
 
