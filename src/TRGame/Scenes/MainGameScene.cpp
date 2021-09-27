@@ -38,9 +38,19 @@ MainGameScene::MainGameScene(trv2::Engine* engine, TRGame* game)
     texPara.InternalFormat = trv2::PixelFormat::RGB16F;
 
     _shadowMap = std::make_shared<trv2::RenderTarget2D>(resourceManager, clientSize, texPara);
+
+    // Dynamic change
     _prevShadowMap = std::make_shared<trv2::RenderTarget2D>(resourceManager, _tileRect.Size, texPara);
     _shadowMapSwap[0] = std::make_shared<trv2::RenderTarget2D>(resourceManager, _tileRect.Size, texPara);
     _shadowMapSwap[1] = std::make_shared<trv2::RenderTarget2D>(resourceManager, _tileRect.Size, texPara);
+
+
+    auto& tileTarget = _tileTarget;
+    auto& shadowMap = _shadowMap;
+    window->AppendOnResizeEvent([window, &tileTarget, &shadowMap](glm::ivec2 newSize) {
+        tileTarget->Resize(window->GetWindowSize());
+        shadowMap->Resize(window->GetWindowSize());
+    });
 }
 
 MainGameScene::~MainGameScene()
@@ -142,13 +152,13 @@ void MainGameScene::drawShadowMaps()
     lighting->ClearLights();
 
 
-    for (int i = 0; i < 100; i++)
+    for (int i = 0; i < 10; i++)
     {
-        for (int j = 0; j < 100; j++)
+        for (int j = 0; j < 10; j++)
         {
             glm::vec3 c = glm::vec3(0);
             c[(i + j) % 3] = 1.f;
-            lighting->AddLight(Light{ glm::vec2(i * 20, j * 20), c, 16 });
+            lighting->AddLight(Light{ glm::vec2(i * 200, j * 200), c, 16 });
         }
     }
 

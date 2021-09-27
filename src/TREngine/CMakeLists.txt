@@ -39,7 +39,7 @@ add_library("TRV2_Engine" STATIC
 "Core/Utils/GameTimer.h"
 "Core/Utils/GameTimer.cpp"
 "Platform/GLFWProvider.h"
-"Platform/GLFWProvider.cpp" "Core/Utils/Collision.h" "Core/Gamplay/Scene.h" "Core/Render/render.h" "Core/Assets/assets.h" "Core/Gamplay/gameplay.h" "Platform/Platform_glfw.h" "Graphics/Graphics_opengl.h")
+"Platform/GLFWProvider.cpp" "Core/Utils/Collision.h" "Core/Gamplay/Scene.h" "Core/Render/render.h" "Core/Assets/assets.h" "Core/Gamplay/gameplay.h" "Platform/Platform_glfw.h" "Graphics/Graphics_opengl.h" "Core/Structures/Event.h")
 
 
 message(STATUS "${PROJECT_SOURCE_DIR}")

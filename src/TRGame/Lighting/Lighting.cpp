@@ -78,7 +78,7 @@ void Lighting::CalculateLight(trv2::SpriteRenderer* renderer, const glm::mat4& p
 		calculateOneLight(light);
 	}
 
-	printf("%d\n", Num);
+	//printf("%d\n", Num);
 	trv2::BatchSettings setting{};
 	renderer->Begin(projection, setting);
 	{

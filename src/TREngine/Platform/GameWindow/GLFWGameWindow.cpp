@@ -106,6 +106,11 @@ GLFWGameWindow::GLFWGameWindow(const EngineSettings& settings)
     glfwSetScrollCallback(_window, mouseScrollCallbackFunction);
     glfwSetMouseButtonCallback(_window, mouseButtonCallbackFunction);
     glfwSetKeyCallback(_window, keyCallbackFunction);
+
+    auto& windowSize = _windowSize;
+    _eventOnWindowResize += [&windowSize](glm::ivec2 newSize) {
+        windowSize = newSize;
+    };
 }
 
 GLFWGameWindow::~GLFWGameWindow()

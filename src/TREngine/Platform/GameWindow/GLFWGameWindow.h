@@ -14,20 +14,30 @@ public:
 	GLFWGameWindow(const EngineSettings& settings);
 	~GLFWGameWindow();
 
-	void BeginFrame();
-	void EndFrame();
+	virtual void BeginFrame() override;
+	virtual void EndFrame() override;
 
-	bool ShouldClose() const;
-	void PollEvents();
+	virtual bool ShouldClose() const override;
+	virtual void PollEvents() override;
 
 
 	glm::ivec2 GetMousePos() const override;
 	glm::ivec2 GetWindowSize() const override { return _windowSize; }
 
-	void Resize(glm::ivec2 newSize) { _windowSize = newSize; }
+	virtual void AppendOnResizeEvent(Event<glm::ivec2>::func_type eventHandler) override
+	{
+		_eventOnWindowResize += eventHandler;
+	}
+
+	void Resize(glm::ivec2 newSize)
+	{
+		_eventOnWindowResize.Invoke(newSize);
+	}
 
 private:
 	GLFWwindow* _window;
 	glm::ivec2 _windowSize;
+
+	Event<glm::ivec2> _eventOnWindowResize;
 };
 TRV2_NAMESPACE_END
