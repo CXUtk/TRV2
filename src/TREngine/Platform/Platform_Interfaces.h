@@ -2,6 +2,7 @@
 #include <memory>
 #include <glm/glm.hpp>
 #include <Core.h>
+#include <Core/Structures/Event.h>
 
 TRV2_NAMESPACE_BEGIN
 class IPlatformProvider
@@ -24,6 +25,8 @@ public:
 
 	virtual glm::ivec2 GetMousePos() const = 0;
 	virtual glm::ivec2 GetWindowSize() const = 0;
+
+	virtual void AppendOnResizeEvent(Event<glm::ivec2>::func_type eventHandler) = 0;
 };
 
 TRV2_NAMESPACE_END

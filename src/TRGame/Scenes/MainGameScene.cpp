@@ -7,6 +7,7 @@
 #include <TREngine/Core/Gamplay/gameplay.h>
 #include <TREngine/Core/Render/render.h>
 #include <TREngine/Core/Assets/assets.h>
+#include <TREngine/Core/Utils/Logging/Logger.h>
 
 #include <TRGame/Lighting/Lighting.h>
 #include <TRGame/Worlds/GameWorld.h>
@@ -19,7 +20,8 @@ MainGameScene::MainGameScene(trv2::Engine* engine, TRGame* game)
 {
     auto window = _engine->GetGameWindow();
     auto clientSize = window->GetWindowSize();
-    auto resourceManager = _engine->GetGraphicsResourceManager();
+    auto resourceManager = _engine->GetGraphicsResourceManager();    
+    auto graphicsDevice = _engine->GetGraphicsDevice();
     auto gameWorld = _game->GetGameWorld();
     auto videoSettings = _game->GetVideoSettings();
 
@@ -38,9 +40,24 @@ MainGameScene::MainGameScene(trv2::Engine* engine, TRGame* game)
     texPara.InternalFormat = trv2::PixelFormat::RGB16F;
 
     _shadowMap = std::make_shared<trv2::RenderTarget2D>(resourceManager, clientSize, texPara);
+
+    // Dynamic change
     _prevShadowMap = std::make_shared<trv2::RenderTarget2D>(resourceManager, _tileRect.Size, texPara);
     _shadowMapSwap[0] = std::make_shared<trv2::RenderTarget2D>(resourceManager, _tileRect.Size, texPara);
     _shadowMapSwap[1] = std::make_shared<trv2::RenderTarget2D>(resourceManager, _tileRect.Size, texPara);
+
+    graphicsDevice->SwitchRenderTarget(trv2::ptr(_prevShadowMap));
+    graphicsDevice->Clear(glm::vec4(0));
+
+
+    auto& tileTarget = _tileTarget;
+    auto& shadowMap = _shadowMap;
+    window->AppendOnResizeEvent([window, &tileTarget, &shadowMap](glm::ivec2 newSize) {
+        if (newSize == glm::ivec2(0, 0)) return;
+        tileTarget->Resize(window->GetWindowSize());
+        shadowMap->Resize(window->GetWindowSize());
+        trv2::Engine::GetInstance()->GetLogger()->Log(trv2::SeverityLevel::Debug, "Screen Size: (%d, %d)", newSize.x, newSize.y);
+    });
 }
 
 MainGameScene::~MainGameScene()
@@ -57,32 +74,39 @@ void MainGameScene::Update(double deltaTime)
 
     localPlayer->Update();
 
-    _screenRect.Size = window->GetWindowSize();
-    _screenRect.Position = glm::floor(glm::mix(glm::vec2(_screenRect.Position), 
-        localPlayer->GetPlayerHitbox().Center() - glm::vec2(_screenRect.Size) * 0.5f, 0.4f));
-
+    if (window->GetWindowSize() != glm::ivec2(0))
+    {
+        _screenRect.Size = window->GetWindowSize();
+        _screenRect.Position = glm::floor(glm::mix(glm::vec2(_screenRect.Position),
+            localPlayer->GetPlayerHitbox().Center() - glm::vec2(_screenRect.Size) * 0.5f, 0.4f));
+    }
 
     _tileRect = GameWorld::GetTileRect(_screenRect);
-
 
     // Set projection matricies
     _worldProjection = glm::ortho((float)_screenRect.Position.x, (float)_screenRect.Position.x + _screenRect.Size.x,
         (float)_screenRect.Position.y, (float)_screenRect.Position.y + _screenRect.Size.y);
     _screenProjection = glm::ortho(0.f, (float)_screenRect.Size.x,
          0.f, (float)_screenRect.Size.y);
+
+    updateLighting();
 }
 
 void MainGameScene::Draw(double deltaTime)
 {
-    drawTiles();
+    auto window = _engine->GetGameWindow();
+    if (window->GetWindowSize() != glm::ivec2(0))
+    {
+        drawTiles();
 
-    drawShadowMaps();
+        drawShadowMaps();
 
-    drawTilesToScreen();
+        drawTilesToScreen();
 
-    drawPlayers();
+        drawPlayers();
 
-    _prevTileRect = _tileRect;
+        _prevTileRect = _tileRect;
+    }
 }
 
 void MainGameScene::drawTiles()
@@ -132,19 +156,9 @@ void MainGameScene::drawShadowMaps()
     auto spriteRenderer = _engine->GetSpriteRenderer();
     auto graphicsDevice = _engine->GetGraphicsDevice();
     auto assetManager = _engine->GetAssetsManager();
-    auto gameWorld = _game->GetGameWorld();
-    auto lighting = _game->GetLighting();
     auto videoSettings = _game->GetVideoSettings();
-
     auto player = _game->GetLocalPlayer();
-
-    lighting->SetGameWorld(gameWorld);
-    lighting->ClearLights();
-
-    lighting->AddLight(Light{ glm::vec2(0, 0), glm::vec3(1, 0, 0), 16 });
-    lighting->AddLight(Light{ glm::vec2(200, 200), glm::vec3(0, 1, 0), 16 });
-    lighting->AddLight(Light{ glm::vec2(400, 0), glm::vec3(0, 0, 1), 16 });
-    lighting->AddLight(Light{ player->GetPlayerHitbox().Position, glm::vec3(1.f), 16 });
+    auto lighting = _game->GetLighting();
 
     glm::mat4 renderScreenProjection = glm::ortho(0.f, (float)_screenRect.Size.x,
         0.f, (float)_screenRect.Size.y);
@@ -163,7 +177,7 @@ void MainGameScene::drawShadowMaps()
     // render shadow map
     graphicsDevice->SwitchRenderTarget(trv2::ptr(_shadowMapSwap[0]));
     graphicsDevice->Clear(glm::vec4(0, 0, 0, 1));
-    lighting->CalculateLight(spriteRenderer, renderTileProjection, _tileRect);
+    lighting->DrawLightMap(spriteRenderer, renderTileProjection);
 
 
     // Blur shadow map
@@ -185,6 +199,24 @@ void MainGameScene::drawShadowMaps()
                 glm::vec2(0), 0.f, glm::vec4(1));
         }
         spriteRenderer->End();
+    }
+
+
+    if (videoSettings->EnabledFrameBlending())
+    {
+        // Blend with previous shadow map
+        graphicsDevice->SwitchRenderTarget(trv2::ptr(_shadowMapSwap[0]));
+        defaultSetting.Shader = nullptr;
+        defaultSetting.BlendMode = trv2::BlendingMode::AlphaBlend;
+        spriteRenderer->Begin(renderTileProjection, defaultSetting);
+        {
+            auto texture = _prevShadowMap->GetTexture2D();
+            spriteRenderer->Draw(texture, _prevTileRect.Position, _prevTileRect.Size,
+                glm::vec2(0), 0.f, 
+                glm::vec4(1, 1, 1, videoSettings->GetPrevFrameBlendingRatio()));
+        }
+        spriteRenderer->End();
+        defaultSetting.BlendMode = trv2::BlendingMode::None;
     }
 
 
@@ -242,4 +274,27 @@ void MainGameScene::drawPlayers()
     auto localPlayer = _game->GetLocalPlayer();
 
     localPlayer->Draw(_worldProjection, spriteRenderer);
+}
+
+void MainGameScene::updateLighting()
+{
+    auto lighting = _game->GetLighting();
+    auto gameWorld = _game->GetGameWorld();
+    auto player = _game->GetLocalPlayer();
+
+    lighting->SetGameWorld(gameWorld);
+    lighting->ClearLights();
+
+
+    for (int i = 0; i < 10; i++)
+    {
+        for (int j = 0; j < 10; j++)
+        {
+            glm::vec3 c = glm::vec3(0);
+            c[(i + j) % 3] = 1.f;
+            lighting->AddLight(Light{ glm::vec2(i * 200, j * 200), c, 16 });
+        }
+    }
+
+    lighting->CalculateLight( _tileRect);
 }

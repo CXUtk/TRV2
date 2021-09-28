@@ -18,13 +18,7 @@
 #include <TRGame/Lighting/Lighting.h>
 #include <TRGame/Worlds/GameWorld.h>
 
-static const glm::vec3 tempColorTable[5] = {
-	glm::vec3(0.f, 0.f, 0.f),
-	glm::vec3(1.0, 1.0, 1.0),
-	glm::vec3(1.0, 0.5, 0.2),
-	glm::vec3(0.6, 0.6, 0.1),
-	glm::vec3(0.4, 0.4, 0.4),
-};
+static trv2::Texture2D* tileTextureTable[5];
 
 
 constexpr int MAXIMAL_SURFACE_HEIGHT = 950;
@@ -253,7 +247,7 @@ TileSection::TileSection(glm::ivec2 tileStart, glm::ivec2 tileSize) : _sectionSt
 		for (int x = 0; x < _sectionSize.x; x++)
 		{
 			const auto& tile = GetTile(glm::ivec2(x, y));
-			_sectionMap->SetColor(glm::ivec2(x, y), tempColorTable[tile.Type]);
+			_sectionMap->SetColor(glm::ivec2(x, y), tile.Type == 0 ? glm::vec3(0): glm::vec3(0.5));
 		}
 	}
 }
@@ -304,20 +298,6 @@ void TileSection::RenderSection(const glm::mat4& projection, trv2::SpriteRendere
 	setting.Shader = nullptr;
 	renderer->Begin(projection, setting);
 	{
-		//auto assetManager = TRGame::GetInstance()->GetEngine()->GetAssetsManager();
-		//for (int i = 0; i < _sectionSize.x; i++)
-		//{
-		//	for (int j = 0; j < _sectionSize.y; j++)
-		//	{
-		//		auto coord = glm::ivec2(i, j);
-		//		auto startPos = glm::vec2(coord) * (float)GameWorld::TILE_SIZE;
-		//		auto& tile = GetTile(coord);
-		//		if (tile.IsEmpty()) continue;
-
-		//		renderer->Draw(startPos, glm::vec2(GameWorld::TILE_SIZE), glm::vec2(0),
-		//			0.f, glm::vec4(tempColorTable[tile.Type], 1.f));
-		//	}
-		//}
 		renderer->Draw(_cacheRenderTarget->GetTexture2D(), glm::vec2(0), _sectionSize * GameWorld::TILE_SIZE, glm::vec2(0), 0.f, glm::vec4(1));
 
 		//// DEBUG
@@ -337,6 +317,7 @@ void TileSection::reDrawCache(trv2::RenderTarget2D* renderTarget)
 {
 	auto graphicsDevice = trv2::Engine::GetInstance()->GetGraphicsDevice();
 	auto renderer = trv2::Engine::GetInstance()->GetSpriteRenderer();
+	auto assetManager = trv2::Engine::GetInstance()->GetAssetsManager();
 
 	graphicsDevice->SwitchRenderTarget(trv2::ptr(_cacheRenderTarget));
 	graphicsDevice->Clear(glm::vec4(0));
@@ -361,8 +342,17 @@ void TileSection::reDrawCache(trv2::RenderTarget2D* renderTarget)
 					continue;
 				}
 
-				renderer->Draw(startPos, glm::vec2(GameWorld::TILE_SIZE), glm::vec2(0),
-					0.f, glm::vec4(tempColorTable[tile.Type], 1.f));
+				if (tile.Type == 0)
+				{
+					renderer->Draw(startPos, glm::vec2(GameWorld::TILE_SIZE), glm::vec2(0),
+						0.f, glm::vec4(0));
+				}
+				else
+				{
+					renderer->Draw(assetManager->GetTexture2D("builtin::stone"), startPos, 
+						glm::vec2(GameWorld::TILE_SIZE), glm::vec2(0),
+						0.f, glm::vec4(1));
+				}
 			}
 		}
 	}

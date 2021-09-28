@@ -2,6 +2,7 @@
 #include <Core.h>
 #include <glm/glm.hpp>
 #include <algorithm>
+#include <functional>
 
 TRV2_NAMESPACE_BEGIN
 template<typename T>
@@ -18,6 +19,17 @@ struct Rect2D
 	glm::vec<2, T> TopLeft() const { return Position + glm::vec<2, T>(0, Size.y); }
 	glm::vec<2, T> TopRight() const { return Position + Size; }
 	glm::vec<2, T> Center() const { return Position + (Size / (T)2); }
+
+	void ForEach(std::function<void(glm::vec<2, T>)> func)
+	{
+		for (T y = Position.y; y < Position.y + Size.y; y++)
+		{
+			for (T x = Position.x; x < Position.x + Size.x; x++)
+			{
+				func(glm::vec<2, T>(x, y));
+			}
+		}
+	}
 
 };
 
