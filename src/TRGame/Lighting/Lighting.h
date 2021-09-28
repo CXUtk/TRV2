@@ -22,12 +22,15 @@ public:
 	void ClearLights();
 	void AddLight(const Light& light);
 
-	void CalculateLight(trv2::SpriteRenderer* renderer, const glm::mat4& projection, const trv2::RectI& tileRect);
+	void CalculateLight(const trv2::RectI& tileRectScreen);
+	void DrawLightMap(trv2::SpriteRenderer* renderer, const glm::mat4& projection);
 	float GetLight(glm::ivec2 coord);
 private:
 
 	GameWorld* _gameWorld = nullptr;
 	std::vector<Light> _lights;
+	trv2::RectI _tileRect{};
+	trv2::RectI _tileRectScreen{};
 
 	int getBlockId(glm::ivec2 localCoord);
 	bool isValidCoord(glm::ivec2 worldCoord);

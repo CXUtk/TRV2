@@ -39,7 +39,6 @@ bool visArray[VIS_SIZE];
 
 constexpr float MAXDIST = 16.f;
 
-static trv2::RectI _tileRect;
 
 static glm::vec3 Gamma(const glm::vec3 color)
 {
@@ -61,9 +60,16 @@ void Lighting::AddLight(const Light& light)
 	_lights.push_back(light);
 }
 static int Num = 0;
-void Lighting::CalculateLight(trv2::SpriteRenderer* renderer, const glm::mat4& projection, const trv2::RectI& pretileRect)
+void Lighting::CalculateLight(const trv2::RectI& tileRectScreen)
 {
-	auto sectionRect = GameWorld::GetTileSectionRect(pretileRect);
+	_tileRectScreen = tileRectScreen;
+	auto sectionRect = GameWorld::GetTileSectionRect(_tileRectScreen);
+
+	auto gameWorld = _gameWorld;
+	sectionRect.ForEach([gameWorld](glm::ivec2 coord) {
+		gameWorld->FlushSectionCache(coord);
+	});
+
 	_tileRect = trv2::RectI(sectionRect.Position * GameWorld::TILE_SECTION_SIZE,
 		sectionRect.Size * GameWorld::TILE_SECTION_SIZE);
 
@@ -77,18 +83,20 @@ void Lighting::CalculateLight(trv2::SpriteRenderer* renderer, const glm::mat4& p
 	{
 		calculateOneLight(light);
 	}
+}
 
-	//printf("%d\n", Num);
+void Lighting::DrawLightMap(trv2::SpriteRenderer* renderer, const glm::mat4& projection)
+{
 	trv2::BatchSettings setting{};
 	renderer->Begin(projection, setting);
 	{
-		for (int y = pretileRect.Position.y; y < pretileRect.Position.y + pretileRect.Size.y; y++)
+		for (int y = _tileRectScreen.Position.y; y < _tileRectScreen.Position.y + _tileRectScreen.Size.y; y++)
 		{
-			for (int x = pretileRect.Position.x; x < pretileRect.Position.x + pretileRect.Size.x; x++)
+			for (int x = _tileRectScreen.Position.x; x < _tileRectScreen.Position.x + _tileRectScreen.Size.x; x++)
 			{
 				auto coord = glm::ivec2(x, y);
 				auto& tile = _gameWorld->GetTile(coord);
-				if(tile.IsEmpty())
+				if (tile.IsEmpty())
 				{
 					/*renderer->Draw(coord, glm::vec2(1), glm::vec2(0),
 						0.f, glm::vec4(1));*/
@@ -114,10 +122,11 @@ float Lighting::GetLight(glm::ivec2 coord)
 		assert(false);
 		return 0.f;
 	}
-	auto getId = [](glm::ivec2 pos) {
+	auto tileRect = _tileRect;
+	auto getId = [tileRect](glm::ivec2 pos) {
 		int x = pos.x;
 		int y = pos.y;
-		return y * _tileRect.Size.x + x;
+		return y * tileRect.Size.x + x;
 	};
 	int id = getId(coord - _tileRect.Position);
 	return glm::smoothstep(0.f, 1.f, 1.f - distArray[id] / MAXDIST);

@@ -22,6 +22,8 @@ private:
 	void drawShadowMaps();
 	void drawPlayers();
 
+	void updateLighting();
+
 	TRGame* _game;
 
 	trv2::RectI _screenRect{};

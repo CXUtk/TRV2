@@ -63,7 +63,6 @@ void MapScene::Update(double deltaTime)
 void MapScene::Draw(double deltaTime)
 {
     auto gameWorld = _game->GetGameWorld();
-    auto mapTex = gameWorld->GetMapTexture();
     auto spriteRenderer = _engine->GetSpriteRenderer();
     auto graphicsDevice = _engine->GetGraphicsDevice();
     auto assetsManager = _engine->GetAssetsManager();
@@ -71,22 +70,21 @@ void MapScene::Draw(double deltaTime)
     auto playerTexture = assetsManager->GetTexture2D("builtin::player");
     auto localPlayer = _game->GetLocalPlayer();
 
+    graphicsDevice->SwitchRenderTarget(nullptr);
     graphicsDevice->Clear(glm::vec4(0));
-
-    //trv2::BatchSettings defaultSetting{};
-    //defaultSetting.BlendMode = trv2::BlendingMode::AlphaBlend;
-    //spriteRenderer->Begin(_worldProjection, defaultSetting);
-    //{
-    //    spriteRenderer->Draw(mapTex, glm::vec2(0), mapTex->GetSize() * 16,
-    //        glm::vec2(0), 0.f, glm::vec4(1));
-    //    float factor = std::exp(_expScale);
-    //    spriteRenderer->Draw(playerTexture, localPlayer->GetPlayerHitbox().Center(),
-    //        glm::vec2(playerTexture->GetSize()) / factor * 2.f,
-    //        glm::vec2(0.5), 0.f, glm::vec4(1), (localPlayer->GetDirection() == 1)
-    //        ? trv2::SpriteFlipMode::FlipHorizontal 
-    //        : trv2::SpriteFlipMode::None);
-    //}
-    //spriteRenderer->End();
+    gameWorld->RenderMapTexture(_worldProjection, spriteRenderer, glm::ivec2(0));
+    trv2::BatchSettings defaultSetting{};
+    defaultSetting.BlendMode = trv2::BlendingMode::AlphaBlend;
+    spriteRenderer->Begin(_worldProjection, defaultSetting);
+    {
+        float factor = std::exp(_expScale);
+        spriteRenderer->Draw(playerTexture, localPlayer->GetPlayerHitbox().Center(),
+            glm::vec2(playerTexture->GetSize()) / factor * 2.f,
+            glm::vec2(0.5), 0.f, glm::vec4(1), (localPlayer->GetDirection() == 1)
+            ? trv2::SpriteFlipMode::FlipHorizontal 
+            : trv2::SpriteFlipMode::None);
+    }
+    spriteRenderer->End();
 }
 
 void MapScene::FocusOnPlayer()

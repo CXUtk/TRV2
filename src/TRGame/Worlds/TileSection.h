@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include "WorldMap.h"
 
 #include <TREngine/Core.h>
 #include <TREngine/Core/Structures/Rect.hpp>
@@ -18,6 +19,8 @@ public:
 	bool Intersects(const trv2::RectI& tileRect) const;
 
 	void RenderSection(const glm::mat4& projection, trv2::SpriteRenderer* renderer, trv2::RenderTarget2D* renderTarget);
+
+	trv2::Texture2D* GetMapTexture() const { return _sectionMap->GetTexture(); }
 
 private:
 	std::unique_ptr<Tile[]> _tiles;

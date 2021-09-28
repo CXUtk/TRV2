@@ -7,6 +7,7 @@
 
 #include <TREngine/Core/Gamplay/gameplay.h>
 #include <TREngine/Core/Render/render.h>
+#include <TREngine/Core/Structures/EngineSettings.h>
 
 #include <TRGame/Player/Player.h>
 #include <TRGame/Worlds/GameWorld.h>
@@ -116,7 +117,7 @@ void TRGame::Exit()
 
 bool TRGame::ShouldSkipFrame(double elapsedFromFrameBegin)
 {
-    return false;
+    return false;//elapsedFromFrameBegin >= 1.f / _engine->GetEngineSetting()->GetFPSCap();
 }
 
 void TRGame::OnFrameEnd()

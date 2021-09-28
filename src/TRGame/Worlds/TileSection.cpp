@@ -247,7 +247,7 @@ TileSection::TileSection(glm::ivec2 tileStart, glm::ivec2 tileSize) : _sectionSt
 		for (int x = 0; x < _sectionSize.x; x++)
 		{
 			const auto& tile = GetTile(glm::ivec2(x, y));
-			_sectionMap->SetColor(glm::ivec2(x, y), glm::vec3(1));
+			_sectionMap->SetColor(glm::ivec2(x, y), tile.Type == 0 ? glm::vec3(0): glm::vec3(0.5));
 		}
 	}
 }
@@ -298,20 +298,6 @@ void TileSection::RenderSection(const glm::mat4& projection, trv2::SpriteRendere
 	setting.Shader = nullptr;
 	renderer->Begin(projection, setting);
 	{
-		//auto assetManager = TRGame::GetInstance()->GetEngine()->GetAssetsManager();
-		//for (int i = 0; i < _sectionSize.x; i++)
-		//{
-		//	for (int j = 0; j < _sectionSize.y; j++)
-		//	{
-		//		auto coord = glm::ivec2(i, j);
-		//		auto startPos = glm::vec2(coord) * (float)GameWorld::TILE_SIZE;
-		//		auto& tile = GetTile(coord);
-		//		if (tile.IsEmpty()) continue;
-
-		//		renderer->Draw(startPos, glm::vec2(GameWorld::TILE_SIZE), glm::vec2(0),
-		//			0.f, glm::vec4(tempColorTable[tile.Type], 1.f));
-		//	}
-		//}
 		renderer->Draw(_cacheRenderTarget->GetTexture2D(), glm::vec2(0), _sectionSize * GameWorld::TILE_SIZE, glm::vec2(0), 0.f, glm::vec4(1));
 
 		//// DEBUG
