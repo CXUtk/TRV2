@@ -17,13 +17,20 @@ static const BatchVertex2D simpleQuadVertices[4] = {
 	BatchVertex2D(glm::vec2(1, 1), glm::vec2(1, 1), glm::vec4(1))
 };
 
-static const unsigned int defaultSpriteTexOrder[4] = {
+static const glm::vec2 defaultTexCoordsList[4] = {
+	glm::vec2(0, 0),
+	glm::vec2(1, 0),
+	glm::vec2(0, 1),
+	glm::vec2(1, 1)
+};
+
+static const uint defaultSpriteTexOrder[4] = {
 	0, 1, 2, 3
 };
-static const unsigned int flipHorizontalSpriteTexOrder[4] = {
+static const uint flipHorizontalSpriteTexOrder[4] = {
 	1, 0, 3, 2
 };
-static const unsigned int flipVerticalSpriteTexOrder[4] = {
+static const uint flipVerticalSpriteTexOrder[4] = {
 	2, 3, 0, 1
 };
 
@@ -117,7 +124,18 @@ void SpriteRenderer::End()
 void SpriteRenderer::Draw(glm::vec2 pos, glm::vec2 size, glm::vec2 origin, float rotation, 
 	const glm::vec4& color, SpriteFlipMode flipMode)
 {
-	pushTextureQuad(_whiteTexture, pos, size, origin, rotation, color, flipMode);
+	pushTextureQuad(_whiteTexture, pos, size, origin, rotation, color, flipMode, defaultTexCoordsList);
+}
+
+void SpriteRenderer::Draw(glm::vec2 pos, glm::vec2 size, const trv2::Rectf& texCoords, glm::vec2 origin, float rotation, const glm::vec4& color, SpriteFlipMode flipMode)
+{
+	const glm::vec2 texCoordsList[4] = {
+		texCoords.BottomLeft(),
+		texCoords.BottomRight(),
+		texCoords.TopLeft(),
+		texCoords.TopRight()
+	};
+	pushTextureQuad(_whiteTexture, pos, size, origin, rotation, color, flipMode, texCoordsList);
 }
 
 
@@ -125,11 +143,22 @@ void SpriteRenderer::Draw(const Texture2D* texture, glm::vec2 pos, glm::vec2 siz
 	glm::vec2 origin, float rotation, const glm::vec4& color,
 	SpriteFlipMode flipMode)
 {
-	pushTextureQuad(texture, pos, size, origin, rotation, color, flipMode);
+	pushTextureQuad(texture, pos, size, origin, rotation, color, flipMode, defaultTexCoordsList);
+}
+
+void SpriteRenderer::Draw(const Texture2D* texture, glm::vec2 pos, glm::vec2 size, const trv2::Rectf& texCoords, glm::vec2 origin, float rotation, const glm::vec4& color, SpriteFlipMode flipMode)
+{
+	const glm::vec2 texCoordsList[4] = {
+		texCoords.BottomLeft(),
+		texCoords.BottomRight(),
+		texCoords.TopLeft(),
+		texCoords.TopRight()
+	};
+	pushTextureQuad(texture, pos, size, origin, rotation, color, flipMode, texCoordsList);
 }
 
 void SpriteRenderer::pushTextureQuad(const Texture2D* texture, glm::vec2 tpos, glm::vec2 size, glm::vec2 origin, 
-	float rotation, const glm::vec4& color, SpriteFlipMode flipMode)
+	float rotation, const glm::vec4& color, SpriteFlipMode flipMode, const glm::vec2* useTexCoords)
 {
 	if (_currentVertex == MaxVerticesPerBatch)
 	{
@@ -172,28 +201,28 @@ void SpriteRenderer::pushTextureQuad(const Texture2D* texture, glm::vec2 tpos, g
 		auto& curV1 = _vertices[_currentVertex];
 
 		curV1.Position = tpos + (simpleQuadVertices[0].Position - origin) * size;
-		curV1.TextureCoords = simpleQuadVertices[texCoordTable[0]].TextureCoords;
+		curV1.TextureCoords = useTexCoords[texCoordTable[0]];
 		curV1.Color = bColor;
 		curV1.TextureIndex = (float)slotId;
 
 		auto& curV2 = _vertices[_currentVertex + 1];
 
 		curV2.Position = tpos + (simpleQuadVertices[1].Position - origin) * size;
-		curV2.TextureCoords = simpleQuadVertices[texCoordTable[1]].TextureCoords;
+		curV2.TextureCoords = useTexCoords[texCoordTable[1]];
 		curV2.Color = bColor;
 		curV2.TextureIndex = (float)slotId;
 
 		auto& curV3 = _vertices[_currentVertex + 2];
 
 		curV3.Position = tpos + (simpleQuadVertices[2].Position - origin) * size;
-		curV3.TextureCoords = simpleQuadVertices[texCoordTable[2]].TextureCoords;
+		curV3.TextureCoords = useTexCoords[texCoordTable[2]];
 		curV3.Color = bColor;
 		curV3.TextureIndex = (float)slotId;
 
 		auto& curV4 = _vertices[_currentVertex + 3];
 
 		curV4.Position = tpos + (simpleQuadVertices[3].Position - origin) * size;
-		curV4.TextureCoords = simpleQuadVertices[texCoordTable[3]].TextureCoords;
+		curV4.TextureCoords = useTexCoords[texCoordTable[3]];
 		curV4.Color = bColor;
 		curV4.TextureIndex = (float)slotId;
 
@@ -204,28 +233,28 @@ void SpriteRenderer::pushTextureQuad(const Texture2D* texture, glm::vec2 tpos, g
 		auto& curV1 = _vertices[_currentVertex];
 
 		curV1.Position = tpos + transform * ((simpleQuadVertices[0].Position - origin) * size);
-		curV1.TextureCoords = simpleQuadVertices[texCoordTable[0]].TextureCoords;
+		curV1.TextureCoords = useTexCoords[texCoordTable[0]];
 		curV1.Color = bColor;
 		curV1.TextureIndex = slotId;
 
 		auto& curV2 = _vertices[_currentVertex + 1];
 
 		curV2.Position = tpos + transform * ((simpleQuadVertices[1].Position - origin) * size);
-		curV2.TextureCoords = simpleQuadVertices[texCoordTable[1]].TextureCoords;
+		curV2.TextureCoords = useTexCoords[texCoordTable[1]];
 		curV2.Color = bColor;
 		curV2.TextureIndex = slotId;
 
 		auto& curV3 = _vertices[_currentVertex + 2];
 
 		curV3.Position = tpos + transform * ((simpleQuadVertices[2].Position - origin) * size);
-		curV3.TextureCoords = simpleQuadVertices[texCoordTable[2]].TextureCoords;
+		curV3.TextureCoords = useTexCoords[texCoordTable[2]];
 		curV3.Color = bColor;
 		curV3.TextureIndex = slotId;
 
 		auto& curV4 = _vertices[_currentVertex + 3];
 
 		curV4.Position = tpos + transform * ((simpleQuadVertices[3].Position - origin) * size);
-		curV4.TextureCoords = simpleQuadVertices[texCoordTable[3]].TextureCoords;
+		curV4.TextureCoords = useTexCoords[texCoordTable[3]];
 		curV4.Color = bColor;
 		curV4.TextureIndex = slotId;
 

@@ -10,6 +10,7 @@ struct TileGenLayout
 struct Tile
 {
 	uint Type : 16;
+	uint Wall : 16;
 	uint TileFrameX : 16;
 	uint TileFrameY : 16;
 	uint Life : 8;
@@ -21,7 +22,8 @@ struct Tile
 	~Tile() = default;
 
 	bool IsSolid() const { return Solid; }
-	bool IsEmpty() const { return Type == 0; }
+	bool IsEmpty() const { return Type == 0 && Wall == 0; }
+	bool IsAir() const { return Type == 0; }
 	void SetSolid(bool value) { Solid = value; }
 };
 

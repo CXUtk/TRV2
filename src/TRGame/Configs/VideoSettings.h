@@ -14,5 +14,5 @@ private:
 	bool _enableSmoothLight = true;
 
 	bool _enableFrameBlending = true;
-	float _prevFrameBlendingRatio = 0.8f;
+	float _prevFrameBlendingRatio = 0.5f;
 };

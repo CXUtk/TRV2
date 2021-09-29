@@ -13,6 +13,7 @@ public:
 	~GameWorld();
 
 	void RenderWorld(const glm::mat4& projection, trv2::SpriteRenderer* renderer, const trv2::RectI& renderRect, trv2::RenderTarget2D* renderTarget);
+
 	// Tile& GetTile(glm::ivec2 pos);
 	const Tile& GetTile(glm::ivec2 pos) const;
 	bool TileExists(glm::ivec2 pos) const;

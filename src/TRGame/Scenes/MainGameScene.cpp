@@ -286,15 +286,15 @@ void MainGameScene::updateLighting()
     lighting->ClearLights();
 
 
-    for (int i = 0; i < 10; i++)
-    {
-        for (int j = 0; j < 10; j++)
-        {
-            glm::vec3 c = glm::vec3(0);
-            c[(i + j) % 3] = 1.f;
-            lighting->AddLight(Light{ glm::vec2(i * 200, j * 200), c, 16 });
-        }
-    }
-
+    //for (int i = 0; i < 10; i++)
+    //{
+    //    for (int j = 0; j < 10; j++)
+    //    {
+    //        glm::vec3 c = glm::vec3(0);
+    //        c[(i + j) % 3] = 1.f;
+    //        lighting->AddLight(Light{ glm::vec2(i * 200, j * 200), c, 16 });
+    //    }
+    //}
+    lighting->AddLight(Light{ player->GetPlayerHitbox().Position, glm::vec3(1), 16 });
     lighting->CalculateLight( _tileRect);
 }

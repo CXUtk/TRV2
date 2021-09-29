@@ -32,8 +32,8 @@ GameWorld::~GameWorld()
 trv2::RectI GameWorld::GetTileRect(const trv2::RectI& worldRect)
 {
 	// calculate draw rect
-	glm::ivec2 botLeft = GetLowerWorldCoord(worldRect.BottomLeft(), 1);
-	glm::ivec2 topRight = GetUpperWorldCoord(worldRect.TopRight(), 1);
+	glm::ivec2 botLeft = GetLowerWorldCoord(worldRect.BottomLeft(), 32);
+	glm::ivec2 topRight = GetUpperWorldCoord(worldRect.TopRight(), 32);
 	return trv2::RectI(botLeft, topRight - botLeft);
 }
 

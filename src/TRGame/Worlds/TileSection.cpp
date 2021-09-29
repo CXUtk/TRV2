@@ -132,7 +132,10 @@ TileSection::TileSection(glm::ivec2 tileStart, glm::ivec2 tileSize) : _sectionSt
 	_sectionMap = std::make_unique<WorldMap>(_sectionSize);
 
 	trv2::TextureParameters texPara{};
-	_cacheRenderTarget = std::make_unique<trv2::RenderTarget2D>(trv2::Engine::GetInstance()->GetGraphicsResourceManager(),
+	texPara.InternalFormat = trv2::PixelFormat::RGBA;
+	_cacheRenderTargetWalls = std::make_unique<trv2::RenderTarget2D>(trv2::Engine::GetInstance()->GetGraphicsResourceManager(),
+		tileSize * GameWorld::TILE_SIZE, texPara);
+	_cacheRenderTargetTiles = std::make_unique<trv2::RenderTarget2D>(trv2::Engine::GetInstance()->GetGraphicsResourceManager(),
 		tileSize * GameWorld::TILE_SIZE, texPara);
 
 	auto engine = TRGame::GetInstance()->GetEngine();
@@ -190,6 +193,7 @@ TileSection::TileSection(glm::ivec2 tileStart, glm::ivec2 tileSize) : _sectionSt
 			else
 			{
 				tile.Type = 0;
+				tile.Wall = 1;
 			}
 		}
 	}
@@ -294,13 +298,14 @@ void TileSection::RenderSection(const glm::mat4& projection, trv2::SpriteRendere
 	//_spriteRenderer->Draw(glm::vec2((int)(worldPos.x / 16) * 16, (int)(worldPos.y / 16) * 16), glm::vec2(16), glm::vec2(0), 0.f, glm::vec4(1, 0, 0, 1));
 	trv2::BatchSettings setting{};
 	setting.SpriteSortMode = trv2::SpriteSortMode::Deferred;
-
+	setting.BlendMode = trv2::BlendingMode::AlphaBlend;
 	setting.Shader = nullptr;
 	renderer->Begin(projection, setting);
 	{
-		renderer->Draw(_cacheRenderTarget->GetTexture2D(), glm::vec2(0), _sectionSize * GameWorld::TILE_SIZE, glm::vec2(0), 0.f, glm::vec4(1));
+		renderer->Draw(_cacheRenderTargetWalls->GetTexture2D(), glm::vec2(0), _sectionSize * GameWorld::TILE_SIZE, glm::vec2(0), 0.f, glm::vec4(1));
+		renderer->Draw(_cacheRenderTargetTiles->GetTexture2D(), glm::vec2(0), _sectionSize * GameWorld::TILE_SIZE, glm::vec2(0), 0.f, glm::vec4(1));
 
-		//// DEBUG
+		// DEBUG
 		//renderer->Draw(glm::vec2(0), glm::vec2(_sectionSize.x * 16, 1), glm::vec2(0),
 		//			0.f, glm::vec4(0, 1, 0, 1));
 		//renderer->Draw(glm::vec2(0), glm::vec2(1, _sectionSize.y * 16), glm::vec2(0),
@@ -319,14 +324,40 @@ void TileSection::reDrawCache(trv2::RenderTarget2D* renderTarget)
 	auto renderer = trv2::Engine::GetInstance()->GetSpriteRenderer();
 	auto assetManager = trv2::Engine::GetInstance()->GetAssetsManager();
 
-	graphicsDevice->SwitchRenderTarget(trv2::ptr(_cacheRenderTarget));
-	graphicsDevice->Clear(glm::vec4(0));
-
+	trv2::BatchSettings setting{};
+	setting.SpriteSortMode = trv2::SpriteSortMode::Deferred;
+	setting.Shader = nullptr;
 	auto canvasSize = _sectionSize * GameWorld::TILE_SIZE;
 	auto projection = glm::ortho(0.f, (float)canvasSize.x, 0.f, (float)canvasSize.y);
 
-	trv2::BatchSettings setting{};
-	setting.SpriteSortMode = trv2::SpriteSortMode::Deferred;
+	graphicsDevice->SwitchRenderTarget(trv2::ptr(_cacheRenderTargetWalls));
+	graphicsDevice->Clear(glm::vec4(0));
+	setting.Shader = assetManager->GetShader("tex:brick");
+	renderer->Begin(projection, setting);
+	{
+		graphicsDevice->UseShader(setting.Shader);
+		for (int y = 0; y < _sectionSize.y; y++)
+		{
+			for (int x = 0; x < _sectionSize.x; x++)
+			{
+				auto coord = glm::ivec2(x, y);
+				auto startPos = glm::vec2(coord) * (float)GameWorld::TILE_SIZE;
+				auto& tile = GetTile(coord);
+				if (tile.Wall == 0)
+				{
+					continue;
+				}
+				renderer->Draw(startPos,
+					glm::vec2(GameWorld::TILE_SIZE),  trv2::Rectf(_sectionStart + coord, glm::vec2(1)), glm::vec2(0),
+					0.f, glm::vec4(1));
+			}
+		}
+	}
+	renderer->End();
+
+
+	graphicsDevice->SwitchRenderTarget(trv2::ptr(_cacheRenderTargetTiles));
+	graphicsDevice->Clear(glm::vec4(0));
 	setting.Shader = nullptr;
 	renderer->Begin(projection, setting);
 	{
@@ -337,22 +368,13 @@ void TileSection::reDrawCache(trv2::RenderTarget2D* renderTarget)
 				auto coord = glm::ivec2(x, y);
 				auto startPos = glm::vec2(coord) * (float)GameWorld::TILE_SIZE;
 				auto& tile = GetTile(coord);
-				if (tile.IsEmpty())
+				if (tile.Type == 0)
 				{
 					continue;
 				}
-
-				if (tile.Type == 0)
-				{
-					renderer->Draw(startPos, glm::vec2(GameWorld::TILE_SIZE), glm::vec2(0),
-						0.f, glm::vec4(0));
-				}
-				else
-				{
-					renderer->Draw(assetManager->GetTexture2D("builtin::stone"), startPos, 
-						glm::vec2(GameWorld::TILE_SIZE), glm::vec2(0),
-						0.f, glm::vec4(1));
-				}
+				renderer->Draw(assetManager->GetTexture2D("builtin::stone"), startPos,
+					glm::vec2(GameWorld::TILE_SIZE), glm::vec2(0),
+					0.f, glm::vec4(1));
 			}
 		}
 	}

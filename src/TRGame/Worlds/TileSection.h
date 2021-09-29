@@ -26,7 +26,9 @@ private:
 	std::unique_ptr<Tile[]> _tiles;
 	std::unique_ptr<TileGenLayout[]> _worldGenLayouts;
 	std::unique_ptr<WorldMap> _sectionMap;
-	std::unique_ptr<trv2::RenderTarget2D> _cacheRenderTarget;
+
+	std::unique_ptr<trv2::RenderTarget2D> _cacheRenderTargetTiles;
+	std::unique_ptr<trv2::RenderTarget2D> _cacheRenderTargetWalls;
 
 	glm::ivec2 _sectionStart;
 	glm::ivec2 _sectionSize;
