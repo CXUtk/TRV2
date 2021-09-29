@@ -199,19 +199,20 @@ TileSection::TileSection(glm::ivec2 tileStart, glm::ivec2 tileSize) : _sectionSt
 	}
 
 
-	//for (int x = 0; x < size.x; x++)
+	//for (int x = 0; x < _sectionSize.x; x++)
 	//{
+	//	auto worldTileX = _sectionStart.x + x;
 
-	//	float X = (x + 0.5f) / size.x;
-	//	float v = fBm(glm::vec2(1.5, X * 5), 4, 0);
+	//	float X = (worldTileX + 0.5f) / _sectionSize.x;
+	//	float v = fBm(glm::vec2(1.5, X), 2, 0);
 	//	v = sin(v) * 0.5 + 0.5;
 
 	//	int BlockH = MAXIMAL_SURFACE_HEIGHT - MINIMAL_SURFACE_HEIGHT - MINIMAL_SURFACE_THICKNESS;
 	//	float BaseLine = MINIMAL_SURFACE_HEIGHT + BlockH * v;
 
-	//	float v1 = fBm(glm::vec2(2.5, X * 5), 4, 0);
-	//	float v2 = fBm(glm::vec2(3.5, X * 5), 4, 0);
-	//	float v3 = fBm(glm::vec2(4.5, X * 5), 4, 0);
+	//	float v1 = fBm(glm::vec2(2.5, X), 2, 0);
+	//	float v2 = fBm(glm::vec2(3.5, X), 2, 0);
+	//	float v3 = fBm(glm::vec2(4.5, X), 2, 0);
 	//	float bottom = BaseLine - MINIMAL_SURFACE_THICKNESS * v1;
 
 	//	float AVHeight = MAXIMAL_SURFACE_HEIGHT - bottom - MINIMAL_SURFACE_THICKNESS;
