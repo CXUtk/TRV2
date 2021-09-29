@@ -182,11 +182,11 @@ TileSection::TileSection(glm::ivec2 tileStart, glm::ivec2 tileSize) : _sectionSt
 
 			if (v < threashold)
 			{
-				tile.Type = 1;
+				tile.TileType = 1;
 				tile.Solid = true;
 				if (v2 < -0.5)
 				{
-					tile.Type = 2;
+					tile.TileType = 2;
 					tile.Solid = true;
 				}
 			}
@@ -252,7 +252,7 @@ TileSection::TileSection(glm::ivec2 tileStart, glm::ivec2 tileSize) : _sectionSt
 		for (int x = 0; x < _sectionSize.x; x++)
 		{
 			const auto& tile = GetTile(glm::ivec2(x, y));
-			_sectionMap->SetColor(glm::ivec2(x, y), tile.Type == 0 ? glm::vec3(0): glm::vec3(0.5));
+			_sectionMap->SetColor(glm::ivec2(x, y), tile.IsEmpty() ? glm::vec3(0): glm::vec3(0.5));
 		}
 	}
 }

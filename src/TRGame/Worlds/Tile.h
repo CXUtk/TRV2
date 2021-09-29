@@ -18,7 +18,7 @@ struct Tile
 	bool Solid : 1;
 
 	Tile() = default;
-	Tile(int type) : Type(type) {}
+	Tile(int type) : TileType(type) {}
 	~Tile() = default;
 
 	bool IsSolid() const { return Solid; }
