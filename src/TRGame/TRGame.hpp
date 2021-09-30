@@ -51,6 +51,8 @@ public:
 
     VideoSettings* GetVideoSettings() const { return trv2::ptr(_videoSettings); }
 
+    WorldResources* GetWorldResources() const { return trv2::ptr(_worldResources); }
+
 private:
     // Other
     void logGameInfo();
@@ -68,6 +70,9 @@ private:
     std::unique_ptr<MapScene> _mapScene;
 
     std::unique_ptr<VideoSettings> _videoSettings;
+
+    std::unique_ptr<WorldResources> _worldResources;
+    
 
     GameState _gameState = GameState::MAIN;
     GameState _nextGameState = GameState::MAIN;

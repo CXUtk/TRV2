@@ -143,6 +143,7 @@ void SpriteRenderer::Draw(const Texture2D* texture, glm::vec2 pos, glm::vec2 siz
 	glm::vec2 origin, float rotation, const glm::vec4& color,
 	SpriteFlipMode flipMode)
 {
+	if (texture == nullptr) texture = _whiteTexture;
 	pushTextureQuad(texture, pos, size, origin, rotation, color, flipMode, defaultTexCoordsList);
 }
 
@@ -154,6 +155,7 @@ void SpriteRenderer::Draw(const Texture2D* texture, glm::vec2 pos, glm::vec2 siz
 		texCoords.TopLeft(),
 		texCoords.TopRight()
 	};
+	if (texture == nullptr) texture = _whiteTexture;
 	pushTextureQuad(texture, pos, size, origin, rotation, color, flipMode, texCoordsList);
 }
 

@@ -1,6 +1,8 @@
 ﻿#pragma once
 #include <glm/glm.hpp>
 #include <bitset>
+#include <TRGame/TRGame_Interfaces.h>
+#include <TREngine/Core.h>
 
 struct TileGenLayout
 {
@@ -25,6 +27,12 @@ struct Tile
 	bool IsEmpty() const { return Type == 0 && Wall == 0; }
 	bool IsAir() const { return Type == 0; }
 	void SetSolid(bool value) { Solid = value; }
+};
+
+struct WallObjectData
+{
+	bool UseShader;
+	trv2::ShaderProgram* Shader;
 };
 
 struct TileObjectData

@@ -6,6 +6,7 @@ class Tile;
 class TileSection;
 class TileGenLayout;
 class WorldMap;
+class WorldResources;
 
 class Lighting;
 
