@@ -35,7 +35,7 @@ add_executable("TRV2_Game"
  "src/TRGame/Worlds/WorldMap.h"
  "src/TRGame/Worlds/WorldMap.cpp"
  "src/TRGame/Configs/VideoSettings.h"
- "src/TRGame/Configs/VideoSettings.cpp")
+ "src/TRGame/Configs/VideoSettings.cpp" "src/TRGame/Worlds/WorldResources.h" "src/TRGame/Worlds/WorldResources.cpp")
 
 # 编译选项
 set(CMAKE_CXX_STANDARD 17)

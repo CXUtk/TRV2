@@ -18,7 +18,7 @@ struct Tile
 	bool Solid : 1;
 
 	Tile() = default;
-	Tile(int type) : TileType(type) {}
+	Tile(int type) : Type(type) {}
 	~Tile() = default;
 
 	bool IsSolid() const { return Solid; }
@@ -27,3 +27,8 @@ struct Tile
 	void SetSolid(bool value) { Solid = value; }
 };
 
+struct TileObjectData
+{
+	bool Solid;
+	bool BlockLight;
+};
