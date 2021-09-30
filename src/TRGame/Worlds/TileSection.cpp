@@ -98,12 +98,12 @@ static float perlin(glm::vec2 coord, int type)
 	auto P = glm::ivec2(glm::floor(coord));
 	auto extraCoord = glm::fract(coord);
 
-	auto factor = SmoothInterp(extraCoord);
-
 	float V1 = glm::dot(GetDir(P.x, P.y, type), extraCoord - glm::vec2(0, 0));
 	float V2 = glm::dot(GetDir(P.x + 1, P.y, type), extraCoord - glm::vec2(1, 0));
 	float V3 = glm::dot(GetDir(P.x, P.y + 1, type), extraCoord - glm::vec2(0, 1));
 	float V4 = glm::dot(GetDir(P.x + 1, P.y + 1, type), extraCoord - glm::vec2(1, 1));
+
+	auto factor = SmoothInterp(extraCoord);
 
 	float v1 = glm::mix(V1, V2, factor.x);
 	float v2 = glm::mix(V3, V4, factor.x);
@@ -359,7 +359,7 @@ void TileSection::reDrawCache(trv2::RenderTarget2D* renderTarget)
 
 	graphicsDevice->SwitchRenderTarget(trv2::ptr(_cacheRenderTargetTiles));
 	graphicsDevice->Clear(glm::vec4(0));
-	setting.Shader = nullptr;
+	setting.Shader = assetManager->GetShader("tex:rock");
 	renderer->Begin(projection, setting);
 	{
 		for (int y = 0; y < _sectionSize.y; y++)
@@ -373,8 +373,8 @@ void TileSection::reDrawCache(trv2::RenderTarget2D* renderTarget)
 				{
 					continue;
 				}
-				renderer->Draw(assetManager->GetTexture2D("builtin::stone"), startPos,
-					glm::vec2(GameWorld::TILE_SIZE), glm::vec2(0),
+				renderer->Draw(startPos,
+					glm::vec2(GameWorld::TILE_SIZE), trv2::Rectf(_sectionStart + coord, glm::vec2(1)), glm::vec2(0),
 					0.f, glm::vec4(1));
 			}
 		}

@@ -3,8 +3,8 @@
 in vec2 fTexCoord;
 out vec4 color;
 
-uniform float brick_height = 0.8;
-uniform float brick_width = 2.0;
+uniform float brick_height = 0.85;
+uniform float brick_width = 2.25;
 uniform float groove_size = 0.05;
 uniform float offset[2] = { 0.0, 0.25 };
 

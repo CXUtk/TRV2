@@ -176,8 +176,9 @@ void MainGameScene::drawShadowMaps()
 
     // render shadow map
     graphicsDevice->SwitchRenderTarget(trv2::ptr(_shadowMapSwap[0]));
-    graphicsDevice->Clear(glm::vec4(0, 0, 0, 1));
-    lighting->DrawLightMap(spriteRenderer, renderTileProjection);
+    graphicsDevice->Clear(glm::vec4(1));
+    //graphicsDevice->Clear(glm::vec4(0));
+    //lighting->DrawLightMap(spriteRenderer, renderTileProjection);
 
 
     // Blur shadow map
