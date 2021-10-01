@@ -21,12 +21,61 @@
 
 GameWorld::GameWorld()
 {
-	
+	_thread = std::make_shared<std::thread>([this]()-> void {
+		AsyncSectionEvent curEvent{ SectionEventType::NONE, nullptr };
+		while (true)
+		{
+			if (_shouldTerminate) break;
+			_queueLock.lock();
+			if (_sectionGenTaskQueue.empty())
+			{
+				_queueLock.unlock();
+				continue;
+			}
+			curEvent = _sectionGenTaskQueue.front();
+			_sectionGenTaskQueue.pop();
+			_queueLock.unlock();
+
+			switch (curEvent.EventType)
+			{
+			case SectionEventType::NONE:
+				break;
+			case SectionEventType::GENERATE:
+			{
+				do_generateTileSection(
+					trv2::ptr(curEvent.TileSectionPtr)
+				);
+				break;
+			}
+			case SectionEventType::LOAD:
+			{
+				do_loadTileSection(
+					   trv2::ptr(curEvent.TileSectionPtr)
+				);
+				break;
+			}
+			case SectionEventType::SAVE:
+			{
+				do_saveTileSection(
+					   trv2::ptr(curEvent.TileSectionPtr)
+				);
+				break;
+			}
+			default:
+			{
+				break;
+			}
+
+			}
+		}
+	});
 }
+
 
 GameWorld::~GameWorld()
 {
-	
+	_shouldTerminate = true;
+	_thread->join();
 }
 
 trv2::RectI GameWorld::GetTileRect(const trv2::RectI& worldRect)
@@ -59,6 +108,43 @@ const TileSection* GameWorld::checkInCache(glm::ivec2 sectionPos) const
 	sectionPos.x = (sectionPos.x + TILE_SECTION_CACHE_SIZE) % TILE_SECTION_CACHE_SIZE;
 	sectionPos.y = (sectionPos.y + TILE_SECTION_CACHE_SIZE) % TILE_SECTION_CACHE_SIZE;
 	return trv2::ptr(_cachedSections[sectionPos.x][sectionPos.y]);
+}
+
+std::shared_ptr<TileSection> GameWorld::generateTileSectionAsync(glm::ivec2 sectionPos, glm::ivec2 tilePos)
+{
+	std::lock_guard<std::mutex> queueGuard(_queueLock);
+	auto section = std::make_shared<TileSection>(tilePos, glm::ivec2(TILE_SECTION_SIZE));
+	_sectionGenTaskQueue.push(AsyncSectionEvent{ SectionEventType::GENERATE, section });
+	return section;
+}
+
+std::shared_ptr<TileSection> GameWorld::loadTileSectionAsync(glm::ivec2 sectionPos, glm::ivec2 tilePos)
+{
+	std::lock_guard<std::mutex> queueGuard(_queueLock);
+	auto section = std::make_shared<TileSection>(tilePos, glm::ivec2(TILE_SECTION_SIZE));
+	_sectionGenTaskQueue.push(AsyncSectionEvent{ SectionEventType::LOAD, section });
+	return section;
+}
+
+void GameWorld::saveTileSectionAsync(glm::ivec2 sectionPos, std::shared_ptr<TileSection> tileSectionPtr)
+{
+	std::lock_guard<std::mutex> queueGuard(_queueLock);
+	_sectionGenTaskQueue.push(AsyncSectionEvent{ SectionEventType::SAVE, tileSectionPtr });
+}
+
+void GameWorld::do_generateTileSection(TileSection* section)
+{
+	section->Generate();
+}
+
+void GameWorld::do_loadTileSection(TileSection* section)
+{
+	section->Load();
+}
+
+void GameWorld::do_saveTileSection(TileSection * section)
+{
+	section->SaveToFile();
 }
 
 
@@ -116,11 +202,16 @@ void GameWorld::FlushSectionCache(glm::ivec2 sectionPos)
 	sectionPos.x = (sectionPos.x + TILE_SECTION_CACHE_SIZE) % TILE_SECTION_CACHE_SIZE;
 	sectionPos.y = (sectionPos.y + TILE_SECTION_CACHE_SIZE) % TILE_SECTION_CACHE_SIZE;
 
-	if (_cachedSections[sectionPos.x][sectionPos.y] == nullptr || _cachedSections[sectionPos.x][sectionPos.y]->GetSectionStartPos()
-		!= tileCoord)
+	if (_cachedSections[sectionPos.x][sectionPos.y] == nullptr)
 	{
-		_cachedSections[sectionPos.x][sectionPos.y] = std::make_shared<TileSection>(tileCoord,
-			glm::ivec2(TILE_SECTION_SIZE));
+		_cachedSections[sectionPos.x][sectionPos.y] = loadTileSectionAsync(sectionPos, tileCoord);
+	}
+	else if (_cachedSections[sectionPos.x][sectionPos.y]->GetSectionStartPos() != tileCoord)
+	{
+		// Copy the shared_ptr of given tile Section to ensure async save is on the correct Section
+		saveTileSectionAsync(sectionPos, _cachedSections[sectionPos.x][sectionPos.y]);
+
+		_cachedSections[sectionPos.x][sectionPos.y] = loadTileSectionAsync(sectionPos, tileCoord);
 	}
 }
 

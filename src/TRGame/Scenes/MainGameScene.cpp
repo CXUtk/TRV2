@@ -70,6 +70,7 @@ void MainGameScene::Update(double deltaTime)
     auto clientSize = window->GetWindowSize();
     auto gameWorld = _game->GetGameWorld();
     auto localPlayer = _game->GetLocalPlayer();
+    auto videoSettings = _game->GetVideoSettings();
 
 
     localPlayer->Update();
@@ -78,7 +79,7 @@ void MainGameScene::Update(double deltaTime)
     {
         _screenRect.Size = window->GetWindowSize();
         _screenRect.Position = glm::floor(glm::mix(glm::vec2(_screenRect.Position),
-            localPlayer->GetPlayerHitbox().Center() - glm::vec2(_screenRect.Size) * 0.5f, 0.4f));
+            localPlayer->GetPlayerHitbox().Center() - glm::vec2(_screenRect.Size) * 0.5f, videoSettings->GetCameraChaseRatio()));
     }
 
     _tileRect = GameWorld::GetTileRect(_screenRect);
@@ -99,11 +100,11 @@ void MainGameScene::Draw(double deltaTime)
     {
         drawTiles();
 
+        drawPlayers();
+
         drawShadowMaps();
 
         drawTilesToScreen();
-
-        drawPlayers();
 
         _prevTileRect = _tileRect;
     }
@@ -181,7 +182,7 @@ void MainGameScene::drawShadowMaps()
 
 
     // Blur shadow map
-    for (int i = 0; i < 2; i++)
+    for (int i = 0; i < videoSettings->GetLightingBlurCount(); i++)
     { 
         int index = i & 1;
         graphicsDevice->SwitchRenderTarget(trv2::ptr(_shadowMapSwap[!index]));
@@ -276,6 +277,8 @@ void MainGameScene::drawPlayers()
     localPlayer->Draw(_worldProjection, spriteRenderer);
 }
 
+
+static float x = 0;
 void MainGameScene::updateLighting()
 {
     auto lighting = _game->GetLighting();
@@ -285,7 +288,7 @@ void MainGameScene::updateLighting()
     lighting->SetGameWorld(gameWorld);
     lighting->ClearLights();
 
-
+    x++;
     for (int i = 0; i < 10; i++)
     {
         for (int j = 0; j < 10; j++)
@@ -295,6 +298,6 @@ void MainGameScene::updateLighting()
             lighting->AddLight(Light{ glm::vec2(i * 200, j * 200), c, 16 });
         }
     }
-    lighting->AddLight(Light{ player->GetPlayerHitbox().Position, glm::vec3(1), 16 });
+    lighting->AddLight(Light{ player->GetPlayerHitbox().Position, glm::vec3(1), (int)(16 + sin(x * 0.33) * 2) });
     lighting->CalculateLight( _tileRect);
 }

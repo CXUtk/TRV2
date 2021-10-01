@@ -1,10 +1,27 @@
 ﻿#pragma once
 #include <memory>
+#include <thread>
+#include <queue>
+#include <mutex>
 
 #include <TRGame/TRGame_Interfaces.h>
 #include <TREngine/Core.h>
 #include <TREngine/Core/Structures/Rect.hpp>
 
+enum class SectionEventType
+{
+	NONE,
+	SAVE,
+	LOAD,
+	GENERATE
+};
+
+struct AsyncSectionEvent
+{
+	SectionEventType EventType;
+	// This will be copied and count as a reference to prevent deallocation
+	std::shared_ptr< TileSection> TileSectionPtr;
+};
 
 class GameWorld
 {
@@ -33,8 +50,22 @@ public:
 private:
 	static constexpr int TILE_SECTION_CACHE_SIZE = 16;
 
+	std::shared_ptr<std::thread> _thread = nullptr;
+	std::queue<AsyncSectionEvent> _sectionGenTaskQueue{};
+	std::mutex _queueLock{};
+	bool _shouldTerminate = false;
+
 	std::shared_ptr<TileSection> _cachedSections[TILE_SECTION_CACHE_SIZE][TILE_SECTION_CACHE_SIZE];
 
 	TileSection* getTileSection(glm::ivec2 sectionPos);
 	const TileSection* checkInCache(glm::ivec2 sectionPos) const;
+
+	std::shared_ptr<TileSection> generateTileSection(glm::ivec2 sectionPos);
+	std::shared_ptr<TileSection> generateTileSectionAsync(glm::ivec2 sectionPos, glm::ivec2 tilePos);	
+	std::shared_ptr<TileSection> loadTileSectionAsync(glm::ivec2 sectionPos, glm::ivec2 tilePos);
+	void saveTileSectionAsync(glm::ivec2 sectionPos, std::shared_ptr<TileSection> tileSectionPtr);
+
+	void do_generateTileSection(TileSection* section);
+	void do_loadTileSection(TileSection* section);
+	void do_saveTileSection(TileSection* section);
 };

@@ -79,6 +79,12 @@ public:
     */
     IGameWindow* GetGameWindow();
 
+    /**
+     * @brief Get file system utils
+     * @return 
+    */
+    IFileSystem* GetFileSystem();
+
 private:
     // 加载函数
     void loadSupportiveSystem();

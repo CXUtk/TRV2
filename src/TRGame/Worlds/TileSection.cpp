@@ -5,13 +5,16 @@
 
 #include <glm/gtx/transform.hpp>
 #include <algorithm>
-
+#include <chrono>
 #include <random>
+#include <filesystem>
+
 #include <TRGame/TRGame.hpp>
 #include <TREngine/Engine.h>
 #include <TREngine/Core/Assets/assets.h>
 #include <TREngine/Core/Render/render.h>
 #include <TREngine/Core/Utils/Logging/Logger.h>
+#include <TREngine/Core/Utils/Utils.h>
 
 #include <TREngine/Graphics/Graphics_Interfaces.h>
 #include <TREngine/Platform/Platform_Interfaces.h>
@@ -139,67 +142,130 @@ TileSection::TileSection(glm::ivec2 tileStart, glm::ivec2 tileSize) : _sectionSt
 	_cacheRenderTargetTiles = std::make_unique<trv2::RenderTarget2D>(trv2::Engine::GetInstance()->GetGraphicsResourceManager(),
 		tileSize * GameWorld::TILE_SIZE, texPara);
 
+	
+}
+
+TileSection::~TileSection()
+{
+
+}
+
+
+Tile& TileSection::GetTile(glm::ivec2 pos)
+{
+	assert(pos.x >= 0 && pos.x < _sectionSize.x);
+	assert(pos.y >= 0 && pos.y < _sectionSize.y);
+	return _tiles[pos.y * _sectionSize.x + pos.x];
+}
+
+const Tile& TileSection::GetTile(glm::ivec2 pos) const
+{
+	assert(pos.x >= 0 && pos.x < _sectionSize.x);
+	assert(pos.y >= 0 && pos.y < _sectionSize.y);
+	return _tiles[pos.y * _sectionSize.x + pos.x];
+}
+
+void TileSection::SetTile(glm::ivec2 pos, const Tile& tile)
+{
+	assert(false);
+	std::lock_guard<std::mutex> mutexGuard(_sectionReadLock);
+	assert(pos.x >= 0 && pos.x < _sectionSize.x);
+	assert(pos.y >= 0 && pos.y < _sectionSize.y);
+	_tiles[pos.y * _sectionSize.x + pos.x] = tile;
+}
+
+bool TileSection::Intersects(const trv2::RectI& tileRect) const
+{
+	return RectIntersects(trv2::RectI(_sectionStart, _sectionSize), tileRect);
+}
+
+void TileSection::RenderSection(const glm::mat4& projection, trv2::SpriteRenderer* renderer, trv2::RenderTarget2D* renderTarget)
+{
+	Lock();
+
+	if (_isDirty)
+	{
+		reDrawCache(renderTarget);
+	}
+
+	//_spriteRenderer->Draw(glm::vec2((int)(worldPos.x / 16) * 16, (int)(worldPos.y / 16) * 16), glm::vec2(16), glm::vec2(0), 0.f, glm::vec4(1, 0, 0, 1));
+	trv2::BatchSettings setting{};
+	setting.SpriteSortMode = trv2::SpriteSortMode::Deferred;
+	setting.BlendMode = trv2::BlendingMode::AlphaBlend;
+	setting.Shader = nullptr;
+	renderer->Begin(projection, setting);
+	{
+		renderer->Draw(_cacheRenderTargetWalls->GetTexture2D(), glm::vec2(0), _sectionSize * GameWorld::TILE_SIZE, glm::vec2(0), 0.f, glm::vec4(1));
+		renderer->Draw(_cacheRenderTargetTiles->GetTexture2D(), glm::vec2(0), _sectionSize * GameWorld::TILE_SIZE, glm::vec2(0), 0.f, glm::vec4(1));
+
+		// DEBUG
+		//renderer->Draw(glm::vec2(0), glm::vec2(_sectionSize.x * 16, 1), glm::vec2(0),
+		//			0.f, glm::vec4(0, 1, 0, 1));
+		//renderer->Draw(glm::vec2(0), glm::vec2(1, _sectionSize.y * 16), glm::vec2(0),
+		//	0.f, glm::vec4(0, 1, 0, 1));
+		//renderer->Draw(glm::vec2(0, _sectionSize.y * 16 - 1), glm::vec2(_sectionSize.x * 16, 1), glm::vec2(0),
+		//	0.f, glm::vec4(0, 1, 0, 1));
+		//renderer->Draw(glm::vec2(_sectionSize.x * 16 - 1, 0), glm::vec2(1, _sectionSize.y * 16), glm::vec2(0),
+		//	0.f, glm::vec4(0, 1, 0, 1));
+	}
+	renderer->End();
+
+	Unlock();
+}
+
+void TileSection::Generate()
+{
 	auto engine = TRGame::GetInstance()->GetEngine();
 	auto logger = engine->GetLogger();
 	auto resourceManager = engine->GetGraphicsResourceManager();
+	auto worldResources = TRGame::GetInstance()->GetWorldResources();
 
 
-	for (int s = 0; s < 1; s++)
+	logger->Log(trv2::SeverityLevel::Info, "Generating Tile Section at (%d, %d)", _sectionStart.x, _sectionStart.y);
+
+	float dx = 1.0 / _sectionSize.x;
+	float dy = 1.0 / _sectionSize.y;
+	for (int y = 0; y < _sectionSize.y; y++)
 	{
-		logger->Log(trv2::SeverityLevel::Info, "Generating Tile Section at (%d, %d)", tileStart.x, tileStart.y);
-
-		float dx = 1.0 / _sectionSize.x;
-		float dy = 1.0 / _sectionSize.y;
-		for (int y = 0; y < _sectionSize.y; y++)
+		for (int x = 0; x < _sectionSize.x; x++)
 		{
-			for (int x = 0; x < _sectionSize.x; x++)
+			_sectionReadLock.lock();
+			for (int s = 0; s < 1; s++)
 			{
 				auto coord = glm::vec2((x + _sectionStart.x) * dx, (y + _sectionStart.y) * dy) * 1.f;
 
 				auto v = fBm(coord, 4, s);
 
-				_worldGenLayouts[y * _sectionSize.x + x].v[s] = v;
-			}
-		}
-	}
+				glm::ivec2 tileCoord(x, y);
 
-	for (int y = 0; y < _sectionSize.y; y++)
-	{
-		for (int x = 0; x < _sectionSize.x; x++)
-		{
-			glm::ivec2 coord(x, y);
-			float v = _worldGenLayouts[y * _sectionSize.x + x].v[0];
-			float v2 = _worldGenLayouts[y * _sectionSize.x + x].v[1];
+				float threashold = 0.15f;
+				auto& tile = getTile(tileCoord);
 
-			float threashold = 0.15f;
-			auto& tile = GetTile(coord);
-
-			if (y > MINIMAL_SURFACE_HEIGHT)
-			{
-				float f = (float)(y - MINIMAL_SURFACE_HEIGHT) / (MAXIMAL_SURFACE_HEIGHT - MINIMAL_SURFACE_HEIGHT);
-				f = std::pow(f, 2.0);
-				threashold = glm::mix(0.15f, 0.8f, f);
-			}
-
-			if (v < threashold)
-			{
-				tile.Type = 1;
-				tile.Solid = true;
-				if (v2 < -0.5)
+				if (y > MINIMAL_SURFACE_HEIGHT)
 				{
-					tile.Type = 2;
-					tile.Solid = true;
+					float f = (float)(y - MINIMAL_SURFACE_HEIGHT) / (MAXIMAL_SURFACE_HEIGHT - MINIMAL_SURFACE_HEIGHT);
+					f = std::pow(f, 2.0);
+					threashold = glm::mix(0.15f, 0.8f, f);
 				}
+
+				if (v < threashold)
+				{
+					tile.Type = 1;
+				}
+				else
+				{
+					tile.Type = 0;
+					tile.Wall = 1;
+				}
+
+				_sectionMap->SetColor(glm::ivec2(x, y), tile.IsAir() ? glm::vec3(0) : glm::vec3(0.5));
+				_isDirty = true;
 			}
-			else
-			{
-				tile.Type = 0;
-				tile.Wall = 1;
-			}
+			_sectionReadLock.unlock();
 		}
 	}
 
-
+	SaveToFile();
 	//for (int x = 0; x < _sectionSize.x; x++)
 	//{
 	//	auto worldTileX = _sectionStart.x + x;
@@ -247,81 +313,78 @@ TileSection::TileSection(glm::ivec2 tileStart, glm::ivec2 tileSize) : _sectionSt
 	//		tile.Type = 0;
 	//	}
 	//}
+}
 
-	for (int y = 0; y < _sectionSize.y; y++)
+void TileSection::SaveToFile()
+{
+	auto engine = TRGame::GetInstance()->GetEngine();
+	auto logger = engine->GetLogger();
+	logger->Log(trv2::SeverityLevel::Info, "Saving Tile Section at (%d, %d)", _sectionStart.x, _sectionStart.y);
+
+	auto fileSystem = trv2::Engine::GetInstance()->GetFileSystem();
+	auto fileName = string_format("%dHH%d.section", _sectionStart.x, _sectionStart.y);
+
+	auto stream = fileSystem->OpenWrite(fileName, trv2::AccessMode::Read);
+	stream.write(reinterpret_cast<const char*>(&_tiles[0]), sizeof(Tile) * _sectionSize.x * _sectionSize.y);
+	stream.close();
+}
+
+void TileSection::Load()
+{
+	auto engine = TRGame::GetInstance()->GetEngine();
+	auto logger = engine->GetLogger();
+	logger->Log(trv2::SeverityLevel::Info, "Loading Tile Section at (%d, %d)", _sectionStart.x, _sectionStart.y);
+
+	auto fileSystem = engine->GetFileSystem();
+	auto fileName = string_format("%dHH%d.section", _sectionStart.x, _sectionStart.y);
+
+	if (!fileSystem->IsFileExist(fileName))
 	{
-		for (int x = 0; x < _sectionSize.x; x++)
+		Generate();
+		return;
+	}
+
+	auto stream = fileSystem->OpenRead(fileName, trv2::AccessMode::Read);
+	if (stream.is_open())
+	{
+		for (int y = 0; y < _sectionSize.y; y++)
 		{
-			const auto& tile = GetTile(glm::ivec2(x, y));
-			_sectionMap->SetColor(glm::ivec2(x, y), tile.IsAir() ? glm::vec3(0): glm::vec3(0.5));
+			for (int x = 0; x < _sectionSize.x; x++)
+			{
+				_sectionReadLock.lock();
+				stream.read(reinterpret_cast<char*>(&_tiles[y * _sectionSize.x + x]), sizeof(Tile));
+
+				const auto& tile = _tiles[y * _sectionSize.x + x];
+				_sectionMap->SetColor(glm::ivec2(x, y), tile.IsAir() ? glm::vec3(0) : glm::vec3(0.5));
+				_isDirty = true;
+				_sectionReadLock.unlock();
+			}
 		}
+		stream.close();
 	}
+
 }
 
-TileSection::~TileSection()
+void TileSection::Lock()
 {
-
+	_sectionReadLock.lock();
 }
 
+void TileSection::Unlock()
+{
+	_sectionReadLock.unlock();
+}
 
-Tile& TileSection::GetTile(glm::ivec2 pos)
+Tile& TileSection::getTile(glm::ivec2 pos)
 {
 	assert(pos.x >= 0 && pos.x < _sectionSize.x);
 	assert(pos.y >= 0 && pos.y < _sectionSize.y);
 	return _tiles[pos.y * _sectionSize.x + pos.x];
-}
-
-const Tile& TileSection::GetTile(glm::ivec2 pos) const
-{
-	assert(pos.x >= 0 && pos.x < _sectionSize.x);
-	assert(pos.y >= 0 && pos.y < _sectionSize.y);
-	return _tiles[pos.y * _sectionSize.x + pos.x];
-}
-
-void TileSection::SetTile(glm::ivec2 pos, const Tile& tile)
-{
-	assert(pos.x >= 0 && pos.x < _sectionSize.x);
-	assert(pos.y >= 0 && pos.y < _sectionSize.y);
-	_tiles[pos.y * _sectionSize.x + pos.x] = tile;
-}
-
-bool TileSection::Intersects(const trv2::RectI& tileRect) const
-{
-	return RectIntersects(trv2::RectI(_sectionStart, _sectionSize), tileRect);
-}
-
-void TileSection::RenderSection(const glm::mat4& projection, trv2::SpriteRenderer* renderer, trv2::RenderTarget2D* renderTarget)
-{
-	if (_isDirty)
-	{
-		reDrawCache(renderTarget);
-	}
-
-	//_spriteRenderer->Draw(glm::vec2((int)(worldPos.x / 16) * 16, (int)(worldPos.y / 16) * 16), glm::vec2(16), glm::vec2(0), 0.f, glm::vec4(1, 0, 0, 1));
-	trv2::BatchSettings setting{};
-	setting.SpriteSortMode = trv2::SpriteSortMode::Deferred;
-	setting.BlendMode = trv2::BlendingMode::AlphaBlend;
-	setting.Shader = nullptr;
-	renderer->Begin(projection, setting);
-	{
-		renderer->Draw(_cacheRenderTargetWalls->GetTexture2D(), glm::vec2(0), _sectionSize * GameWorld::TILE_SIZE, glm::vec2(0), 0.f, glm::vec4(1));
-		renderer->Draw(_cacheRenderTargetTiles->GetTexture2D(), glm::vec2(0), _sectionSize * GameWorld::TILE_SIZE, glm::vec2(0), 0.f, glm::vec4(1));
-
-		// DEBUG
-		//renderer->Draw(glm::vec2(0), glm::vec2(_sectionSize.x * 16, 1), glm::vec2(0),
-		//			0.f, glm::vec4(0, 1, 0, 1));
-		//renderer->Draw(glm::vec2(0), glm::vec2(1, _sectionSize.y * 16), glm::vec2(0),
-		//	0.f, glm::vec4(0, 1, 0, 1));
-		//renderer->Draw(glm::vec2(0, _sectionSize.y * 16 - 1), glm::vec2(_sectionSize.x * 16, 1), glm::vec2(0),
-		//	0.f, glm::vec4(0, 1, 0, 1));
-		//renderer->Draw(glm::vec2(_sectionSize.x * 16 - 1, 0), glm::vec2(1, _sectionSize.y * 16), glm::vec2(0),
-		//	0.f, glm::vec4(0, 1, 0, 1));
-	}
-	renderer->End();
 }
 
 void TileSection::reDrawCache(trv2::RenderTarget2D* renderTarget)
 {
+
 	auto graphicsDevice = trv2::Engine::GetInstance()->GetGraphicsDevice();
 	auto renderer = trv2::Engine::GetInstance()->GetSpriteRenderer();
 	auto assetManager = trv2::Engine::GetInstance()->GetAssetsManager();
@@ -343,13 +406,13 @@ void TileSection::reDrawCache(trv2::RenderTarget2D* renderTarget)
 			{
 				auto coord = glm::ivec2(x, y);
 				auto startPos = glm::vec2(coord) * (float)GameWorld::TILE_SIZE;
-				auto& tile = GetTile(coord);
+				auto& tile = getTile(coord);
 				if (tile.Wall == 0)
 				{
 					continue;
 				}
 				
-				auto wallData = worldResources->GetWallObjectData(tile.Wall);
+				auto& wallData = worldResources->GetWallObjectData(tile.Wall);
 				if (wallData.UseShader)
 				{
 					renderer->End();
@@ -368,8 +431,7 @@ void TileSection::reDrawCache(trv2::RenderTarget2D* renderTarget)
 				}
 				else
 				{
-					auto texture = worldResources->GetWallTexture(tile.Wall);
-					renderer->Draw(texture, startPos,
+					renderer->Draw(wallData.Texture, startPos,
 						glm::vec2(GameWorld::TILE_SIZE), trv2::Rectf(_sectionStart + coord, glm::vec2(1)), glm::vec2(0),
 						0.f, glm::vec4(1));
 				}
@@ -390,13 +452,13 @@ void TileSection::reDrawCache(trv2::RenderTarget2D* renderTarget)
 			{
 				auto coord = glm::ivec2(x, y);
 				auto startPos = glm::vec2(coord) * (float)GameWorld::TILE_SIZE;
-				auto& tile = GetTile(coord);
+				auto& tile = getTile(coord);
 				if (tile.Type == 0)
 				{
 					continue;
 				}
-				auto texture = worldResources->GetTileTexture(tile.Type);
-				renderer->Draw(texture, startPos,
+				auto& tileData = worldResources->GetTileObjectData(tile.Type);
+				renderer->Draw(tileData.Texture, startPos,
 					glm::vec2(GameWorld::TILE_SIZE), trv2::Rectf(_sectionStart + coord, glm::vec2(1)), glm::vec2(0),
 					0.f, glm::vec4(1));
 			}

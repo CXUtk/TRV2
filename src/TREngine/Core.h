@@ -32,6 +32,7 @@ class IGraphicsProvider;
 
 // Platform
 class IGameWindow;
+class IFileSystem;
 class IPlatformProvider;
 class GameTimer;
 

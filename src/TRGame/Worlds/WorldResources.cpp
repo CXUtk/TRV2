@@ -9,55 +9,52 @@ static constexpr int WALL_TYPES = 2;
 WorldResources::WorldResources()
 {
 	auto assetManager = trv2::Engine::GetInstance()->GetAssetsManager();
-	_tileTextures = std::make_unique<trv2::Texture2D* []>(TILE_TYPES);
-	_tileMapColors = std::make_unique<glm::vec3[]>(TILE_TYPES);
 
-	_wallTextures = std::make_unique<trv2::Texture2D* []>(WALL_TYPES);
-	_wallObjectData = std::make_unique<WallObjectData[]>(WALL_TYPES);
+	_tileObjectDataArray = std::make_unique<TileObjectData[]>(TILE_TYPES);
+	_wallObjectDataArray = std::make_unique<WallObjectData[]>(WALL_TYPES);
 
-
+	TileObjectData empty{};
 	// Empty air
-	_tileTextures[0] = assetManager->GetTexture2D("builtin::sprite");
-	_tileMapColors[0] = glm::vec3(0);
+	_tileObjectDataArray[0] = empty;
 
 	// Rock
-	_tileTextures[1] = assetManager->GetTexture2D("stone");
-	_tileMapColors[1] = glm::vec3(0.5);
+	TileObjectData rock{};
+	rock.Solid = true;
+	rock.BlockLight = true;
+	rock.Texture = assetManager->GetTexture2D("stone");
+	rock.MapColor = glm::vec3(0.4, 0.4, 0.4);
+	_tileObjectDataArray[1] = rock;
+
+	// Dirt
+	TileObjectData dirt{};
+	dirt.Solid = true;
+	dirt.BlockLight = true;
+	dirt.Texture = assetManager->GetTexture2D("dirt");
+	dirt.MapColor = glm::vec3(0.7, 0.4, 0.2);
+	_tileObjectDataArray[2] = dirt;
 
 
 	// Wall
 	// Empty wall
-	_wallObjectData[0] = WallObjectData();
-	_wallTextures[0] = nullptr;
+	_wallObjectDataArray[0] = WallObjectData();
 
 	// Brick Wall
-	WallObjectData brickWallObjectData;
+	WallObjectData brickWallObjectData{};
 	brickWallObjectData.UseShader = true;
 	brickWallObjectData.Shader = assetManager->GetShader("tex:brick");
-	_wallObjectData[1] = brickWallObjectData;
-	_wallTextures[1] = nullptr;
+	_wallObjectDataArray[1] = brickWallObjectData;
 
 }
 
 WorldResources::~WorldResources()
 {}
 
-trv2::Texture2D* WorldResources::GetTileTexture(int tileType)
+const TileObjectData& WorldResources::GetTileObjectData(int tileType)
 {
-	return _tileTextures[tileType];
-}
-
-glm::vec3 WorldResources::GetTileMapColor(int tileType)
-{
-	return _tileMapColors[tileType];
-}
-
-trv2::Texture2D* WorldResources::GetWallTexture(int wallType)
-{
-	return _wallTextures[wallType];
+	return _tileObjectDataArray[tileType];
 }
 
 const WallObjectData& WorldResources::GetWallObjectData(int wallType)
 {
-	return _wallObjectData[wallType];
+	return _wallObjectDataArray[wallType];
 }

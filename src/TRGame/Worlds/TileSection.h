@@ -5,6 +5,8 @@
 #include <TREngine/Core/Structures/Rect.hpp>
 #include <TRGame/TRGame_Interfaces.h>
 
+#include <mutex>
+
 class TileSection
 {
 public:
@@ -22,7 +24,16 @@ public:
 
 	trv2::Texture2D* GetMapTexture() const { return _sectionMap->GetTexture(); }
 
+	void Generate();
+	void SaveToFile();
+	void Load();
+
+	void Lock();
+	void Unlock();
+
 private:
+	mutable std::mutex _sectionReadLock;
+
 	std::unique_ptr<Tile[]> _tiles;
 	std::unique_ptr<TileGenLayout[]> _worldGenLayouts;
 	std::unique_ptr<WorldMap> _sectionMap;
@@ -35,5 +46,6 @@ private:
 
 	bool _isDirty = true;
 
+	Tile& getTile(glm::ivec2 pos);
 	void reDrawCache(trv2::RenderTarget2D* renderTarget);
 };

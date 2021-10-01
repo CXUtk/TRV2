@@ -148,4 +148,9 @@ IGameWindow* Engine::GetGameWindow()
 {
     return _platformProvider->GetGameWindow();
 }
+
+IFileSystem* Engine::GetFileSystem()
+{
+    return _platformProvider->GetFileSystem();
+}
 TRV2_NAMESPACE_END

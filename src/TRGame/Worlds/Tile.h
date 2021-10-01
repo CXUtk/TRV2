@@ -17,26 +17,26 @@ struct Tile
 	uint TileFrameY : 16;
 	uint Life : 8;
 	bool Active : 1;
-	bool Solid : 1;
 
 	Tile() = default;
 	Tile(int type) : Type(type) {}
 	~Tile() = default;
 
-	bool IsSolid() const { return Solid; }
 	bool IsEmpty() const { return Type == 0 && Wall == 0; }
 	bool IsAir() const { return Type == 0; }
-	void SetSolid(bool value) { Solid = value; }
 };
 
 struct WallObjectData
 {
-	bool UseShader;
-	trv2::ShaderProgram* Shader;
+	bool UseShader = false;
+	trv2::ShaderProgram* Shader = nullptr;
+	trv2::Texture2D* Texture = nullptr;
 };
 
 struct TileObjectData
 {
-	bool Solid;
-	bool BlockLight;
+	bool Solid = false;
+	bool BlockLight = false;
+	trv2::Texture2D* Texture = nullptr;
+	glm::vec3 MapColor{};
 };

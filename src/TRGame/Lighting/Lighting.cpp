@@ -3,6 +3,7 @@
 #include <TRGame/Player/Player.h>
 #include <TRGame/Worlds/GameWorld.h>
 #include <TRGame/Worlds/Tile.h>
+#include <TRGame/Worlds/WorldResources.h>
 
 #include <algorithm>
 #include <vector>
@@ -96,12 +97,6 @@ void Lighting::DrawLightMap(trv2::SpriteRenderer* renderer, const glm::mat4& pro
 			{
 				auto coord = glm::ivec2(x, y);
 				auto& tile = _gameWorld->GetTile(coord);
-				if (tile.IsEmpty())
-				{
-					/*renderer->Draw(coord, glm::vec2(1), glm::vec2(0),
-						0.f, glm::vec4(1));*/
-					continue;
-				}
 				int id = this->getBlockId(coord - _tileRect.Position);
 				auto color = colorArray[id];
 				if (color == glm::vec3(0)) continue;
@@ -156,8 +151,9 @@ bool Lighting::isValidCoordCached(glm::ivec2 worldCoord)
 float Lighting::calculateDistance(glm::ivec2 worldCoord, int dir, float curDist)
 {
 	auto& tile = _gameWorld->GetTile(worldCoord);
+	auto& tileData = TRGame::GetInstance()->GetWorldResources()->GetTileObjectData(tile.Type);
 	float newDist = curDist + distA[dir];
-	if (tile.Solid)
+	if (tileData.Solid)
 	{
 		if (newDist < 10) newDist = 10;
 		newDist += distA[dir];

@@ -174,7 +174,6 @@ trv2::Rectf Player::tryMoveWithCollide(const trv2::Rectf& oldBox, glm::vec2 disp
 
 	trv2::Rectf newBox = oldBox;
 	newBox.Position += displacement;
-	//return newBox;
 
 	auto start = GameWorld::GetLowerWorldCoord(newBox.BottomLeft());
 	trv2::RectI tileRect(start,
