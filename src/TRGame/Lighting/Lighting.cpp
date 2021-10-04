@@ -46,7 +46,8 @@ static constexpr int K = 1;
 float colors[3][VIS_SIZE];
 
 float luminances[3][VIS_SIZE][K];
-bool visited[VIS_SIZE][K];
+bool visited[3][VIS_SIZE][K];
+static std::priority_queue<LightNode> LightQ[3];
 
 static glm::vec3 Gamma(const glm::vec3 color)
 {
@@ -81,13 +82,17 @@ void Lighting::CalculateLight(const trv2::RectI& tileRectScreen)
 	_tileRect = trv2::RectI(sectionRect.Position * GameWorld::TILE_SECTION_SIZE,
 		sectionRect.Size * GameWorld::TILE_SECTION_SIZE);
 
+	std::unique_ptr<std::thread> lightThreads[3];
 	for (int i = 0; i < 3; i++)
 	{
-		calculateOneChannel(_lights, i);
+		lightThreads[i] = std::make_unique<std::thread>([this, i]()-> void {
+			calculateOneChannel(_lights, i);
+		});
 	}
 
 	for (int channel = 0; channel < 3; channel++)
 	{
+		lightThreads[channel]->join();
 		for (int i = 0; i < _tileRect.Size.x * _tileRect.Size.y; i++)
 		{
 			float x = 0.f;
@@ -172,16 +177,20 @@ float Lighting::calculateLuminance(glm::ivec2 worldCoord, int dir, float curLumi
 
 void Lighting::calculateOneChannel(const std::vector<Light>& lights, int channel)
 {
-	memset(luminances[channel], 0, sizeof(float) * _tileRect.Size.x * _tileRect.Size.y);
-	memset(visited, 0, sizeof(bool) * _tileRect.Size.x * _tileRect.Size.y);
-	std::priority_queue<LightNode> Q;
+	memset(luminances[channel], 0, sizeof(luminances[channel][0]) * _tileRect.Size.x * _tileRect.Size.y);
+	memset(visited[channel], 0, sizeof(visited[channel][0]) * _tileRect.Size.x * _tileRect.Size.y);
+
+	const auto L = luminances[channel];
+	const auto VIS = visited[channel];
+	auto& Q = LightQ[channel];
+
 	for (const auto& light : lights)
 	{
 		glm::ivec2 lightTile = GameWorld::GetLowerWorldCoord(light.Position, 0);
 		if (light.Color[channel] == 0 || !isValidCoord(lightTile)) continue;
 		int curId = getBlockId(lightTile - _tileRect.Position);
 		Q.push(LightNode{ glm::i16vec2(lightTile), light.Color[channel], 0 });
-		luminances[channel][curId][0] = light.Color[channel];
+		L[curId][0] = light.Color[channel];
 	}
 	while (!Q.empty())
 	{
@@ -189,10 +198,10 @@ void Lighting::calculateOneChannel(const std::vector<Light>& lights, int channel
 		Q.pop();
 
 		int curId = getBlockId(glm::ivec2(node.Pos) - _tileRect.Position);
-		if (visited[curId][node.k]) continue;
-		visited[curId][node.k] = true;
+		if (VIS[curId][node.k]) continue;
+		VIS[curId][node.k] = true;
 
-		if (node.Luminance < luminances[channel][curId][K - 1]) continue;
+		if (node.Luminance < L[curId][K - 1]) continue;
 
 		// if (!canTilePropagateLight(node.Pos)) continue;
 		for (int i = 0; i < 8; i++)
@@ -202,13 +211,13 @@ void Lighting::calculateOneChannel(const std::vector<Light>& lights, int channel
 			{
 				int nxtId = getBlockId(nxtPos - _tileRect.Position);
 
-				float luminance = calculateLuminance(nxtPos, i, luminances[channel][curId][node.k]);
+				float luminance = calculateLuminance(nxtPos, i, L[curId][node.k]);
 				for (int k = 0; k < K; k++)
 				{
-					if (luminance > MIN_LUMINANCE && luminances[channel][nxtId][k] < luminance)
+					if (luminance > MIN_LUMINANCE && L[nxtId][k] < luminance)
 					{
-						luminances[channel][nxtId][k] = luminance;
-						Q.push(LightNode{ glm::i16vec2(nxtPos), luminances[channel][nxtId][k], k });
+						L[nxtId][k] = luminance;
+						Q.push(LightNode{ glm::i16vec2(nxtPos), L[nxtId][k], k });
 						break;
 					}
 				}
