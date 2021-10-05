@@ -73,26 +73,27 @@ void Lighting::CalculateLight(const trv2::RectI& tileRectScreen)
 {
 	_tileRectScreen = tileRectScreen;
 	auto sectionRect = GameWorld::GetTileSectionRect(_tileRectScreen);
+	_tileRect = trv2::RectI(sectionRect.Position * GameWorld::TILE_SECTION_SIZE,
+		sectionRect.Size * GameWorld::TILE_SECTION_SIZE);
+
+	auto threadPool = TRGame::GetInstance()->GetThreadPool();
+	bool finishFlag[3] = { 0 };
+	for (int i = 0; i < 3; i++)
+	{
+		threadPool->RunAsync([this, i, &finishFlag]()-> void {
+			calculateOneChannel(_lights, i);
+			finishFlag[i] = true;
+		});
+	}
 
 	auto gameWorld = _gameWorld;
 	sectionRect.ForEach([gameWorld](glm::ivec2 coord) {
 		gameWorld->FlushSectionCache(coord);
 	});
 
-	_tileRect = trv2::RectI(sectionRect.Position * GameWorld::TILE_SECTION_SIZE,
-		sectionRect.Size * GameWorld::TILE_SECTION_SIZE);
-
-	std::unique_ptr<std::thread> lightThreads[3];
-	for (int i = 0; i < 3; i++)
-	{
-		lightThreads[i] = std::make_unique<std::thread>([this, i]()-> void {
-			calculateOneChannel(_lights, i);
-		});
-	}
-
 	for (int channel = 0; channel < 3; channel++)
 	{
-		lightThreads[channel]->join();
+		while (!finishFlag[channel]) {}
 		for (int i = 0; i < _tileRect.Size.x * _tileRect.Size.y; i++)
 		{
 			float x = 0.f;

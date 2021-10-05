@@ -52,6 +52,8 @@ void TRGame::loadGameContent()
 
     _mainGameScene = std::make_unique<MainGameScene>(_engine, this);
     _mapScene = std::make_unique<MapScene>(_engine, this);
+
+    _threadPool = std::make_unique<FixedThreadPool>(5);
 }
 
 

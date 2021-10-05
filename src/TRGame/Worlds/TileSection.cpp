@@ -349,20 +349,24 @@ void TileSection::Load()
 	{
 		for (int y = 0; y < _sectionSize.y; y++)
 		{
+			_sectionReadLock.lock();
 			for (int x = 0; x < _sectionSize.x; x++)
 			{
-				_sectionReadLock.lock();
+
 				stream.read(reinterpret_cast<char*>(&_tiles[y * _sectionSize.x + x]), sizeof(Tile));
 
 				const auto& tile = _tiles[y * _sectionSize.x + x];
 				_sectionMap->SetColor(glm::ivec2(x, y), tile.IsAir() ? glm::vec3(0) : glm::vec3(0.5));
-				_isDirty = true;
-				_sectionReadLock.unlock();
-			}
+			}				
+			_isDirty = true;
+			_sectionReadLock.unlock();
 		}
 		stream.close();
 	}
-
+	else
+	{
+		throw std::exception("Cannot load tile section");
+	}
 }
 
 void TileSection::Lock()
@@ -384,7 +388,6 @@ Tile& TileSection::getTile(glm::ivec2 pos)
 
 void TileSection::reDrawCache(trv2::RenderTarget2D* renderTarget)
 {
-
 	auto graphicsDevice = trv2::Engine::GetInstance()->GetGraphicsDevice();
 	auto renderer = trv2::Engine::GetInstance()->GetSpriteRenderer();
 	auto assetManager = trv2::Engine::GetInstance()->GetAssetsManager();

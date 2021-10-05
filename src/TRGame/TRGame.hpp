@@ -10,6 +10,8 @@
 #include <TREngine/Application.h>
 #include <TREngine/Core/Structures/Rect.hpp>
 
+#include <TREngine/Core/Utils/Threads/FixedThreadPool.h>
+
 
 enum class GameState
 {
@@ -53,6 +55,8 @@ public:
 
     WorldResources* GetWorldResources() const { return trv2::ptr(_worldResources); }
 
+    FixedThreadPool* GetThreadPool() const { return trv2::ptr(_threadPool); }
+
 private:
     // Other
     void logGameInfo();
@@ -72,6 +76,8 @@ private:
     std::unique_ptr<VideoSettings> _videoSettings;
 
     std::unique_ptr<WorldResources> _worldResources;
+
+    std::unique_ptr<FixedThreadPool> _threadPool;
     
 
     GameState _gameState = GameState::MAIN;
