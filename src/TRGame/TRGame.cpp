@@ -14,6 +14,7 @@
 #include <TRGame/Scenes/MainGameScene.h>
 #include <TRGame/Scenes/MapScene.h>
 #include <TRGame/Lighting/Lighting.h>
+#include <TRGame/Worlds/WorldResources.h>
 
 
 #include <glm/gtx/transform.hpp>
@@ -43,6 +44,7 @@ void TRGame::logGameInfo()
 void TRGame::loadGameContent()
 {
     _videoSettings = std::make_unique<VideoSettings>();
+    _worldResources = std::make_unique<WorldResources>();
 
     _gameWorld = std::make_unique<GameWorld>();
     _lighting = std::make_unique<Lighting>();
@@ -50,6 +52,8 @@ void TRGame::loadGameContent()
 
     _mainGameScene = std::make_unique<MainGameScene>(_engine, this);
     _mapScene = std::make_unique<MapScene>(_engine, this);
+
+    _threadPool = std::make_unique<FixedThreadPool>(5);
 }
 
 

@@ -24,8 +24,8 @@ enum class ShaderUniformType
 class ShaderProgram : public IGraphicsResource
 {
 public:
-    explicit ShaderProgram(IGraphicsResourceManager* resourceManager, const RawShader* vertexShader, const RawShader* fragmentShader);
-    explicit ShaderProgram(IGraphicsResourceManager* resourceManager, const std::vector<const RawShader*>& shaders);
+    ShaderProgram(IGraphicsResourceManager* resourceManager, const RawShader* vertexShader, const RawShader* fragmentShader);
+    ShaderProgram(IGraphicsResourceManager* resourceManager, const std::vector<const RawShader*>& shaders);
 
     virtual ~ShaderProgram();
 

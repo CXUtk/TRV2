@@ -6,6 +6,7 @@
 #include <Core.h>
 #include <Graphics/Graphics_Interfaces.h>
 #include <Core/Structures/VertexLayout.h>
+#include <Core/Structures/Rect.hpp>
 
 TRV2_NAMESPACE_BEGIN
 
@@ -113,6 +114,10 @@ public:
 	void Draw(glm::vec2 pos, glm::vec2 size, glm::vec2 origin, float rotation, const glm::vec4& color,
 		SpriteFlipMode flipMode = SpriteFlipMode::None);
 
+	void Draw(glm::vec2 pos, glm::vec2 size, const trv2::Rectf& texCoords,
+		glm::vec2 origin, float rotation, const glm::vec4& color,
+		SpriteFlipMode flipMode = SpriteFlipMode::None);
+
 	/**
 	 * @brief Push a sprite drawing task to the batch list
 	 * @param texture The texture to draw
@@ -123,6 +128,10 @@ public:
 	 * @param color Color of this sprite (multiply with original texture)
 	*/
 	void Draw(const Texture2D* texture, glm::vec2 pos, glm::vec2 size,
+		glm::vec2 origin, float rotation, const glm::vec4& color,
+		SpriteFlipMode flipMode = SpriteFlipMode::None);
+
+	void Draw(const Texture2D* texture, glm::vec2 pos, glm::vec2 size, const trv2::Rectf& texCoords,
 		glm::vec2 origin, float rotation, const glm::vec4& color,
 		SpriteFlipMode flipMode = SpriteFlipMode::None);
 
@@ -149,7 +158,8 @@ private:
 
 
 	void pushTextureQuad(const Texture2D* texture, glm::vec2 tpos, glm::vec2 size, 
-		glm::vec2 origin, float rotation, const glm::vec4& color, SpriteFlipMode flipMode);
+		glm::vec2 origin, float rotation, const glm::vec4& color, SpriteFlipMode flipMode,const glm::vec2* useTexCoords);
+
 	void flushBatch();
 	int findUsedTexture(const Texture2D* texture) const;
 	void bindTextures() const;

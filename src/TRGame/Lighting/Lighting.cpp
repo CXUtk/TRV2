@@ -3,6 +3,7 @@
 #include <TRGame/Player/Player.h>
 #include <TRGame/Worlds/GameWorld.h>
 #include <TRGame/Worlds/Tile.h>
+#include <TRGame/Worlds/WorldResources.h>
 
 #include <algorithm>
 #include <vector>
@@ -21,24 +22,32 @@ Lighting::~Lighting()
 
 struct LightNode
 {
-	glm::ivec2 Pos;
-	float Dist;
+	glm::i16vec2 Pos;
+	float Luminance;
+	int k;
 
 	bool operator<(const LightNode& B) const
 	{
-		return this->Dist > B.Dist;
+		return this->Luminance < B.Luminance;
 	}
 };
 
 static constexpr int dX[8] = { 1, 0, -1, 0, 1, 1, -1, -1 };
 static constexpr int dY[8] = { 0, 1, 0, -1, 1, -1, 1, -1 };
-static constexpr float distA[8] = { 1.f, 1.f, 1.f, 1.f, 1.4142f, 1.4142f, 1.4142f, 1.4142f };
-float distArray[VIS_SIZE];
-glm::vec3 colorArray[VIS_SIZE];
-bool visArray[VIS_SIZE];
+static constexpr float MIN_LUMINANCE = 0.f;
+static constexpr float DECREASE = 0.0625;
+static constexpr float DECREASE_DIAG = 0.0883;
+static constexpr float distA[8] = { DECREASE, DECREASE, DECREASE, DECREASE,
+		DECREASE_DIAG, DECREASE_DIAG, DECREASE_DIAG, DECREASE_DIAG };
 
-constexpr float MAXDIST = 16.f;
+static constexpr float MAXDIST = 16.f;
+static constexpr int K = 1;
 
+float colors[3][VIS_SIZE];
+
+float luminances[3][VIS_SIZE][K];
+bool visited[3][VIS_SIZE][K];
+static std::priority_queue<LightNode> LightQ[3];
 
 static glm::vec3 Gamma(const glm::vec3 color)
 {
@@ -59,29 +68,42 @@ void Lighting::AddLight(const Light& light)
 {
 	_lights.push_back(light);
 }
-static int Num = 0;
+
 void Lighting::CalculateLight(const trv2::RectI& tileRectScreen)
 {
 	_tileRectScreen = tileRectScreen;
 	auto sectionRect = GameWorld::GetTileSectionRect(_tileRectScreen);
+	_tileRect = trv2::RectI(sectionRect.Position * GameWorld::TILE_SECTION_SIZE,
+		sectionRect.Size * GameWorld::TILE_SECTION_SIZE);
+
+	auto threadPool = TRGame::GetInstance()->GetThreadPool();
+	bool finishFlag[3] = { 0 };
+	for (int i = 0; i < 3; i++)
+	{
+		threadPool->RunAsync([this, i, &finishFlag]()-> void {
+			calculateOneChannel(_lights, i);
+			finishFlag[i] = true;
+		});
+	}
 
 	auto gameWorld = _gameWorld;
 	sectionRect.ForEach([gameWorld](glm::ivec2 coord) {
 		gameWorld->FlushSectionCache(coord);
 	});
 
-	_tileRect = trv2::RectI(sectionRect.Position * GameWorld::TILE_SECTION_SIZE,
-		sectionRect.Size * GameWorld::TILE_SECTION_SIZE);
-
-	for (int i = 0; i < _tileRect.Size.x * _tileRect.Size.y; i++)
+	for (int channel = 0; channel < 3; channel++)
 	{
-		colorArray[i] = glm::vec3(0);
-	}
-
-	Num = 0;
-	for (auto& light : _lights)
-	{
-		calculateOneLight(light);
+		while (!finishFlag[channel]) {}
+		for (int i = 0; i < _tileRect.Size.x * _tileRect.Size.y; i++)
+		{
+			float x = 0.f;
+			for (int k = 0; k < K; k++)
+			{
+				x += luminances[channel][i][k];
+			}
+			x = glm::clamp(x, 0.f, 1.f);
+			colors[channel][i] = x;
+		}
 	}
 }
 
@@ -90,46 +112,35 @@ void Lighting::DrawLightMap(trv2::SpriteRenderer* renderer, const glm::mat4& pro
 	trv2::BatchSettings setting{};
 	renderer->Begin(projection, setting);
 	{
-		for (int y = _tileRectScreen.Position.y; y < _tileRectScreen.Position.y + _tileRectScreen.Size.y; y++)
-		{
-			for (int x = _tileRectScreen.Position.x; x < _tileRectScreen.Position.x + _tileRectScreen.Size.x; x++)
-			{
-				auto coord = glm::ivec2(x, y);
-				auto& tile = _gameWorld->GetTile(coord);
-				if (tile.IsEmpty())
-				{
-					/*renderer->Draw(coord, glm::vec2(1), glm::vec2(0),
-						0.f, glm::vec4(1));*/
-					continue;
-				}
-				int id = this->getBlockId(coord - _tileRect.Position);
-				auto color = colorArray[id];
-				if (color == glm::vec3(0)) continue;
-
-				renderer->Draw(coord, glm::vec2(1), glm::vec2(0),
-					0.f, glm::vec4(color, 1.f));
-			}
-		}
+		_tileRectScreen.ForEach([this, renderer](glm::ivec2 coord) -> void {
+			auto& tile = _gameWorld->GetTile(coord);
+			int id = this->getBlockId(coord - _tileRect.Position);
+			auto color = glm::vec3(colors[0][id], colors[1][id], colors[2][id]);
+			if (color == glm::vec3(0)) return;
+			renderer->Draw(coord, glm::vec2(1), glm::vec2(0),
+				0.f, glm::vec4(color, 1.f));
+		});
 	}
 	renderer->End();
 }
 
 float Lighting::GetLight(glm::ivec2 coord)
 {
-	if (coord.x < _tileRect.Position.x || coord.x >= _tileRect.Position.x + _tileRect.Size.x
-		|| coord.y < _tileRect.Position.y || coord.y >= _tileRect.Position.y + _tileRect.Size.y)
-	{
-		assert(false);
-		return 0.f;
-	}
-	auto tileRect = _tileRect;
-	auto getId = [tileRect](glm::ivec2 pos) {
-		int x = pos.x;
-		int y = pos.y;
-		return y * tileRect.Size.x + x;
-	};
-	int id = getId(coord - _tileRect.Position);
-	return glm::smoothstep(0.f, 1.f, 1.f - distArray[id] / MAXDIST);
+	return 0.f;
+	//if (coord.x < _tileRect.Position.x || coord.x >= _tileRect.Position.x + _tileRect.Size.x
+	//	|| coord.y < _tileRect.Position.y || coord.y >= _tileRect.Position.y + _tileRect.Size.y)
+	//{
+	//	assert(false);
+	//	return 0.f;
+	//}
+	//auto tileRect = _tileRect;
+	//auto getId = [tileRect](glm::ivec2 pos) {
+	//	int x = pos.x;
+	//	int y = pos.y;
+	//	return y * tileRect.Size.x + x;
+	//};
+	//int id = getId(coord - _tileRect.Position);
+	//return glm::smoothstep(0.f, 1.f, 1.f - distArray[id] / MAXDIST);
 }
 
 int Lighting::getBlockId(glm::ivec2 localCoord)
@@ -153,62 +164,45 @@ bool Lighting::isValidCoordCached(glm::ivec2 worldCoord)
 	return _gameWorld->TileExists(worldCoord);
 }
 
-float Lighting::calculateDistance(glm::ivec2 worldCoord, int dir, float curDist)
+float Lighting::calculateLuminance(glm::ivec2 worldCoord, int dir, float curLuminance)
 {
 	auto& tile = _gameWorld->GetTile(worldCoord);
-	float newDist = curDist + distA[dir];
-	if (tile.Solid)
+	auto& tileData = TRGame::GetInstance()->GetWorldResources()->GetTileObjectData(tile.Type);
+	float newLumin = curLuminance - distA[dir];
+	if (tileData.Solid)
 	{
-		if (newDist < 10) newDist = 10;
-		newDist += distA[dir];
+		newLumin -= distA[dir] * 2;
 	}
-	return newDist;
+	return newLumin;
 }
 
-bool Lighting::canTilePropagateLight(glm::ivec2 worldCoord)
+void Lighting::calculateOneChannel(const std::vector<Light>& lights, int channel)
 {
-	return true;
-}
+	memset(luminances[channel], 0, sizeof(luminances[channel][0]) * _tileRect.Size.x * _tileRect.Size.y);
+	memset(visited[channel], 0, sizeof(visited[channel][0]) * _tileRect.Size.x * _tileRect.Size.y);
 
+	const auto L = luminances[channel];
+	const auto VIS = visited[channel];
+	auto& Q = LightQ[channel];
 
-void Lighting::calculateOneLight(const Light& light)
-{
-	glm::ivec2 lightTile = GameWorld::GetLowerWorldCoord(light.Position, 0);
-
-	// Invalid light
-	if (!isValidCoord(lightTile)) return;
-	Num++;
-	// Reset BFS info in that range
-	for (int y = -light.Radius; y <= light.Radius; y++)
+	for (const auto& light : lights)
 	{
-		for (int x = -light.Radius; x <= light.Radius; x++)
-		{
-			auto curTilePos = lightTile + glm::ivec2(x, y);
-			if (isValidCoord(curTilePos))
-			{
-				int id = getBlockId(curTilePos - _tileRect.Position);
-				distArray[id] = std::numeric_limits<float>::infinity();
-				visArray[id] = false;
-			}
-		}
+		glm::ivec2 lightTile = GameWorld::GetLowerWorldCoord(light.Position, 0);
+		if (light.Color[channel] == 0 || !isValidCoord(lightTile)) continue;
+		int curId = getBlockId(lightTile - _tileRect.Position);
+		Q.push(LightNode{ glm::i16vec2(lightTile), light.Color[channel], 0 });
+		L[curId][0] = light.Color[channel];
 	}
-
-	std::priority_queue<LightNode> Q;
-
-	int id = getBlockId(lightTile - _tileRect.Position);
-	distArray[id] = 0.f;
-	Q.push({ lightTile, 0.f });
-
 	while (!Q.empty())
 	{
 		LightNode node = Q.top();
 		Q.pop();
 
-		int curId = getBlockId(node.Pos - _tileRect.Position);
-		if (visArray[curId]) continue;
-		visArray[curId] = true;
+		int curId = getBlockId(glm::ivec2(node.Pos) - _tileRect.Position);
+		if (VIS[curId][node.k]) continue;
+		VIS[curId][node.k] = true;
 
-		if (distArray[curId] >= light.Radius) continue;
+		if (node.Luminance < L[curId][K - 1]) continue;
 
 		// if (!canTilePropagateLight(node.Pos)) continue;
 		for (int i = 0; i < 8; i++)
@@ -217,34 +211,102 @@ void Lighting::calculateOneLight(const Light& light)
 			if (isValidCoord(nxtPos))
 			{
 				int nxtId = getBlockId(nxtPos - _tileRect.Position);
-				
-				float dist = calculateDistance(nxtPos, i, distArray[curId]);
-				if (dist <= light.Radius && distArray[nxtId] > dist)
+
+				float luminance = calculateLuminance(nxtPos, i, L[curId][node.k]);
+				for (int k = 0; k < K; k++)
 				{
-					distArray[nxtId] = dist;
-					Q.push({ nxtPos, distArray[nxtId] });
+					if (luminance > MIN_LUMINANCE && L[nxtId][k] < luminance)
+					{
+						L[nxtId][k] = luminance;
+						Q.push(LightNode{ glm::i16vec2(nxtPos), L[nxtId][k], k });
+						break;
+					}
 				}
 			}
 		}
 	}
-
-	auto color = Gamma(light.Color);
-	// Reset BFS info in that range
-	for (int y = -light.Radius; y <= light.Radius; y++)
-	{
-		for (int x = -light.Radius; x <= light.Radius; x++)
-		{
-			glm::ivec2 curTilePos = lightTile + glm::ivec2(x, y);
-			if (isValidCoord(curTilePos) )
-			{
-				int id = getBlockId(curTilePos - _tileRect.Position);
-				auto dist = distArray[id];
-				if (dist > MAXDIST || glm::isnan(dist) || glm::isinf(dist)) continue;
-				auto c = color * glm::mix(0.f, 1.f, 1.f - dist / light.Radius);
-				colorArray[id] += c;
-			}
-		}
-	}
-
 }
+
+bool Lighting::canTilePropagateLight(glm::ivec2 worldCoord)
+{
+	return true;
+}
+
+
+//void Lighting::calculateOneLight(const Light& light)
+//{
+//	glm::ivec2 lightTile = GameWorld::GetLowerWorldCoord(light.Position, 0);
+//
+//	// Invalid light
+//	if (!isValidCoord(lightTile)) return;
+//	Num++;
+//	// Reset BFS info in that range
+//	for (int y = -light.Radius; y <= light.Radius; y++)
+//	{
+//		for (int x = -light.Radius; x <= light.Radius; x++)
+//		{
+//			auto curTilePos = lightTile + glm::ivec2(x, y);
+//			if (isValidCoord(curTilePos))
+//			{
+//				int id = getBlockId(curTilePos - _tileRect.Position);
+//				distArray[id] = std::numeric_limits<float>::infinity();
+//				visArray[id] = false;
+//			}
+//		}
+//	}
+//
+//
+//
+//	int id = getBlockId(lightTile - _tileRect.Position);
+//	distArray[id] = 0.f;
+//	Q.push({ lightTile, 0.f });
+//
+//	while (!Q.empty())
+//	{
+//		LightNode node = Q.top();
+//		Q.pop();
+//
+//		int curId = getBlockId(node.Pos - _tileRect.Position);
+//		if (visArray[curId]) continue;
+//		visArray[curId] = true;
+//
+//		if (distArray[curId] >= light.Radius) continue;
+//
+//		// if (!canTilePropagateLight(node.Pos)) continue;
+//		for (int i = 0; i < 8; i++)
+//		{
+//			glm::ivec2 nxtPos(node.Pos.x + dX[i], node.Pos.y + dY[i]);
+//			if (isValidCoord(nxtPos))
+//			{
+//				int nxtId = getBlockId(nxtPos - _tileRect.Position);
+//				
+//				float dist = calculateDistance(nxtPos, i, distArray[curId]);
+//				if (dist <= light.Radius && distArray[nxtId] > dist)
+//				{
+//					distArray[nxtId] = dist;
+//					Q.push({ nxtPos, distArray[nxtId] });
+//				}
+//			}
+//		}
+//	}
+//
+//	auto color = Gamma(light.Color);
+//	// Reset BFS info in that range
+//	for (int y = -light.Radius; y <= light.Radius; y++)
+//	{
+//		for (int x = -light.Radius; x <= light.Radius; x++)
+//		{
+//			glm::ivec2 curTilePos = lightTile + glm::ivec2(x, y);
+//			if (isValidCoord(curTilePos) )
+//			{
+//				int id = getBlockId(curTilePos - _tileRect.Position);
+//				auto dist = distArray[id];
+//				if (dist > MAXDIST || glm::isnan(dist) || glm::isinf(dist)) continue;
+//				auto c = color * glm::mix(0.f, 1.f, 1.f - dist / light.Radius);
+//				colorArray[id] += c;
+//			}
+//		}
+//	}
+//
+//}
 

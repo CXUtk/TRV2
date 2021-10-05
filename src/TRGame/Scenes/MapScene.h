@@ -25,6 +25,5 @@ private:
 	glm::vec2 _oldScreenPos{};
 
 	trv2::Rectf _screenRect{};
-
 	glm::mat4 _worldProjection{};
 };

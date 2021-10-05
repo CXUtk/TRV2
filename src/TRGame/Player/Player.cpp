@@ -35,6 +35,7 @@ void Player::Draw(const glm::mat4& projection, trv2::SpriteRenderer* renderer)
 
 	trv2::BatchSettings setting{};
 	setting.SpriteSortMode = trv2::SpriteSortMode::Deferred;
+	setting.BlendMode = trv2::BlendingMode::AlphaBlend;
 	setting.Shader = nullptr;
 
 	renderer->Begin(projection, setting);
@@ -173,7 +174,6 @@ trv2::Rectf Player::tryMoveWithCollide(const trv2::Rectf& oldBox, glm::vec2 disp
 
 	trv2::Rectf newBox = oldBox;
 	newBox.Position += displacement;
-	//return newBox;
 
 	auto start = GameWorld::GetLowerWorldCoord(newBox.BottomLeft());
 	trv2::RectI tileRect(start,
@@ -186,7 +186,7 @@ trv2::Rectf Player::tryMoveWithCollide(const trv2::Rectf& oldBox, glm::vec2 disp
 	{
 		for (int x = tileRect.Position.x; x <= tileRect.Position.x + tileRect.Size.x; x++)
 		{
-			if (world->GetTile(glm::ivec2(x, y)).IsEmpty()) continue;
+			if (world->GetTile(glm::ivec2(x, y)).IsAir()) continue;
 			auto fRect = trv2::Rectf(glm::vec2(x * GameWorld::TILE_SIZE, y * GameWorld::TILE_SIZE), glm::vec2(GameWorld::TILE_SIZE));
 			if (!trv2::RectIntersects(newBox, fRect)) continue;
 

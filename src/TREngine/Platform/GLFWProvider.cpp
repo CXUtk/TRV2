@@ -3,6 +3,8 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <Platform/GameWindow/GLFWGameWindow.h>
+#include <Platform/FileSystem/WindowsFileSystem.h>
+
 #include <Core/Utils/GameTimer.h>
 #include <Core/Structures/EngineSettings.h>
 
@@ -19,6 +21,7 @@ GLFWProvider::GLFWProvider(const EngineSettings& settings)
     glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, true);
 #endif
 	_gameWindow = std::make_unique<GLFWGameWindow>(settings);
+    _fileSystem = std::make_unique<WindowsFileSystem>();
 }
 
 GLFWProvider::~GLFWProvider()

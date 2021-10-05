@@ -15,7 +15,16 @@
 MapScene::MapScene(trv2::Engine* engine, TRGame* game)
     :Scene(engine), _game(game)
 {
+    auto window = _engine->GetGameWindow();
     FocusOnPlayer();
+
+    auto& screenRect = _screenRect;
+    auto& expScale = _expScale;
+    window->AppendOnResizeEvent([window, &screenRect, &expScale](glm::ivec2 newSize) {
+        if (newSize == glm::ivec2(0, 0)) return;
+        float factor = std::exp(expScale);
+        screenRect.Size = glm::vec2(window->GetWindowSize()) / factor;
+    });
 }
 
 MapScene::~MapScene()

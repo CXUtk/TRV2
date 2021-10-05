@@ -36,7 +36,7 @@ private:
 	bool isValidCoord(glm::ivec2 worldCoord);
 	bool isValidCoordCached(glm::ivec2 worldCoord);
 	bool canTilePropagateLight(glm::ivec2 worldCoord);
-	float calculateDistance(glm::ivec2 worldCoord, int dir, float curDist);
+	float calculateLuminance(glm::ivec2 worldCoord, int dir, float curLuminance);
 
-	void calculateOneLight(const Light& light);
+	void calculateOneChannel(const std::vector<Light>& lights, int channel);
 };
