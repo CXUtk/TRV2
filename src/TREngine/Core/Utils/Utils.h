@@ -44,6 +44,18 @@ inline glm::ivec2 RoundUp(glm::ivec2 quotion, int divisor)
     return glm::ivec2(RoundUp(quotion.x, divisor), RoundUp(quotion.y, divisor));
 }
 
+
+template<typename T>
+inline T cross2(glm::vec<2, T> A, glm::vec<2, T> B)
+{
+    return A.x * B.y - A.y * B.x;
+}
+
+inline float sqrDistance(glm::vec2 A, glm::vec2 B)
+{
+    return glm::dot(A - B, A - B);
+}
+
 /**
  * @brief Get the formatted std::string
  * @tparam ...Args 

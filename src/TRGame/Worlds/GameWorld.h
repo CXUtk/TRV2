@@ -48,7 +48,7 @@ public:
 
 	static glm::ivec2 GetLowerWorldCoord(glm::vec2 pos, int offscreenTiles = 1);
 	static glm::ivec2 GetUpperWorldCoord(glm::vec2 pos, int offscreenTiles = 1);
-	static trv2::RectI GetTileRect(const trv2::RectI& worldRect);
+	static trv2::RectI GetTileRect(const trv2::RectI& worldRect, int extra);
 	static trv2::RectI GetTileSectionRect(const trv2::RectI& worldRect);
 
 	static constexpr int TILE_SIZE = 16;

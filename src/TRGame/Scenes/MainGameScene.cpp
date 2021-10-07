@@ -32,7 +32,8 @@ MainGameScene::MainGameScene(trv2::Engine* engine, TRGame* game)
     texPara.WarpMethod = trv2::TextureWarpMethod::CLAMP_TO_EDGE;
 
     _tileTarget = std::make_shared<trv2::RenderTarget2D>(resourceManager, clientSize, texPara);
-    _tileRect = gameWorld->GetTileRect(_screenRect);
+    _tileRect = gameWorld->GetTileRect(_screenRect, GameWorld::TILE_OFF_SCREEN);
+    _tileRectScreen = gameWorld->GetTileRect(_screenRect, 1);
 
     texPara.SampleMethod = videoSettings->EnabledSmoothLight() ? 
         trv2::TextureSampleMethod::BI_LINEAR :
@@ -82,7 +83,8 @@ void MainGameScene::Update(double deltaTime)
             localPlayer->GetPlayerHitbox().Center() - glm::vec2(_screenRect.Size) * 0.5f, videoSettings->GetCameraChaseRatio()));
     }
 
-    _tileRect = GameWorld::GetTileRect(_screenRect);
+    _tileRect = GameWorld::GetTileRect(_screenRect, GameWorld::TILE_OFF_SCREEN);
+    _tileRectScreen = GameWorld::GetTileRect(_screenRect, 1);
 
     // Set projection matricies
     _worldProjection = glm::ortho((float)_screenRect.Position.x, (float)_screenRect.Position.x + _screenRect.Size.x,
@@ -129,6 +131,7 @@ void MainGameScene::drawTilesToScreen()
     auto graphicsDevice = _engine->GetGraphicsDevice();
     auto assetManager = _engine->GetAssetsManager();
     auto gameWorld = _game->GetGameWorld();
+    auto lighting = _game->GetLighting();
 
     trv2::BatchSettings defaultSetting{};
 
@@ -148,9 +151,9 @@ void MainGameScene::drawTilesToScreen()
         spriteRenderer->Draw(glm::vec2(0), _screenRect.Size, glm::vec2(0), 0.f, glm::vec4(1));
     }
     spriteRenderer->End();
-}
 
-bool first = true;
+    lighting->DrawDirectionalTriangles(_worldProjection);
+}
 
 void MainGameScene::drawShadowMaps()
 {
@@ -253,6 +256,7 @@ void MainGameScene::drawShadowMaps()
     spriteRenderer->End();
 
 
+
     if (videoSettings->EnabledFrameBlending())
     {
         _prevShadowMap->Resize(_tileRect.Size);
@@ -294,7 +298,7 @@ void MainGameScene::updateLighting()
         for (int j = 0; j < 10; j++)
         {
             glm::vec3 c = glm::vec3(0);
-            int s = (2 * i + 3 * j) % 8;
+            int s = (3 * i + 5 * j) % 8;
             for (int l = 0; l < 3; l++)
             {
                 if((s >> l) & 1) c[l] = 1.f;
@@ -312,6 +316,6 @@ void MainGameScene::updateLighting()
     //        lighting->AddLight(Light{ glm::vec2(i * 200, j * 200), c, 16 });
     //    }
     //}
-    lighting->AddLight(Light{ player->GetPlayerHitbox().Position, glm::vec3(1 + sin(x * 0.33) * 0.1f), 0 });
-    lighting->CalculateLight( _tileRect);
+    lighting->AddDirectionalLight(Light{ player->GetPlayerHitbox().Center(), glm::vec3(1 + sin(x * 0.33) * 0.1f), 16 });
+    lighting->CalculateLight(_tileRect, _tileRectScreen);
 }

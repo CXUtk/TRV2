@@ -31,6 +31,7 @@ public:
 	virtual void UnbindVertexArray() override;
 
 	virtual void DrawIndexedPrimitives(PrimitiveType type, size_t count, EngineDataType dataType, size_t offset) override;
+	virtual void DrawPrimitives(PrimitiveType type, size_t count, size_t offset) override;
 
 	virtual void BindTexture2DSlot(int slot, const Texture2D* texture) override;
 
@@ -47,6 +48,8 @@ public:
 	virtual void SetDepthTestingMode(DepthTestingMode mode, DepthTestingFunction func) override;
 
 	virtual void SetCullingMode(CullingMode mode) override;
+
+	virtual void SetPolygonMode(PolygonMode mode) override;
 
 	virtual byte_color ReadPixelFromTexture(const Texture2D* texture, int x, int y) override;
 private:

@@ -99,6 +99,18 @@ void OpenGLGraphicsDevice::SetCullingMode(CullingMode mode)
 	}
 }
 
+void OpenGLGraphicsDevice::SetPolygonMode(PolygonMode mode)
+{
+	if (mode == PolygonMode::WIREFRAME)
+	{
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	}
+	else
+	{
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	}
+}
+
 byte_color OpenGLGraphicsDevice::ReadPixelFromTexture(const Texture2D* texture, int x, int y)
 {
 	assert(x >= 0 && x < texture->GetSize().x);
@@ -192,6 +204,11 @@ void OpenGLGraphicsDevice::UnbindVertexArray()
 void OpenGLGraphicsDevice::DrawIndexedPrimitives(PrimitiveType type, size_t count, EngineDataType dataType, size_t offset)
 {
 	glDrawElements(OpenGLProvider::MapDrawPrimitivesType(type), count, OpenGLProvider::MapDataType(dataType), (void*) offset);
+}
+
+void OpenGLGraphicsDevice::DrawPrimitives(PrimitiveType type, size_t count, size_t offset)
+{
+	glDrawArrays(OpenGLProvider::MapDrawPrimitivesType(type), offset, count);
 }
 
 void OpenGLGraphicsDevice::BindTexture2DSlot(int slot, const Texture2D* texture)

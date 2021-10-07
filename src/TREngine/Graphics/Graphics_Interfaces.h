@@ -117,6 +117,14 @@ enum class CullingMode
 	__COUNT
 };
 
+enum class PolygonMode
+{
+	WIREFRAME,
+	FILL,
+
+	__COUNT
+};
+
 
 enum class DepthTestingFunction
 {
@@ -281,6 +289,8 @@ public:
 	*/
 	virtual void DrawIndexedPrimitives(PrimitiveType type, size_t count, EngineDataType dataType, size_t offset) = 0;
 
+	virtual void DrawPrimitives(PrimitiveType type, size_t count, size_t offset) = 0;
+
 	virtual void SwitchRenderTarget(const RenderTarget2D* renderTarget) = 0;
 	virtual void SetViewPort(int x, int y, int width, int height) = 0;
 	virtual void Clear(const glm::vec4& color) = 0;
@@ -290,6 +300,7 @@ public:
 	virtual void SetBlendingMode(BlendingMode mode) = 0;
 	virtual void SetDepthTestingMode(DepthTestingMode mode, DepthTestingFunction func) = 0;
 	virtual void SetCullingMode(CullingMode mode) = 0;
+	virtual void SetPolygonMode(PolygonMode mode) = 0;
 
 	virtual byte_color ReadPixelFromTexture(const Texture2D* texture, int x, int y) = 0;
 };

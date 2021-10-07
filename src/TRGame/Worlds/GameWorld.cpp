@@ -28,11 +28,11 @@ GameWorld::~GameWorld()
 {
 }
 
-trv2::RectI GameWorld::GetTileRect(const trv2::RectI& worldRect)
+trv2::RectI GameWorld::GetTileRect(const trv2::RectI& worldRect, int extra)
 {
 	// calculate draw rect
-	glm::ivec2 botLeft = GetLowerWorldCoord(worldRect.BottomLeft(), 32);
-	glm::ivec2 topRight = GetUpperWorldCoord(worldRect.TopRight(), 32);
+	glm::ivec2 botLeft = GetLowerWorldCoord(worldRect.BottomLeft(), extra);
+	glm::ivec2 topRight = GetUpperWorldCoord(worldRect.TopRight(), extra);
 	return trv2::RectI(botLeft, topRight - botLeft);
 }
 
@@ -109,7 +109,7 @@ void GameWorld::RenderWorld(const glm::mat4& projection, trv2::SpriteRenderer* r
 {
 	auto clientSize = trv2::Engine::GetInstance()->GetGameWindow()->GetWindowSize();
 
-	auto tileRect = GetTileRect(renderRect);
+	auto tileRect = GetTileRect(renderRect, GameWorld::TILE_OFF_SCREEN);
 	auto sectionRect = GetTileSectionRect(tileRect);
 
 	for (int y = sectionRect.Position.y; y < sectionRect.Position.y + sectionRect.Size.y; y++)

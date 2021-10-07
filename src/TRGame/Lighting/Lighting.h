@@ -1,8 +1,10 @@
 ﻿#pragma once
 #include <TRGame/TRGame_Interfaces.h>
-#include <glm/glm.hpp>
 #include <TREngine/Core.h>
 #include <TREngine/Core/Structures/Rect.hpp>
+#include <TREngine/Graphics/Graphics_Interfaces.h>
+
+#include <glm/glm.hpp>
 #include <vector>
 #include <algorithm>
 #include <vector>
@@ -37,9 +39,11 @@ public:
 	void SetGameWorld(GameWorld* gameWorld) { _gameWorld = gameWorld; }
 	void ClearLights();
 	void AddLight(const Light& light);
+	void AddDirectionalLight(const Light& light);
 
-	void CalculateLight(const trv2::RectI& tileRectScreen);
+	void CalculateLight(const trv2::RectI& tileRectCalc, const trv2::RectI& tileRectScreen);
 	void DrawLightMap(trv2::SpriteRenderer* renderer, const glm::mat4& projection);
+	void DrawDirectionalTriangles(const glm::mat4& worldProjection);
 	float GetLight(glm::ivec2 coord);
 private:
 	static constexpr int MAX_TILES = 256 * 256;
@@ -56,6 +60,9 @@ private:
 	std::vector<Light> _directionalLights;
 	trv2::RectI _tileRect{};
 	trv2::RectI _tileRectScreen{};
+
+
+	trv2::IVertexBufferHandle _vao, _vbo;
 
 	int getBlockId(glm::ivec2 localCoord);
 	bool isValidCoord(glm::ivec2 worldCoord);

@@ -27,7 +27,7 @@ private:
 	TRGame* _game;
 
 	trv2::RectI _screenRect{};
-	trv2::RectI _tileRect{};
+	trv2::RectI _tileRect{}, _tileRectScreen{};
 
 	glm::mat4 _worldProjection{};
 	glm::mat4 _screenProjection{};

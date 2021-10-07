@@ -22,9 +22,13 @@ void AssetsManager::loadBuiltinAssets()
 	auto fs_temporal = std::make_shared<RawShader>(_resourceManager, ReadAllStringFromFile("Resources/Shaders/shadow_temporal_blend.frag").c_str(), ShaderType::FRAGMENT_SHADER, "shadow_temporal_blend.frag");
 	auto fs_brick = std::make_shared<RawShader>(_resourceManager, ReadAllStringFromFile("Resources/Shaders/brick.frag").c_str(), ShaderType::FRAGMENT_SHADER, "brick.frag");
 	auto fs_rock = std::make_shared<RawShader>(_resourceManager, ReadAllStringFromFile("Resources/Shaders/rock.frag").c_str(), ShaderType::FRAGMENT_SHADER, "rock.frag");
+	auto fs_pure = std::make_shared<RawShader>(_resourceManager, ReadAllStringFromFile("Resources/Shaders/pure.frag").c_str(), ShaderType::FRAGMENT_SHADER, "pure.frag");
 
 	_shadersTable["builtin::sprite"] = std::make_shared<ShaderProgram>(_resourceManager, 
 		trv2::cptr(vs), trv2::cptr(fs));
+
+	_shadersTable["builtin::pure"] = std::make_shared<ShaderProgram>(_resourceManager,
+		trv2::cptr(vs_pure), trv2::cptr(fs_pure));
 
 	_shadersTable["blur"] = std::make_shared<ShaderProgram>(_resourceManager, 
 		trv2::cptr(vs_pure), trv2::cptr(fs_blur));
