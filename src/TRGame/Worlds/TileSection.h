@@ -6,6 +6,7 @@
 #include <TRGame/TRGame_Interfaces.h>
 
 #include <mutex>
+#include <functional>
 
 class TileSection
 {
@@ -30,6 +31,15 @@ public:
 
 	void Lock();
 	void Unlock();
+
+
+	void ForEachTile(std::function<void(glm::ivec2, const Tile&)> func) const
+	{
+		trv2::RectI sectionTileRect(_sectionStart, _sectionSize);
+		sectionTileRect.ForEach([this, &func](glm::ivec2 coord) {
+			func(coord, _tiles[(coord.y - _sectionStart.y) * _sectionSize.x + (coord.x - _sectionStart.x)]);
+		});
+	}
 
 private:
 	mutable std::mutex _sectionReadLock;

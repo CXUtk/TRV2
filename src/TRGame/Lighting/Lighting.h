@@ -4,12 +4,28 @@
 #include <TREngine/Core.h>
 #include <TREngine/Core/Structures/Rect.hpp>
 #include <vector>
+#include <algorithm>
+#include <vector>
+#include <queue>
+
 
 struct Light
 {
 	glm::vec2 Position;
 	glm::vec3 Color;
 	int Radius;
+};
+
+struct LightNode
+{
+	glm::i16vec2 Pos;
+	float Luminance;
+	int k;
+
+	bool operator<(const LightNode& B) const
+	{
+		return this->Luminance < B.Luminance;
+	}
 };
 
 class Lighting
@@ -26,9 +42,18 @@ public:
 	void DrawLightMap(trv2::SpriteRenderer* renderer, const glm::mat4& projection);
 	float GetLight(glm::ivec2 coord);
 private:
+	static constexpr int MAX_TILES = 256 * 256;
+
+	float _colors[3][MAX_TILES];
+	float _luminances[3][MAX_TILES];
+	bool _visited[3][MAX_TILES];
+	int _cachedTileTypes[MAX_TILES];
+	std::priority_queue<LightNode> _lightQ[3];
+
 
 	GameWorld* _gameWorld = nullptr;
 	std::vector<Light> _lights;
+	std::vector<Light> _directionalLights;
 	trv2::RectI _tileRect{};
 	trv2::RectI _tileRectScreen{};
 
@@ -37,6 +62,8 @@ private:
 	bool isValidCoordCached(glm::ivec2 worldCoord);
 	bool canTilePropagateLight(glm::ivec2 worldCoord);
 	float calculateLuminance(glm::ivec2 worldCoord, int dir, float curLuminance);
+	int getCachedTileType(glm::ivec2 worldCoord) const;
 
 	void calculateOneChannel(const std::vector<Light>& lights, int channel);
+	void calculateDirectionLight(const std::vector<Light>& dLights);
 };

@@ -379,6 +379,7 @@ void TileSection::Unlock()
 	_sectionReadLock.unlock();
 }
 
+
 Tile& TileSection::getTile(glm::ivec2 pos)
 {
 	assert(pos.x >= 0 && pos.x < _sectionSize.x);

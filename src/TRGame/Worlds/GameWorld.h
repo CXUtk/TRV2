@@ -37,6 +37,13 @@ public:
 
 	void FlushSectionCache(glm::ivec2 sectionPos);
 
+	/**
+	 * @brief Flush the given section and return pointer to that valid section
+	 * @param sectionPos 
+	 * @return 
+	*/
+	const TileSection* GetSection(glm::ivec2 sectionPos) { return getTileSection(sectionPos); }
+
 	void RenderMapTexture(const glm::mat4& worldProjection, trv2::SpriteRenderer* renderer, glm::ivec2 screenSize);
 
 	static glm::ivec2 GetLowerWorldCoord(glm::vec2 pos, int offscreenTiles = 1);

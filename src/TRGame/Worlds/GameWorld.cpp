@@ -50,7 +50,6 @@ TileSection* GameWorld::getTileSection(glm::ivec2 sectionPos)
 	sectionPos.x = (sectionPos.x + TILE_SECTION_CACHE_SIZE) % TILE_SECTION_CACHE_SIZE;
 	sectionPos.y = (sectionPos.y + TILE_SECTION_CACHE_SIZE) % TILE_SECTION_CACHE_SIZE;
 	return trv2::ptr(_cachedSections[sectionPos.x][sectionPos.y]);
-
 }
 
 const TileSection* GameWorld::checkInCache(glm::ivec2 sectionPos) const
@@ -171,6 +170,8 @@ void GameWorld::FlushSectionCache(glm::ivec2 sectionPos)
 
 		_cachedSections[sectionPos.x][sectionPos.y] = loadTileSectionAsync(sectionPos, tileCoord);
 	}
+
+
 }
 
 void GameWorld::RenderMapTexture(const glm::mat4& worldProjection, trv2::SpriteRenderer* renderer, glm::ivec2 screenSize)

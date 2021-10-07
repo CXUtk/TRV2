@@ -1,17 +1,15 @@
 ﻿#include "Lighting.h"
 #include <TRGame/TRGame.hpp>
 #include <TRGame/Player/Player.h>
-#include <TRGame/Worlds/GameWorld.h>
-#include <TRGame/Worlds/Tile.h>
-#include <TRGame/Worlds/WorldResources.h>
 
-#include <algorithm>
-#include <vector>
-#include <queue>
+#include <TRGame/Worlds/GameWorld.h>
+#include <TRGame/Worlds/WorldResources.h>
+#include <TRGame/Worlds/Tile.h>
+#include <TRGame/Worlds/TileSection.h>
 
 #include <TREngine/Core/Render/SpriteRenderer.h>
 
-constexpr int VIS_SIZE = 1 << 16;
+
 
 Lighting::Lighting()
 {}
@@ -20,17 +18,6 @@ Lighting::~Lighting()
 {}
 
 
-struct LightNode
-{
-	glm::i16vec2 Pos;
-	float Luminance;
-	int k;
-
-	bool operator<(const LightNode& B) const
-	{
-		return this->Luminance < B.Luminance;
-	}
-};
 
 static constexpr int dX[8] = { 1, 0, -1, 0, 1, 1, -1, -1 };
 static constexpr int dY[8] = { 0, 1, 0, -1, 1, -1, 1, -1 };
@@ -43,11 +30,6 @@ static constexpr float distA[8] = { DECREASE, DECREASE, DECREASE, DECREASE,
 static constexpr float MAXDIST = 16.f;
 static constexpr int K = 1;
 
-float colors[3][VIS_SIZE];
-
-float luminances[3][VIS_SIZE][K];
-bool visited[3][VIS_SIZE][K];
-static std::priority_queue<LightNode> LightQ[3];
 
 static glm::vec3 Gamma(const glm::vec3 color)
 {
@@ -76,6 +58,14 @@ void Lighting::CalculateLight(const trv2::RectI& tileRectScreen)
 	_tileRect = trv2::RectI(sectionRect.Position * GameWorld::TILE_SECTION_SIZE,
 		sectionRect.Size * GameWorld::TILE_SECTION_SIZE);
 
+	sectionRect.ForEach([this](glm::ivec2 sectionCoord) {
+		const TileSection* section = _gameWorld->GetSection(sectionCoord);
+		section->ForEachTile([this](glm::ivec2 coord, const Tile& tile) {
+			int id = this->getBlockId(coord - _tileRect.Position);
+			_cachedTileTypes[id] = tile.Type;
+		});
+	});
+
 	auto threadPool = TRGame::GetInstance()->GetThreadPool();
 	bool finishFlag[3] = { 0 };
 	for (int i = 0; i < 3; i++)
@@ -86,23 +76,16 @@ void Lighting::CalculateLight(const trv2::RectI& tileRectScreen)
 		});
 	}
 
-	auto gameWorld = _gameWorld;
-	sectionRect.ForEach([gameWorld](glm::ivec2 coord) {
-		gameWorld->FlushSectionCache(coord);
-	});
+
 
 	for (int channel = 0; channel < 3; channel++)
 	{
 		while (!finishFlag[channel]) {}
 		for (int i = 0; i < _tileRect.Size.x * _tileRect.Size.y; i++)
 		{
-			float x = 0.f;
-			for (int k = 0; k < K; k++)
-			{
-				x += luminances[channel][i][k];
-			}
+			float x = _luminances[channel][i];
 			x = glm::clamp(x, 0.f, 1.f);
-			colors[channel][i] = x;
+			_colors[channel][i] = x;
 		}
 	}
 }
@@ -113,9 +96,8 @@ void Lighting::DrawLightMap(trv2::SpriteRenderer* renderer, const glm::mat4& pro
 	renderer->Begin(projection, setting);
 	{
 		_tileRectScreen.ForEach([this, renderer](glm::ivec2 coord) -> void {
-			auto& tile = _gameWorld->GetTile(coord);
 			int id = this->getBlockId(coord - _tileRect.Position);
-			auto color = glm::vec3(colors[0][id], colors[1][id], colors[2][id]);
+			auto color = glm::vec3(_colors[0][id], _colors[1][id], _colors[2][id]);
 			if (color == glm::vec3(0)) return;
 			renderer->Draw(coord, glm::vec2(1), glm::vec2(0),
 				0.f, glm::vec4(color, 1.f));
@@ -166,8 +148,8 @@ bool Lighting::isValidCoordCached(glm::ivec2 worldCoord)
 
 float Lighting::calculateLuminance(glm::ivec2 worldCoord, int dir, float curLuminance)
 {
-	auto& tile = _gameWorld->GetTile(worldCoord);
-	auto& tileData = TRGame::GetInstance()->GetWorldResources()->GetTileObjectData(tile.Type);
+	auto tileType = getCachedTileType(worldCoord);
+	auto& tileData = TRGame::GetInstance()->GetWorldResources()->GetTileObjectData(tileType);
 	float newLumin = curLuminance - distA[dir];
 	if (tileData.Solid)
 	{
@@ -178,12 +160,12 @@ float Lighting::calculateLuminance(glm::ivec2 worldCoord, int dir, float curLumi
 
 void Lighting::calculateOneChannel(const std::vector<Light>& lights, int channel)
 {
-	memset(luminances[channel], 0, sizeof(luminances[channel][0]) * _tileRect.Size.x * _tileRect.Size.y);
-	memset(visited[channel], 0, sizeof(visited[channel][0]) * _tileRect.Size.x * _tileRect.Size.y);
+	memset(_luminances[channel], 0, sizeof(_luminances[channel][0]) * _tileRect.Size.x * _tileRect.Size.y);
+	memset(_visited[channel], 0, sizeof(_visited[channel][0]) * _tileRect.Size.x * _tileRect.Size.y);
 
-	const auto L = luminances[channel];
-	const auto VIS = visited[channel];
-	auto& Q = LightQ[channel];
+	const auto L = _luminances[channel];
+	const auto VIS = _visited[channel];
+	auto& Q = _lightQ[channel];
 
 	for (const auto& light : lights)
 	{
@@ -191,7 +173,7 @@ void Lighting::calculateOneChannel(const std::vector<Light>& lights, int channel
 		if (light.Color[channel] == 0 || !isValidCoord(lightTile)) continue;
 		int curId = getBlockId(lightTile - _tileRect.Position);
 		Q.push(LightNode{ glm::i16vec2(lightTile), light.Color[channel], 0 });
-		L[curId][0] = light.Color[channel];
+		L[curId] = light.Color[channel];
 	}
 	while (!Q.empty())
 	{
@@ -199,10 +181,10 @@ void Lighting::calculateOneChannel(const std::vector<Light>& lights, int channel
 		Q.pop();
 
 		int curId = getBlockId(glm::ivec2(node.Pos) - _tileRect.Position);
-		if (VIS[curId][node.k]) continue;
-		VIS[curId][node.k] = true;
+		if (VIS[curId]) continue;
+		VIS[curId] = true;
 
-		if (node.Luminance < L[curId][K - 1]) continue;
+		if (node.Luminance < L[curId]) continue;
 
 		// if (!canTilePropagateLight(node.Pos)) continue;
 		for (int i = 0; i < 8; i++)
@@ -212,19 +194,125 @@ void Lighting::calculateOneChannel(const std::vector<Light>& lights, int channel
 			{
 				int nxtId = getBlockId(nxtPos - _tileRect.Position);
 
-				float luminance = calculateLuminance(nxtPos, i, L[curId][node.k]);
-				for (int k = 0; k < K; k++)
+				float luminance = calculateLuminance(nxtPos, i, L[curId]);
+				if (luminance > MIN_LUMINANCE && L[nxtId] < luminance)
 				{
-					if (luminance > MIN_LUMINANCE && L[nxtId][k] < luminance)
-					{
-						L[nxtId][k] = luminance;
-						Q.push(LightNode{ glm::i16vec2(nxtPos), L[nxtId][k], k });
-						break;
-					}
+					L[nxtId] = luminance;
+					Q.push(LightNode{ glm::i16vec2(nxtPos), L[nxtId] });
 				}
+
 			}
 		}
 	}
+}
+
+struct Segment
+{
+	glm::vec2 Start, End;
+	int SideId;
+};
+
+struct KeyPoint
+{
+	glm::vec2 Pos;
+	int SideId;
+	double _angle;
+
+	KeyPoint(glm::vec2 pos, int id) : Pos(pos), SideId(id)
+	{
+		_angle = std::atan2((double)Pos.y, (double)Pos.x);
+	}
+
+	bool operator<(const KeyPoint& p) const
+	{
+		return _angle < p._angle;
+	}
+};
+
+struct Triangle
+{
+	glm::vec3 Pos[3];
+};
+
+static void AddShadowSegments(const trv2::Rectf& rect, std::vector<Segment>& segments, std::vector<KeyPoint>& keypoints)
+{
+	// Push 4 edges to segments list
+	int idLeft = segments.size();
+	segments.push_back(Segment{ rect.BottomLeft(), rect.TopLeft(), idLeft });
+
+	int idTop = idLeft + 1;
+	segments.push_back(Segment{ rect.TopLeft(), rect.TopRight(), idTop });
+
+	int idRight = idTop + 1;
+	segments.push_back(Segment{ rect.TopRight(), rect.BottomRight(), idRight });
+
+	int idBottom = idRight + 1;
+	segments.push_back(Segment{ rect.BottomRight(), rect.BottomLeft(), idBottom });
+
+
+	// Push 8 critical points to the list
+	keypoints.push_back(KeyPoint(rect.BottomLeft(), idLeft));
+	keypoints.push_back(KeyPoint(rect.BottomLeft(), idBottom));
+
+	keypoints.push_back(KeyPoint(rect.TopLeft(), idLeft));
+	keypoints.push_back(KeyPoint(rect.TopLeft(), idTop));
+
+	keypoints.push_back(KeyPoint(rect.TopRight(), idRight));
+	keypoints.push_back(KeyPoint(rect.TopRight(), idTop));
+
+	keypoints.push_back(KeyPoint(rect.BottomRight(), idRight));
+	keypoints.push_back(KeyPoint(rect.BottomRight(), idBottom));
+}
+
+void Lighting::calculateDirectionLight(const std::vector<Light>& dLights)
+{
+	for (const auto& light : dLights)
+	{
+		glm::ivec2 lightTile = GameWorld::GetLowerWorldCoord(light.Position, 0);
+
+		// Invalid light
+		if (!isValidCoord(lightTile)) return;
+
+		std::vector<Segment> segments;
+		std::vector<KeyPoint> keypoints;
+		int totSegments = 0;
+
+		auto startPos = (glm::vec2(lightTile) - glm::vec2(light.Radius)) * 16.f;
+		trv2::Rectf areaRect(startPos, glm::vec2(light.Radius * 2 + 1) * 16.f);
+
+		AddShadowSegments(areaRect, segments, keypoints);
+
+		// Limit seraching range
+		for (int y = -light.Radius; y <= light.Radius; y++)
+		{
+			for (int x = -light.Radius; x <= light.Radius; x++)
+			{
+				auto curTilePos = lightTile + glm::ivec2(x, y);
+				auto tileRect = trv2::Rectf(glm::vec2(x, y) * 16.f, glm::vec2(16.f));
+				
+				AddShadowSegments(tileRect, segments, keypoints);
+			}
+		}
+
+		std::sort(keypoints.begin(), keypoints.end());
+
+		std::vector<Triangle> triangles;
+		KeyPoint lastKeyPoint = *keypoints.rbegin();
+		std::vector<int> currentSegments;
+		
+		currentSegments.push_back(lastKeyPoint.SideId);
+
+		for (const auto& keypoint : keypoints)
+		{
+
+		}
+	}
+}
+
+int Lighting::getCachedTileType(glm::ivec2 worldCoord) const
+{
+	worldCoord -= _tileRect.Position;
+	return _cachedTileTypes[worldCoord.y * _tileRect.Size.x + worldCoord.x];
 }
 
 bool Lighting::canTilePropagateLight(glm::ivec2 worldCoord)
