@@ -30,6 +30,8 @@ struct LightNode
 	}
 };
 
+struct Segment;
+
 class Lighting
 {
 public:
@@ -70,6 +72,15 @@ private:
 	bool canTilePropagateLight(glm::ivec2 worldCoord);
 	float calculateLuminance(glm::ivec2 worldCoord, int dir, float curLuminance);
 	int getCachedTileType(glm::ivec2 worldCoord) const;
+
+	/**
+	* @brief Add segments and keypoints according to their angle to the center
+	* @param rect
+	* @param segments
+	* @param keypoints
+	* @param center
+	*/
+	void addShadowSegments(const trv2::RectI& worldTileRect, std::vector<Segment>& segments, const glm::vec2& center);
 
 	void calculateOneChannel(const std::vector<Light>& lights, int channel);
 	void calculateDirectionLight(const std::vector<Light>& dLights);
