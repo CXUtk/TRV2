@@ -20,6 +20,7 @@ class RawShader;
 class ShaderProgram;
 class Texture2D;
 class RenderTarget2D;
+class UniversalRenderer;
 
 class Scene;
 

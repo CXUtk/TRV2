@@ -95,17 +95,6 @@ static std::vector<Triangle> triangles;
 
 Lighting::Lighting()
 {
-	auto graphicsDevice = TRGame::GetInstance()->GetEngine()->GetGraphicsDevice();
-	_vao = graphicsDevice->CreateVertexArray();
-	_vbo = graphicsDevice->CreateBuffer();
-
-	graphicsDevice->BindVertexArray(_vao);
-	graphicsDevice->BindBuffer(trv2::BufferType::ARRAY_BUFFER, _vbo);
-
-	VertexLayout vertexLayout;
-	vertexLayout.Add(VertexElement(offsetof(BatchVertex2D, Position), 2, EngineDataType::FLOAT, false));
-	graphicsDevice->SetupVertexAttributes(vertexLayout);
-	graphicsDevice->UnbindVertexArray();
 
 }
 
@@ -202,27 +191,34 @@ void Lighting::DrawLightMap(trv2::SpriteRenderer* renderer, const glm::mat4& pro
 
 void Lighting::DrawDirectionalTriangles(const glm::mat4& worldProjection)
 {
-	auto assetManager = Engine::GetInstance()->GetAssetsManager();
+	auto universalRenderer = Engine::GetInstance()->GetUniversalRenderer();
+
+	for (auto& triangle : triangles)
+	{
+		universalRenderer->DrawWiredTriangle(triangle.Pos[0], triangle.Pos[1], triangle.Pos[2]);
+	}
+
+	universalRenderer->Flush(PrimitiveType::TRIANGLE_LIST, worldProjection);
 
 	//triangles.clear();
 	//triangles.push_back(Triangle(glm::vec2(0), glm::vec2(100, 100), glm::vec2(200, 0)));
 
-	auto graphicsDevice = TRGame::GetInstance()->GetEngine()->GetGraphicsDevice();
-	graphicsDevice->BindVertexArray(_vao);
+	//auto graphicsDevice = TRGame::GetInstance()->GetEngine()->GetGraphicsDevice();
+	//graphicsDevice->BindVertexArray(_vao);
 
-	auto shader = assetManager->GetShader("builtin::pure");
-	graphicsDevice->UseShader(shader);
+	//auto shader = assetManager->GetShader("builtin::pure");
+	//graphicsDevice->UseShader(shader);
 
-	shader->SetParameterfm4x4("uWorldTransform", worldProjection);
+	//shader->SetParameterfm4x4("uWorldTransform", worldProjection);
 
-	graphicsDevice->SetBufferData(trv2::BufferType::ARRAY_BUFFER, _vbo,
-		sizeof(Triangle) * triangles.size(), triangles.data(), BufferHint::DYNAMIC_DRAW);
+	//graphicsDevice->SetBufferData(trv2::BufferType::ARRAY_BUFFER, _vbo,
+	//	sizeof(Triangle) * triangles.size(), triangles.data(), BufferHint::DYNAMIC_DRAW);
 
-	graphicsDevice->SetPolygonMode(PolygonMode::WIREFRAME);
-	graphicsDevice->DrawPrimitives(PrimitiveType::TRIANGLE_LIST, triangles.size() * 3, 0);
-	graphicsDevice->SetPolygonMode(PolygonMode::FILL);
+	//graphicsDevice->SetPolygonMode(PolygonMode::WIREFRAME);
+	//graphicsDevice->DrawPrimitives(PrimitiveType::TRIANGLE_LIST, triangles.size() * 3, 0);
+	//graphicsDevice->SetPolygonMode(PolygonMode::FILL);
 
-	graphicsDevice->UnbindVertexArray();
+	//graphicsDevice->UnbindVertexArray();
 }
 
 float Lighting::GetLight(glm::ivec2 coord)

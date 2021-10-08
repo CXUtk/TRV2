@@ -126,6 +126,8 @@ void Engine::loadResources()
 
     _spriteRenderer = std::make_shared<SpriteRenderer>(GetGraphicsDevice(), _assetsManager->GetShader("builtin::sprite"),
         _assetsManager->GetTexture2D("builtin::sprite"));
+
+    _universalRenderer = std::make_shared<UniversalRenderer>();
 }
 
 void Engine::useApplication()

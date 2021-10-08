@@ -63,9 +63,6 @@ private:
 	trv2::RectI _tileRect{};
 	trv2::RectI _tileRectScreen{};
 
-
-	trv2::IVertexBufferHandle _vao, _vbo;
-
 	int getBlockId(glm::ivec2 localCoord);
 	bool isValidCoord(glm::ivec2 worldCoord);
 	bool isValidCoordCached(glm::ivec2 worldCoord);
