@@ -75,11 +75,28 @@ void UniversalRenderer::Flush(PrimitiveType primitiveType, const glm::mat4& proj
 	_graphicsDevice->SetBufferData(trv2::BufferType::ARRAY_BUFFER, _vbo,
 		sizeof(Vertex) * _vertexBuffer.size(), _vertexBuffer.data(), BufferHint::DYNAMIC_DRAW);
 
-	if (primitiveType == PrimitiveType::TRIANGLE_LIST)
+	switch (primitiveType)
+	{
+	case trv2::PrimitiveType::TRIANGLE_LIST:
 	{
 		_graphicsDevice->SetPolygonMode(PolygonMode::WIREFRAME);
 		_graphicsDevice->DrawPrimitives(primitiveType, _vertexBuffer.size(), 0);
 		_graphicsDevice->SetPolygonMode(PolygonMode::FILL);
+		break;
+	}
+	case trv2::PrimitiveType::TRIANGLE_STRIP:
+		break;
+	case trv2::PrimitiveType::LINE_LIST:
+	{
+		_graphicsDevice->DrawPrimitives(primitiveType, _vertexBuffer.size(), 0);
+		break;
+	}
+	case trv2::PrimitiveType::LINE_STRIP:
+		break;
+	case trv2::PrimitiveType::POINTS:
+		break;
+	default:
+		break;
 	}
 
 	_graphicsDevice->UnbindVertexArray();

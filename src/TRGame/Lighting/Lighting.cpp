@@ -88,6 +88,42 @@ struct Triangle
 		Pos[0] = A, Pos[1] = B, Pos[2] = C;
 	}
 };
+struct Ray
+{
+	glm::vec2 Start, Dir;
+	glm::vec2 Eval(float t)
+	{
+		return Start + Dir * t;
+	}
+};
+
+struct Segment
+{
+	glm::ivec2 Start, End;
+	int SegId;
+	bool Horizontal;
+
+	Segment(KeyPointHandle start, KeyPointHandle end, int id, bool horizontal) : SegId(id), Horizontal(horizontal)
+	{
+		Start = keyPointList[start].Pos * 16;
+		End = keyPointList[end].Pos * 16;
+	}
+
+	bool IntersectionTest(const Ray& ray, float& t)
+	{
+		double dv = ray.Dir[Horizontal];
+		double travel = Start[Horizontal] - ray.Start[Horizontal];
+		if (dv == 0.0) return false;
+		t = travel / dv;
+		if (t < -EPS) return false;
+
+		double other = ray.Start[!Horizontal] + travel * ray.Dir[!Horizontal] / dv;
+		double minn = std::min(Start[!Horizontal], End[!Horizontal]);
+		double maxx = std::max(Start[!Horizontal], End[!Horizontal]);
+		if (other < minn - EPS || other > maxx + EPS) return false;
+		return true;
+	}
+};
 
 
 
@@ -189,6 +225,8 @@ void Lighting::DrawLightMap(trv2::SpriteRenderer* renderer, const glm::mat4& pro
 	renderer->End();
 }
 
+
+static std::vector<Segment> drawSegments;
 void Lighting::DrawDirectionalTriangles(const glm::mat4& worldProjection)
 {
 	auto universalRenderer = Engine::GetInstance()->GetUniversalRenderer();
@@ -199,6 +237,14 @@ void Lighting::DrawDirectionalTriangles(const glm::mat4& worldProjection)
 	}
 
 	universalRenderer->Flush(PrimitiveType::TRIANGLE_LIST, worldProjection);
+
+	int i = 0;
+	for (auto& segment : drawSegments)
+	{
+		universalRenderer->DrawLine(segment.Start, segment.End, glm::vec4(0, 0, 1, 1), glm::vec4(1, 0, 0, 1));
+	}
+
+	universalRenderer->Flush(PrimitiveType::LINE_LIST, worldProjection);
 
 	//triangles.clear();
 	//triangles.push_back(Triangle(glm::vec2(0), glm::vec2(100, 100), glm::vec2(200, 0)));
@@ -322,42 +368,6 @@ void Lighting::calculateOneChannel(const std::vector<Light>& lights, int channel
 }
 
 
-struct Ray
-{
-	glm::vec2 Start, Dir;
-	glm::vec2 Eval(float t)
-	{
-		return Start + Dir * t;
-	}
-};
-
-struct Segment
-{
-	glm::ivec2 Start, End;
-	int SegId;
-	bool Horizontal;
-
-	Segment(KeyPointHandle start, KeyPointHandle end, int id, bool horizontal) : SegId(id), Horizontal(horizontal)
-	{
-		Start = keyPointList[start].Pos * 16;
-		End = keyPointList[end].Pos * 16;
-	}
-
-	bool IntersectionTest(const Ray& ray, float& t)
-	{
-		double dv = ray.Dir[Horizontal];
-		double travel = Start[Horizontal] - ray.Start[Horizontal];
-		if (dv == 0.0) return false;
-		t = travel / dv;
-		if (t < -EPS) return false;
-
-		double other = ray.Start[!Horizontal] + travel * ray.Dir[!Horizontal] / dv ;
-		double minn = std::min(Start[!Horizontal], End[!Horizontal]);
-		double maxx = std::max(Start[!Horizontal], End[!Horizontal]);
-		if (other < minn - EPS || other > maxx + EPS) return false;
-		return true;
-	}
-};
 
 
 static void AddOneSegment(int& id, KeyPointHandle A, KeyPointHandle B, bool horizontal,
@@ -421,7 +431,7 @@ void Lighting::calculateDirectionLight(const std::vector<Light>& dLights)
 
 
 		auto startPos = lightTile - glm::ivec2(light.Radius);
-		auto endPos = lightTile + glm::ivec2(light.Radius);
+		auto endPos = lightTile + glm::ivec2(light.Radius + 1);
 		trv2::RectI areaRect(startPos, endPos - startPos);
 		addShadowSegments(areaRect, segments, light.Position);
 
@@ -437,6 +447,8 @@ void Lighting::calculateDirectionLight(const std::vector<Light>& dLights)
 				addShadowSegments(tileRect, segments, light.Position);
 			}
 		}
+
+		drawSegments = segments;
 
 		// Sort keypoints by their polar angle
 		int keyPointSz = keyPointList.size();
@@ -487,44 +499,49 @@ void Lighting::calculateDirectionLight(const std::vector<Light>& dLights)
 
 			minnTime = std::numeric_limits<float>::infinity();
 			minSeg = -1;
-			for (auto id : activeSegments)
+
+			if (keypoint.ConjunctionInfo.size() == 1 && keypoint.Pos.x == 23 && keypoint.Pos.y == 48)
 			{
-				auto& segment = segments[id];
-				float t;
-				if (segment.IntersectionTest(currentRay, t))
-				{
-					if (t < minnTime)
-					{
-						minnTime = t;
-						minSeg = id;
-					}
-				}
+				if (true);
 			}
-
-			float oldMinTime = minnTime;
-			oldMinSeg = minSeg;
-
-
-
+		
 			if (i == 0)
 			{
-				minnTime = std::numeric_limits<float>::infinity();
-				minSeg = -1;
 				for (auto& segment : segments)
 				{
 					float t;
 					if (segment.IntersectionTest(currentRay, t))
 					{
 						activeSegments.insert(segment.SegId);
-						if (t < minnTime)
+						if (t <= minnTime)
 						{
 							minnTime = t;
 							minSeg = segment.SegId;
 						}
 					}
 				}
-
 			}
+			else
+			{
+				for (auto id : activeSegments)
+				{
+					auto& segment = segments[id];
+					float t;
+					if (segment.IntersectionTest(currentRay, t))
+					{
+						if (t <= minnTime)
+						{
+							minnTime = t;
+							minSeg = id;
+						}
+					}
+				}
+				oldMinSeg = minSeg;
+			}
+
+			float oldMinTime = minnTime;
+
+
 
 			for (const auto& conj : keypoint.ConjunctionInfo)
 			{
@@ -562,7 +579,7 @@ void Lighting::calculateDirectionLight(const std::vector<Light>& dLights)
 				float t;
 				if (segment.IntersectionTest(currentRay, t))
 				{
-					if (t < minnTime)
+					if (t <= minnTime)
 					{
 						minnTime = t;
 						minSeg = id;
@@ -583,10 +600,8 @@ void Lighting::calculateDirectionLight(const std::vector<Light>& dLights)
 				auto lastPos = currentRay.Eval(oldMinTime);
 				auto newPos = currentRay.Eval(minnTime);
 
-				if (std::abs(cross2(lastKeyPosition - light.Position, lastPos - light.Position)) > 1)
-				{
-					triangles.push_back(Triangle(lastKeyPosition, light.Position, lastPos));
-				}
+
+				triangles.push_back(Triangle(lastKeyPosition, light.Position, lastPos));
 				lastKeyPosition = newPos;
 				oldMinSeg = minSeg;
 			}
@@ -650,6 +665,7 @@ void Lighting::addShadowSegments(const trv2::RectI& worldTileRect, std::vector<S
 	}
 	else
 	{
+
 		// Left
 		AddOneSegment(id, BottomLeft, TopLeft, false, segments, center);
 
