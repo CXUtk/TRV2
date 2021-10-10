@@ -5,10 +5,14 @@
 #include <glm/glm.hpp>
 #include <deque>
 #include <map>
+#include <set>
 #include <vector>
+
+#include <TRGame/Worlds/GameWorld.h>
 
 struct Edge;
 struct Vertex;
+
 using PVertex = Vertex*;
 using PEdge = Edge*;
 
@@ -26,6 +30,11 @@ struct Vertex
 	std::vector<EndPointInfo> ConjunctionInfo{};
 
 	Vertex(glm::ivec2 pos) : Pos(pos) {}
+
+	glm::vec2 GetWorldPos() const
+	{
+		return glm::vec2(Pos * GameWorld::TILE_SIZE);
+	}
 };
 
 struct Triangle
@@ -50,19 +59,28 @@ struct Ray
 struct Edge
 {
 	glm::ivec2 Start, End;
+	int Id;
 	bool Horizontal;
 
-	Edge(PVertex start, PVertex end, bool horizontal) : Horizontal(horizontal)
+	Edge(PVertex start, PVertex end, int id, bool horizontal) : Id(id), Horizontal(horizontal)
 	{
-		Start = start->Pos * 16;
-		End = end->Pos * 16;
+		Start = start->Pos * GameWorld::TILE_SIZE;
+		End = end->Pos * GameWorld::TILE_SIZE;
 	}
 
-	bool IntersectionTest(const Ray& ray, float& t)
+	bool IntersectionTest(const Ray& ray, float& t) const
 	{
 		double dv = ray.Dir[Horizontal];
 		double travel = Start[Horizontal] - ray.Start[Horizontal];
-		if (dv == 0.0) return false;
+		if (dv == 0.0)
+		{
+			float a = Start[!Horizontal] / ray.Dir[!Horizontal];
+			float b = End[!Horizontal] / ray.Dir[!Horizontal];
+			if (a > b) std::swap(a, b);
+			t = a;
+			if (a < 0) t = b;
+			return t >= 0 && travel == 0.0;
+		}
 		t = travel / dv;
 		if (t < -LightCommon::EPS) return false;
 
@@ -74,6 +92,25 @@ struct Edge
 	}
 };
 
+struct KeyPointTmp
+{
+	PVertex Vertex;
+	double Angle;
+
+	bool operator<(const KeyPointTmp& p) const
+	{
+		return Angle < p.Angle;
+	}
+};
+
+
+struct SweepStructure
+{
+	glm::vec2 lastKeyPosition{};
+	std::set<PEdge> activeSegments{};
+};
+
+
 
 class DirectionalLightCalculator : public LightCalculator
 {
@@ -84,6 +121,8 @@ public:
 	virtual void AddLight(const Light& light) override;
 	virtual void ClearLights() override;
 	virtual void Calculate() override;
+
+	void DrawTriangles(const glm::mat4& worldProjection);
 
 private:
 	LightCommon* _lightCommonData;
@@ -102,4 +141,18 @@ private:
 	void addBorderEdges(const trv2::RectI& rect, glm::vec2 sweepCenter);
 	void addTileEdges(const trv2::RectI& rect, glm::vec2 sweepCenter);
 	void addOneSegment(PVertex A, PVertex B, bool horizontal, glm::vec2 sweepCenter);
+
+	void performFirstScan(const std::vector<KeyPointTmp>& sweep, SweepStructure& structure, 
+		glm::vec2 sweepCenter, int& nxtIndex);
+
+	void findNearestWall(const Ray& ray, std::deque<Edge>::iterator beginBorder,
+		std::deque<Edge>::iterator endBorder,
+		std::deque<Edge>::iterator endEdges,
+		float& minnTime, PEdge& minnEdge);
+
+	void findNearestWall(const Ray& ray, const SweepStructure& structure,
+		float& minnTime, PEdge& minnEdge);
+
+	void performOneScan(const std::vector<KeyPointTmp>& sweep, SweepStructure& structure,
+		glm::vec2 sweepCenter, int start, int end);
 };

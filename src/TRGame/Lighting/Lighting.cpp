@@ -70,6 +70,17 @@ void Lighting::CalculateLight(const trv2::RectI& tileRectCalc, const trv2::RectI
 	auto gameWorld = TRGame::GetInstance()->GetGameWorld();
 	_lightCommonData->GameWorld = gameWorld;
 
+	auto common = _lightCommonData.get();
+	const int totalBlocks = common->TileRectWorld.Size.x * common->TileRectWorld.Size.y;
+
+	common->SectionRect.ForEach([this, common](glm::ivec2 sectionCoord) {
+		const TileSection* section = common->GameWorld->GetSection(sectionCoord);
+		section->ForEachTile([this, common](glm::ivec2 coord, const Tile& tile) {
+			int id = common->GetBlockId(coord - common->TileRectWorld.Position);
+			common->CachedTile[id].Type = tile.Type;
+		});
+	});
+
 	_bfsCalculator->Calculate();
 	_directionCalculator->Calculate();
 }
@@ -102,6 +113,7 @@ void Lighting::DrawLightMap(trv2::SpriteRenderer* renderer, const glm::mat4& pro
 
 void Lighting::DrawDirectionalTriangles(const glm::mat4& worldProjection)
 {
+	_directionCalculator->DrawTriangles(worldProjection);
 	//auto universalRenderer = Engine::GetInstance()->GetUniversalRenderer();
 
 	//for (auto& triangle : triangles)

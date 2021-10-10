@@ -29,14 +29,6 @@ void BFSLightCalculator::Calculate()
 	auto common = _lightCommonData;
 	const int totalBlocks = common->TileRectWorld.Size.x * common->TileRectWorld.Size.y;
 
-	common->SectionRect.ForEach([this, common](glm::ivec2 sectionCoord) {
-		const TileSection* section = common->GameWorld->GetSection(sectionCoord);
-		section->ForEachTile([this, common](glm::ivec2 coord, const Tile& tile) {
-			int id = common->GetBlockId(coord - common->TileRectWorld.Position);
-			common->CachedTile[id].Type = tile.Type;
-		});
-	});
-
 	auto threadPool = TRGame::GetInstance()->GetThreadPool();
 	volatile int finishFlag[3] = { 0 };
 	for (int i = 0; i < 3; i++)
@@ -50,7 +42,7 @@ void BFSLightCalculator::Calculate()
 	for (int channel = 0; channel < 3; channel++)
 	{
 		while (!finishFlag[channel]) {}
-		for (int i = 0; i < common->TileRectWorld.Size.x * common->TileRectWorld.Size.y; i++)
+		for (int i = 0; i < totalBlocks; i++)
 		{
 			float x = _luminances[channel][i];
 			x = glm::clamp(x, 0.f, 1.f);

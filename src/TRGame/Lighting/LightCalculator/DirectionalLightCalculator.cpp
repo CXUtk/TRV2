@@ -1,358 +1,14 @@
 ﻿#include "DirectionalLightCalculator.h"
 
 #include <algorithm>
-#include <set>
 
 #include <TREngine/Core/Utils/Utils.h>
+#include <TREngine/Engine.h>
+#include <TREngine/Core/Render/render.h>
 
-#include <TRGame/Worlds/GameWorld.h>
 #include <TRGame/Worlds/WorldResources.h>
 #include <TRGame/Worlds/Tile.h>
 #include <TRGame/Worlds/TileSection.h>
-
-
-
-struct KeyPointTmp
-{
-	PVertex Vertex;
-	double Angle;
-
-	bool operator<(const KeyPointTmp& p) const
-	{
-		return Angle < p.Angle;
-	}
-
-	glm::vec2 GetWorldPos() const
-	{
-		return glm::vec2(Vertex->Pos * 16);
-	}
-};
-
-
-struct SweepStructure
-{
-	glm::vec2 lastKeyPosition{};
-	std::set<PEdge> activeSegments{};
-};
-
-
-
-//std::vector<Triangle> triangles;
-//static std::vector<Segment> drawSegments;
-
-
-//
-//static void AddOneSegment(int& id, KeyPointHandle A, KeyPointHandle B, bool horizontal,
-//	std::vector<Segment>& segments, const glm::vec2& center)
-//{
-//	auto& keyA = keyPointList[A];
-//	auto& keyB = keyPointList[B];
-//
-//	auto vA = glm::vec2(keyA.Pos * 16) - center;
-//	auto vB = glm::vec2(keyB.Pos * 16) - center;
-//	float jud = cross2(vA, vB);
-//
-//	if (jud == 0) return;
-//
-//	// jud >= 0 means vB is on the left of vA, starting point should be A
-//	bool s = (jud >= 0);
-//	keyA.ConjunctionInfo.push_back(KeyPointInfo{ id, !s });
-//	keyB.ConjunctionInfo.push_back(KeyPointInfo{ id, s });
-//
-//	if (s)
-//	{
-//		segments.push_back(Segment{ A, B, id, horizontal });
-//	}
-//	else
-//	{
-//		segments.push_back(Segment{ B, A, id, horizontal });
-//	}
-//
-//	id++;
-//}
-//
-//
-//static KeyPointHandle GetKeyPointHandle(glm::ivec2 pos)
-//{
-//	auto p = keyPointsMap.find(std::pair<int, int>{pos.x, pos.y});
-//	if (p != keyPointsMap.end())
-//	{
-//		return p->second;
-//	}
-//	KeyPointHandle handle = keyPointList.size();
-//	keyPointsMap[std::pair<int, int>{pos.x, pos.y}] = handle;
-//	keyPointList.push_back(KeyPoint(pos));
-//	return handle;
-//}
-//
-//
-//
-//
-//void Lighting::calculateDirectionLight(const std::vector<Light>& dLights)
-//{
-//	for (const auto& light : dLights)
-//	{
-//		glm::ivec2 lightTile = GameWorld::GetLowerWorldCoord(light.Position, 0);
-//		triangles.clear();
-//		keyPointsMap.clear();
-//		keyPointList.clear();
-//
-//		std::vector<Segment> segments{};
-//		std::vector<KeyPointTmp> keypointTmps{};
-//		int totSegments = 0;
-//
-//
-//		auto startPos = lightTile - glm::ivec2(light.Radius);
-//		auto endPos = lightTile + glm::ivec2(light.Radius + 1);
-//		trv2::RectI areaRect(startPos, endPos - startPos);
-//		addShadowSegments(areaRect, segments, light.Position);
-//
-//		// Limit seraching range, generate computing segments
-//		for (int y = -light.Radius; y <= light.Radius; y++)
-//		{
-//			for (int x = -light.Radius; x <= light.Radius; x++)
-//			{
-//				auto curTilePos = lightTile + glm::ivec2(x, y);
-//				if (getCachedTileType(curTilePos) == 0) continue;
-//				auto tileRect = trv2::RectI(curTilePos, glm::ivec2(1));
-//
-//				addShadowSegments(tileRect, segments, light.Position);
-//			}
-//		}
-//
-//		drawSegments = segments;
-//
-//		// Sort keypoints by their polar angle
-//		int keyPointSz = keyPointList.size();
-//		for (int i = 0; i < keyPointSz; i++)
-//		{
-//			auto& pt = keyPointList[i];
-//			std::sort(pt.ConjunctionInfo.begin(), pt.ConjunctionInfo.end());
-//			auto pos = glm::vec2(pt.Pos) * 16.f - light.Position;
-//			keypointTmps.push_back(KeyPointTmp{ i, atan2(pos.y, pos.x) });
-//		}
-//
-//		std::sort(keypointTmps.begin(), keypointTmps.end());
-//
-//
-//		// Calculate initial sweeping line data structure
-//		glm::vec2 lastKeyPosition{};
-//		std::set<int> activeSegments{};
-//
-//		Ray currentRay{ light.Position, glm::normalize(keypointTmps[0].GetWorldPos() - light.Position) };
-//		float minnTime = std::numeric_limits<float>::infinity();
-//		int minSeg = -1;
-//		//for (auto& segment : segments)
-//		//{
-//		//	float t;
-//		//	if (segment.IntersectionTest(currentRay, t))
-//		//	{
-//		//		activeSegments.insert(segment.SegId);
-//		//		if (t < minnTime)
-//		//		{
-//		//			minnTime = t;
-//		//			minSeg = segment.SegId;
-//		//		}
-//		//	}
-//		//}
-//		//lastKeyPosition = currentRay.Eval(minnTime);
-//
-//
-//		int oldMinSeg = -1;
-//		int sz = keypointTmps.size();
-//		for (int i = 0; i < sz + 1; i++)
-//		{
-//			auto keypointHandle = keypointTmps[i % sz].Handle;
-//			auto& keypoint = keyPointList[keypointHandle];
-//			auto keypointPos = keypointTmps[i % sz].GetWorldPos();
-//
-//
-//			Ray currentRay{ light.Position, glm::normalize(keypointPos - light.Position) };
-//
-//			minnTime = std::numeric_limits<float>::infinity();
-//			minSeg = -1;
-//
-//			if (keypoint.ConjunctionInfo.size() == 1 && keypoint.Pos.x == 23 && keypoint.Pos.y == 48)
-//			{
-//				if (true);
-//			}
-//
-//			if (i == 0)
-//			{
-//				for (auto& segment : segments)
-//				{
-//					float t;
-//					if (segment.IntersectionTest(currentRay, t))
-//					{
-//						activeSegments.insert(segment.SegId);
-//						if (t <= minnTime)
-//						{
-//							minnTime = t;
-//							minSeg = segment.SegId;
-//						}
-//					}
-//				}
-//			}
-//			else
-//			{
-//				for (auto id : activeSegments)
-//				{
-//					auto& segment = segments[id];
-//					float t;
-//					if (segment.IntersectionTest(currentRay, t))
-//					{
-//						if (t <= minnTime)
-//						{
-//							minnTime = t;
-//							minSeg = id;
-//						}
-//					}
-//				}
-//				oldMinSeg = minSeg;
-//			}
-//
-//			float oldMinTime = minnTime;
-//
-//
-//
-//			for (const auto& conj : keypoint.ConjunctionInfo)
-//			{
-//				auto p = activeSegments.find(conj.SegId);
-//				if (conj.IsEnd)
-//				{
-//					if (p != activeSegments.end())
-//					{
-//						activeSegments.erase(p);
-//					}
-//					else
-//					{
-//						if (true);
-//					}
-//				}
-//				else
-//				{
-//					if (p != activeSegments.end())
-//					{
-//						if (true);
-//						//assert(false);
-//					}
-//					else
-//					{
-//						activeSegments.insert(conj.SegId);
-//					}
-//				}
-//			}
-//
-//			minnTime = std::numeric_limits<float>::infinity();
-//			minSeg = -1;
-//			for (auto id : activeSegments)
-//			{
-//				auto& segment = segments[id];
-//				float t;
-//				if (segment.IntersectionTest(currentRay, t))
-//				{
-//					if (t <= minnTime)
-//					{
-//						minnTime = t;
-//						minSeg = id;
-//					}
-//				}
-//			}
-//
-//			if (oldMinSeg == -1 || minSeg == -1)
-//			{
-//				assert(i == 0);
-//				auto newPos = currentRay.Eval(minnTime);
-//				lastKeyPosition = newPos;
-//				oldMinSeg = minSeg;
-//				continue;
-//			}
-//			if (minSeg != oldMinSeg)
-//			{
-//				auto lastPos = currentRay.Eval(oldMinTime);
-//				auto newPos = currentRay.Eval(minnTime);
-//
-//
-//				triangles.push_back(Triangle(lastKeyPosition, light.Position, lastPos));
-//				lastKeyPosition = newPos;
-//				oldMinSeg = minSeg;
-//			}
-//		}
-//
-//		//auto& lastTriangle = triangles.back();
-//		//triangles.push_back(Triangle(lastTriangle.Pos[2], light.Position, triangles.front().Pos[0]));
-//	}
-//}
-//
-////int Lighting::getCachedTileType(glm::ivec2 worldCoord) const
-////{
-////	worldCoord -= _tileRect.Position;
-////	return _cachedTileTypes[worldCoord.y * _tileRect.Size.x + worldCoord.x];
-////}
-//
-//void Lighting::addShadowSegments(const trv2::RectI& worldTileRect, std::vector<Segment>& segments, const glm::vec2& center)
-//{
-//	KeyPointHandle BottomLeft = GetKeyPointHandle(worldTileRect.BottomLeft());
-//	KeyPointHandle TopLeft = GetKeyPointHandle(worldTileRect.TopLeft());
-//	KeyPointHandle TopRight = GetKeyPointHandle(worldTileRect.TopRight());
-//	KeyPointHandle BottomRight = GetKeyPointHandle(worldTileRect.BottomRight());
-//
-//	// Push 4 edges to segments list
-//	int id = segments.size();
-//
-//	// If given rect is a tile block
-//	if (worldTileRect.Size == glm::ivec2(1))
-//	{
-//		auto tileCoord = worldTileRect.BottomLeft();
-//
-//		auto leftBlock = glm::ivec2(tileCoord.x - 1, tileCoord.y);
-//		auto upBlock = glm::ivec2(tileCoord.x, tileCoord.y + 1);
-//		auto rightBlock = glm::ivec2(tileCoord.x + 1, tileCoord.y);
-//		auto downBlock = glm::ivec2(tileCoord.x, tileCoord.y - 1);
-//
-//		if (isValidCoord(leftBlock) && getCachedTileType(leftBlock) == 0)
-//		{
-//			// Left
-//			AddOneSegment(id, BottomLeft, TopLeft, false, segments, center);
-//		}
-//
-//		if (isValidCoord(upBlock) && getCachedTileType(upBlock) == 0)
-//		{
-//			// Up
-//			AddOneSegment(id, TopLeft, TopRight, true, segments, center);
-//		}
-//
-//		if (isValidCoord(rightBlock) && getCachedTileType(rightBlock) == 0)
-//		{
-//			// Right
-//			AddOneSegment(id, TopRight, BottomRight, false, segments, center);
-//		}
-//
-//		if (isValidCoord(downBlock) && getCachedTileType(downBlock) == 0)
-//		{
-//			// Bottom
-//			AddOneSegment(id, BottomRight, BottomLeft, true, segments, center);
-//		}
-//
-//	}
-//	else
-//	{
-//
-//		// Left
-//		AddOneSegment(id, BottomLeft, TopLeft, false, segments, center);
-//
-//		// Up
-//		AddOneSegment(id, TopLeft, TopRight, true, segments, center);
-//
-//		// Right
-//		AddOneSegment(id, TopRight, BottomRight, false, segments, center);
-//
-//		// Bottom
-//		AddOneSegment(id, BottomRight, BottomLeft, true, segments, center);
-//	}
-//}
-//
-
 
 DirectionalLightCalculator::DirectionalLightCalculator(LightCommon* lightCommon) : _lightCommonData(lightCommon)
 {}
@@ -380,6 +36,26 @@ void DirectionalLightCalculator::Calculate()
 	}
 }
 
+static std::vector<Edge> drawSegments;
+void DirectionalLightCalculator::DrawTriangles(const glm::mat4& worldProjection)
+{
+	auto universalRenderer = trv2::Engine::GetInstance()->GetUniversalRenderer();
+
+	for (auto& triangle : _shadowTriangles)
+	{
+		universalRenderer->DrawWiredTriangle(triangle.Pos[0], triangle.Pos[1], triangle.Pos[2]);
+	}
+
+	universalRenderer->Flush(trv2::PrimitiveType::TRIANGLE_LIST, worldProjection);
+
+	int i = 0;
+	for (auto& segment : drawSegments)
+	{
+		universalRenderer->DrawLine(segment.Start, segment.End, glm::vec4(0, 0, 1, 1), glm::vec4(1, 0, 0, 1));
+	}
+	universalRenderer->Flush(trv2::PrimitiveType::LINE_LIST, worldProjection);
+}
+
 PVertex DirectionalLightCalculator::getVertexPtr(glm::ivec2 pos)
 {
 	auto p = _vertexPtrMap.find(std::pair<int, int>{ pos.x, pos.y });
@@ -393,6 +69,7 @@ PVertex DirectionalLightCalculator::getVertexPtr(glm::ivec2 pos)
 	return vertex;
 }
 
+
 void DirectionalLightCalculator::calculateTrianglesForOneLight(const Light& light)
 {
 	_vertices.clear();
@@ -400,15 +77,16 @@ void DirectionalLightCalculator::calculateTrianglesForOneLight(const Light& ligh
 	_vertexPtrMap.clear();
 
 	auto common = _lightCommonData;
+	auto sweepCenter = light.Position;
 
-	glm::ivec2 lightTile = GameWorld::GetLowerWorldCoord(light.Position, 0);
+	glm::ivec2 lightTile = GameWorld::GetLowerWorldCoord(sweepCenter, 0);
 	std::vector<KeyPointTmp> keypointTmps{};
 	int totSegments = 0;
 
 	auto startPos = lightTile - glm::ivec2(light.Radius);
 	auto endPos = lightTile + glm::ivec2(light.Radius + 1);
 	trv2::RectI areaRect(startPos, endPos - startPos);
-	addBorderEdges(areaRect, light.Position);
+	addBorderEdges(areaRect, sweepCenter);
 
 	// Limit seraching range, generate computing segments
 	for (int y = -light.Radius; y <= light.Radius; y++)
@@ -419,22 +97,44 @@ void DirectionalLightCalculator::calculateTrianglesForOneLight(const Light& ligh
 			if (common->GetCachedTile(curTilePos).Type == 0) continue;
 			auto tileRect = trv2::RectI(curTilePos, glm::ivec2(1));
 
-			addTileEdges(tileRect, light.Position);
+			addTileEdges(tileRect, sweepCenter);
 		}
 	}
+
+	drawSegments.assign(_edges.begin(), _edges.end());
 
 	// Sort keypoints by their polar angle
 	for (auto& vertex : _vertices)
 	{
 		PVertex pV = &vertex;
-		auto pos = glm::vec2(pV->Pos * 16) - light.Position;
+		auto pos = pV->GetWorldPos() - sweepCenter;
 		keypointTmps.push_back(KeyPointTmp{ pV, atan2(pos.y, pos.x) });
 	}
 	std::sort(keypointTmps.begin(), keypointTmps.end());
-
 	
 	SweepStructure structure;
+	int startIndex;
+	performFirstScan(keypointTmps, structure, sweepCenter, startIndex);
 
+	int sz = keypointTmps.size();
+	int cnt = 0;
+
+	for (int i = startIndex; i < sz + 1; i++)
+	{
+		auto& cur = keypointTmps[i % sz];
+		auto& nxt = keypointTmps[(i + 1) % sz];
+		auto keypointPosCur = cur.Vertex->GetWorldPos();
+		auto keypointPosNext = nxt.Vertex->GetWorldPos();
+
+		// Batch the points with the same polar angle
+		++cnt;
+		if (i == sz || std::abs(cross2(keypointPosCur - light.Position, 
+			keypointPosNext - light.Position)) > LightCommon::EPS)
+		{
+			performOneScan(keypointTmps, structure, sweepCenter, i - cnt + 1, i);
+			cnt = 0;
+		}
+	}
 }
 
 void DirectionalLightCalculator::addBorderEdges(const trv2::RectI& rect, glm::vec2 sweepCenter)
@@ -478,19 +178,19 @@ void DirectionalLightCalculator::addTileEdges(const trv2::RectI& rect, glm::vec2
 		addOneSegment(BottomLeft, TopLeft, false, sweepCenter);
 	}
 
-	if (common->IsTileCoordInRange(upBlock) && common->GetCachedTile(leftBlock).Type == 0)
+	if (common->IsTileCoordInRange(upBlock) && common->GetCachedTile(upBlock).Type == 0)
 	{
 		// Up
 		addOneSegment(TopLeft, TopRight, true, sweepCenter);
 	}
 
-	if (common->IsTileCoordInRange(rightBlock) && common->GetCachedTile(leftBlock).Type == 0)
+	if (common->IsTileCoordInRange(rightBlock) && common->GetCachedTile(rightBlock).Type == 0)
 	{
 		// Right
 		addOneSegment(TopRight, BottomRight, false, sweepCenter);
 	}
 
-	if (common->IsTileCoordInRange(downBlock) && common->GetCachedTile(leftBlock).Type == 0)
+	if (common->IsTileCoordInRange(downBlock) && common->GetCachedTile(downBlock).Type == 0)
 	{
 		// Bottom
 		addOneSegment(BottomRight, BottomLeft, true, sweepCenter);
@@ -499,25 +199,250 @@ void DirectionalLightCalculator::addTileEdges(const trv2::RectI& rect, glm::vec2
 
 void DirectionalLightCalculator::addOneSegment(PVertex A, PVertex B, bool horizontal, glm::vec2 sweepCenter)
 {
-	auto vA = glm::vec2(A->Pos * 16) - sweepCenter;
-	auto vB = glm::vec2(B->Pos * 16) - sweepCenter;
+	auto vA = A->GetWorldPos() - sweepCenter;
+	auto vB = B->GetWorldPos() - sweepCenter;
 	float jud = cross2(vA, vB);
-
-	if (jud == 0) return;
 
 	// jud >= 0 means vB is on the left of vA, starting point should be A
 	bool s = (jud >= 0);
 
+	int id = _edges.size();
 	if (s)
 	{
-		_edges.push_back(Edge(A, B, horizontal));
+		_edges.push_back(Edge(A, B, id, horizontal));
 	}
 	else
 	{
-		_edges.push_back(Edge(B, A, horizontal));
+		_edges.push_back(Edge(B, A, id, horizontal));
 	}
 
 	PEdge edge = &_edges.back();
 	A->ConjunctionInfo.push_back(EndPointInfo{ edge, !s });
 	B->ConjunctionInfo.push_back(EndPointInfo{ edge, s });
+}
+
+void DirectionalLightCalculator::performFirstScan(const std::vector<KeyPointTmp>& sweep, SweepStructure& structure, glm::vec2 sweepCenter, int& nxtIndex)
+{
+	if (!sweep.size()) return;
+
+	Ray firstRay{ sweepCenter, glm::normalize(sweep[0].Vertex->GetWorldPos() - sweepCenter) };
+	int totalEdges = _edges.size();
+
+	std::vector<PVertex> startpoints;
+	std::map<PEdge, int> testSegments;
+
+	for (int i = 0; i < totalEdges; i++)
+	{
+		auto& edge = _edges[i];
+		float t;
+		if (edge.IntersectionTest(firstRay, t))
+		{
+			testSegments[&edge]++;
+		}
+	}
+
+	// Proceed to next different angle
+	nxtIndex = 0;
+	int sz = sweep.size();
+	startpoints.push_back(sweep[0].Vertex);
+	
+	while (nxtIndex < sz && std::abs(cross2(sweep[nxtIndex + 1].Vertex->GetWorldPos() - sweepCenter, 
+		sweep[nxtIndex].Vertex->GetWorldPos() - sweepCenter)) < LightCommon::EPS)
+	{
+		nxtIndex++;
+		startpoints.push_back(sweep[nxtIndex].Vertex);
+	}
+	nxtIndex++;
+
+	for (auto startpt : startpoints)
+	{
+		for (const auto& conj : startpt->ConjunctionInfo)
+		{
+			if (conj.IsEnd)
+			{
+				testSegments[conj.Edge]--;
+			}
+			else
+			{
+				testSegments[conj.Edge]++;
+			}
+		}
+	}
+
+
+	for (auto& pair : testSegments)
+	{
+		if (pair.second > 0)
+		{
+			structure.activeSegments.insert(pair.first);
+		}
+		else if (pair.second < 0)
+		{
+			structure.activeSegments.erase(pair.first);
+		}
+	}
+
+	float minnTime;
+	PEdge minnEdge;
+	findNearestWall(firstRay, _edges.begin(), _edges.begin() + 4, _edges.end(), minnTime, minnEdge);
+	assert(minnEdge != nullptr);
+
+	structure.lastKeyPosition = firstRay.Eval(minnTime);
+}
+
+void DirectionalLightCalculator::findNearestWall(const Ray& ray, std::deque<Edge>::iterator beginBorder,
+		std::deque<Edge>::iterator endBorder,
+		std::deque<Edge>::iterator endEdges,
+		float& minnTime, PEdge& minnEdge)
+{
+	minnTime = std::numeric_limits<float>::infinity();
+	minnEdge = nullptr;
+
+	for (auto& it = endBorder; it != endEdges; it++)
+	{
+		auto& edge = *it;
+		float t;
+		if (edge.IntersectionTest(ray, t))
+		{
+			if (t < minnTime)
+			{
+				minnTime = t;
+				minnEdge = &edge;
+			}
+		}
+	}
+	if (!minnEdge)
+	{
+		for (auto& it = beginBorder; it != endBorder; it++)
+		{
+			auto& edge = *it;
+			float t;
+			if (edge.IntersectionTest(ray, t))
+			{
+				if (t < minnTime)
+				{
+					minnTime = t;
+					minnEdge = &edge;
+				}
+			}
+		}
+	}
+}
+
+void DirectionalLightCalculator::findNearestWall(const Ray& ray, const SweepStructure& structure, float& minnTime, PEdge& minnEdge)
+{
+	minnTime = std::numeric_limits<float>::infinity();
+	minnEdge = nullptr;
+
+	std::vector<PEdge> borderEdges; 
+	
+	for (auto edge : structure.activeSegments)
+	{
+		if (edge->Id < 4)
+		{
+			borderEdges.push_back(edge);
+			continue;
+		}
+		float t;
+		if (edge->IntersectionTest(ray, t))
+		{
+			if (t <= minnTime)
+			{
+				minnTime = t;
+				minnEdge = edge;
+			}
+		}
+	}
+	if (!minnEdge)
+	{
+		for (auto edge : borderEdges)
+		{
+			float t;
+			if (edge->IntersectionTest(ray, t))
+			{
+				if (t <= minnTime)
+				{
+					minnTime = t;
+					minnEdge = edge;
+				}
+			}
+		}
+	}
+}
+
+void DirectionalLightCalculator::performOneScan(const std::vector<KeyPointTmp>& sweep, 
+	SweepStructure& structure, glm::vec2 sweepCenter, int start, int end)
+{
+	int sz = sweep.size();
+	auto currentVertex = sweep[start % sz].Vertex;
+	Ray currentRay{ sweepCenter, glm::normalize(currentVertex->GetWorldPos() - sweepCenter) };
+
+	float minnTime = std::numeric_limits<float>::infinity();
+	PEdge minnEdge = nullptr;
+
+	findNearestWall(currentRay, structure, minnTime, minnEdge);
+	assert(minnEdge);
+
+	float oldMinTime = minnTime;
+	PEdge oldMinSeg = minnEdge;
+
+	std::map<PEdge, int> testSegments;
+	for (int j = start; j <= end; j++)
+	{
+		auto vertex = sweep[j % sz].Vertex;
+
+		for (const auto& conj : vertex->ConjunctionInfo)
+		{
+			if (conj.IsEnd)
+			{
+				testSegments[conj.Edge]--;
+			}
+			else
+			{
+				testSegments[conj.Edge]++;
+			}
+		}
+	}
+	for (const auto& pair : testSegments)
+	{
+		if (pair.second > 0)
+		{
+			auto p = structure.activeSegments.find(pair.first);
+			if (p == structure.activeSegments.end())
+			{
+				structure.activeSegments.insert(pair.first);
+			}
+			else
+			{
+				if (true);
+			}
+		}
+		else if (pair.second < 0)
+		{
+			auto p = structure.activeSegments.find(pair.first);
+			if (p != structure.activeSegments.end())
+			{
+				structure.activeSegments.erase(p);
+			}
+			else
+			{
+				if (true);
+			}
+		}
+	}
+
+	findNearestWall(currentRay, structure, minnTime, minnEdge);
+	assert(minnEdge);
+
+	if (end == sz || oldMinSeg != minnEdge)
+	{
+		auto lastPos = currentRay.Eval(oldMinTime);
+		auto newPos = currentRay.Eval(minnTime);
+
+		//if (std::abs(cross2(structure.lastKeyPosition - sweepCenter, lastPos - sweepCenter)) > 1.f)
+		//{
+			_shadowTriangles.push_back(Triangle(structure.lastKeyPosition, sweepCenter, lastPos));
+		//}
+		structure.lastKeyPosition = newPos;
+	}
 }
