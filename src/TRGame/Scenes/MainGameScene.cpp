@@ -289,7 +289,6 @@ void MainGameScene::updateLighting()
     auto gameWorld = _game->GetGameWorld();
     auto player = _game->GetLocalPlayer();
 
-    lighting->SetGameWorld(gameWorld);
     lighting->ClearLights();
 
     x++;
@@ -304,7 +303,7 @@ void MainGameScene::updateLighting()
                 if((s >> l) & 1) c[l] = 1.f;
             }
             
-            lighting->AddLight(Light{ glm::vec2(i * 200, j * 200 ), c, 16 });
+            lighting->AddNormalLight(Light{ glm::vec2(i * 200, j * 200 ), c, 16 });
         }
     }
     //for (int i = 0; i < 10; i++)
