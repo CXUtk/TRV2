@@ -103,11 +103,35 @@ struct KeyPointTmp
 	}
 };
 
+struct SegmentNodeMax
+{
+	PEdge Edge;
+	float v;
+
+	bool operator<(const SegmentNodeMax& node) const
+	{
+		return v < node.v;
+	}
+};
+
+struct SegmentNodeMin
+{
+	PEdge Edge;
+	float v;
+
+	bool operator<(const SegmentNodeMin& node) const
+	{
+		return v > node.v;
+	}
+};
 
 struct SweepStructure
 {
 	glm::vec2 lastKeyPosition{};
 	std::set<PEdge> activeSegments{};
+	std::set<PEdge> borderEdges{};
+	std::priority_queue<SegmentNodeMax> MaxNode[2]{};
+	std::priority_queue<SegmentNodeMin> MinNode[2]{};
 };
 
 
@@ -150,9 +174,12 @@ private:
 		std::deque<Edge>::iterator endEdges,
 		float& minnTime, PEdge& minnEdge);
 
-	void findNearestWall(const Ray& ray, const SweepStructure& structure,
+	void findNearestWall(const Ray& ray, SweepStructure& structure,
 		float& minnTime, PEdge& minnEdge);
 
 	void performOneScan(const std::vector<KeyPointTmp>& sweep, SweepStructure& structure,
 		glm::vec2 sweepCenter, int start, int end);
+
+	void insertNewEdge(SweepStructure& structure, PEdge edge, glm::vec2 sweepCenter);
+	void eraseEdge(SweepStructure& structure, PEdge edge, glm::vec2 sweepCenter);
 };

@@ -274,17 +274,18 @@ void DirectionalLightCalculator::performFirstScan(const std::vector<KeyPointTmp>
 	{
 		if (pair.second > 0)
 		{
-			structure.activeSegments.insert(pair.first);
+			insertNewEdge(structure, pair.first, sweepCenter);
 		}
 		else if (pair.second < 0)
 		{
-			structure.activeSegments.erase(pair.first);
+			eraseEdge(structure, pair.first, sweepCenter);
 		}
 	}
 
 	float minnTime;
 	PEdge minnEdge;
-	findNearestWall(firstRay, _edges.begin(), _edges.begin() + 4, _edges.end(), minnTime, minnEdge);
+	//findNearestWall(firstRay, _edges.begin(), _edges.begin() + 4, _edges.end(), minnTime, minnEdge);
+	findNearestWall(firstRay, structure, minnTime, minnEdge);
 	assert(minnEdge != nullptr);
 
 	structure.lastKeyPosition = firstRay.Eval(minnTime);
@@ -329,38 +330,73 @@ void DirectionalLightCalculator::findNearestWall(const Ray& ray, std::deque<Edge
 	}
 }
 
-void DirectionalLightCalculator::findNearestWall(const Ray& ray, const SweepStructure& structure, float& minnTime, PEdge& minnEdge)
+void DirectionalLightCalculator::findNearestWall(const Ray& ray, SweepStructure& structure, 
+	float& minnTime, PEdge& minnEdge)
 {
 	minnTime = std::numeric_limits<float>::infinity();
 	minnEdge = nullptr;
 
-	std::vector<PEdge> borderEdges; 
-	
-	for (auto edge : structure.activeSegments)
+	std::vector<PEdge> borderEdges;
+
+	PEdge candidates[2] = { nullptr, nullptr };
+	float minTime[2] = { std::numeric_limits<float>::infinity() , std::numeric_limits<float>::infinity() };
+	for (int i = 0; i < 2; i++)
 	{
-		if (edge->Id < 4)
+		if (ray.Dir[i] >= 0)
 		{
-			borderEdges.push_back(edge);
-			continue;
-		}
-		float t;
-		if (edge->IntersectionTest(ray, t))
-		{
-			if (t <= minnTime)
+			auto& Q = structure.MinNode[i];
+			while (!Q.empty())
 			{
-				minnTime = t;
-				minnEdge = edge;
+				auto& node = Q.top();
+				if (structure.activeSegments.find(node.Edge) == structure.activeSegments.end())
+				{
+					Q.pop();
+				}
+				else
+				{
+					candidates[i] = node.Edge;
+					assert(node.Edge->IntersectionTest(ray, minTime[i]));
+					break;
+				}
+			}
+		}
+		else
+		{
+			auto& Q = structure.MaxNode[i];
+			while (!Q.empty())
+			{
+				auto& node = Q.top();
+				if (structure.activeSegments.find(node.Edge) == structure.activeSegments.end())
+				{
+					Q.pop();
+				}
+				else
+				{
+					candidates[i] = node.Edge;
+					assert(node.Edge->IntersectionTest(ray, minTime[i]));
+					break;
+				}
 			}
 		}
 	}
-	if (!minnEdge)
+	if (minTime[0] < minTime[1] || !candidates[1])
 	{
-		for (auto edge : borderEdges)
+		minnEdge = candidates[0];
+		minnTime = minTime[0];
+	}
+	else if( candidates[1])
+	{
+		minnEdge = candidates[1];
+		minnTime = minTime[1];
+	}
+	if (!candidates[0] && !candidates[1])
+	{
+		for (auto edge : structure.borderEdges)
 		{
 			float t;
 			if (edge->IntersectionTest(ray, t))
 			{
-				if (t <= minnTime)
+				if (t < minnTime)
 				{
 					minnTime = t;
 					minnEdge = edge;
@@ -407,27 +443,11 @@ void DirectionalLightCalculator::performOneScan(const std::vector<KeyPointTmp>& 
 	{
 		if (pair.second > 0)
 		{
-			auto p = structure.activeSegments.find(pair.first);
-			if (p == structure.activeSegments.end())
-			{
-				structure.activeSegments.insert(pair.first);
-			}
-			else
-			{
-				if (true);
-			}
+			insertNewEdge(structure, pair.first, sweepCenter);
 		}
 		else if (pair.second < 0)
 		{
-			auto p = structure.activeSegments.find(pair.first);
-			if (p != structure.activeSegments.end())
-			{
-				structure.activeSegments.erase(p);
-			}
-			else
-			{
-				if (true);
-			}
+			eraseEdge(structure, pair.first, sweepCenter);
 		}
 	}
 
@@ -444,5 +464,41 @@ void DirectionalLightCalculator::performOneScan(const std::vector<KeyPointTmp>& 
 			_shadowTriangles.push_back(Triangle(structure.lastKeyPosition, sweepCenter, lastPos));
 		//}
 		structure.lastKeyPosition = newPos;
+	}
+}
+
+void DirectionalLightCalculator::insertNewEdge(SweepStructure& structure, PEdge edge, glm::vec2 sweepCenter)
+{
+	auto p = structure.activeSegments.find(edge);
+	assert(p == structure.activeSegments.end());
+	if (edge->Id < 4)
+	{
+		structure.borderEdges.insert(edge);
+		return;
+	}
+	structure.activeSegments.insert(edge);
+	int num = edge->Horizontal;
+	float value = edge->Start[num] - sweepCenter[num];
+	if (value >= 0)
+	{
+		structure.MinNode[num].push(SegmentNodeMin{ edge, value });
+	}
+	else
+	{
+		structure.MaxNode[num].push(SegmentNodeMax{ edge, value });
+	}
+}
+
+void DirectionalLightCalculator::eraseEdge(SweepStructure& structure, PEdge edge, glm::vec2 sweepCenter)
+{
+	if (edge->Id < 4)
+	{
+		structure.borderEdges.erase(edge);
+	}
+	else
+	{
+		auto p = structure.activeSegments.find(edge);
+		assert(p != structure.activeSegments.end());
+		structure.activeSegments.erase(p);
 	}
 }
