@@ -48,12 +48,12 @@ void DirectionalLightCalculator::DrawTriangles(const glm::mat4& worldProjection)
 
 	universalRenderer->Flush(trv2::PrimitiveType::TRIANGLE_LIST, worldProjection);
 
-	int i = 0;
-	for (auto& segment : drawSegments)
-	{
-		universalRenderer->DrawLine(segment.Start, segment.End, glm::vec4(0, 0, 1, 1), glm::vec4(1, 0, 0, 1));
-	}
-	universalRenderer->Flush(trv2::PrimitiveType::LINE_LIST, worldProjection);
+	//int i = 0;
+	//for (auto& segment : drawSegments)
+	//{
+	//	universalRenderer->DrawLine(segment.Start, segment.End, glm::vec4(0, 0, 1, 1), glm::vec4(1, 0, 0, 1));
+	//}
+	//universalRenderer->Flush(trv2::PrimitiveType::LINE_LIST, worldProjection);
 }
 
 PVertex DirectionalLightCalculator::getVertexPtr(glm::ivec2 pos)
