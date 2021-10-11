@@ -61,6 +61,8 @@ public:
     */
     InputController* GetInputController() { return trv2::ptr(_inputController); }
 
+    UniversalRenderer* GetUniversalRenderer() { return trv2::ptr(_universalRenderer); }
+
     /**
      * @brief Get graphics device
      * @return 
@@ -105,6 +107,7 @@ private:
     std::shared_ptr<InputController> _inputController;
     std::shared_ptr<Application> _application;
     std::shared_ptr<GameTimer> 	_gameTimer;
+    std::shared_ptr<UniversalRenderer> _universalRenderer;
 
     std::shared_ptr<IGraphicsProvider> _graphicsProvider;
     std::shared_ptr<IPlatformProvider> _platformProvider;

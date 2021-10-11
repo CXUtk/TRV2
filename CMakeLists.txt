@@ -35,7 +35,7 @@ add_executable("TRV2_Game"
  "src/TRGame/Worlds/WorldMap.h"
  "src/TRGame/Worlds/WorldMap.cpp"
  "src/TRGame/Configs/VideoSettings.h"
- "src/TRGame/Configs/VideoSettings.cpp" "src/TRGame/Worlds/WorldResources.h" "src/TRGame/Worlds/WorldResources.cpp")
+ "src/TRGame/Configs/VideoSettings.cpp" "src/TRGame/Worlds/WorldResources.h" "src/TRGame/Worlds/WorldResources.cpp" "src/TRGame/Lighting/LightCalculator/BFSLightCalculator.h" "src/TRGame/Lighting/LightCalculator/LightCalculator.h" "src/TRGame/Lighting/LightCalculator/BFSLightCalculator.cpp" "src/TRGame/Lighting/LightCalculator/LightCommon.h" "src/TRGame/Lighting/LightCalculator/DirectionalLightCalculator.h" "src/TRGame/Lighting/LightCalculator/LightCommon.cpp" "src/TRGame/Lighting/LightCalculator/DirectionalLightCalculator.cpp")
 
 # 编译选项
 set(CMAKE_CXX_STANDARD 17)
