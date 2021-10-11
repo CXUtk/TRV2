@@ -62,6 +62,8 @@ struct Edge
 	int Id;
 	bool Horizontal;
 
+	bool IsBorder() const { return Id < 4; }
+
 	Edge(PVertex start, PVertex end, int id, bool horizontal) : Id(id), Horizontal(horizontal)
 	{
 		Start = start->Pos * GameWorld::TILE_SIZE;

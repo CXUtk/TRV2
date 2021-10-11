@@ -471,7 +471,7 @@ void DirectionalLightCalculator::insertNewEdge(SweepStructure& structure, PEdge 
 {
 	auto p = structure.activeSegments.find(edge);
 	assert(p == structure.activeSegments.end());
-	if (edge->Id < 4)
+	if (edge->IsBorder())
 	{
 		structure.borderEdges.insert(edge);
 		return;
@@ -491,7 +491,7 @@ void DirectionalLightCalculator::insertNewEdge(SweepStructure& structure, PEdge 
 
 void DirectionalLightCalculator::eraseEdge(SweepStructure& structure, PEdge edge, glm::vec2 sweepCenter)
 {
-	if (edge->Id < 4)
+	if (edge->IsBorder())
 	{
 		structure.borderEdges.erase(edge);
 	}

@@ -29,6 +29,8 @@ public:
 	void DrawWiredTriangle(glm::vec2 A, glm::vec2 B, glm::vec2 C, const glm::vec4& color);
 	void DrawWiredTriangle(const Vertex& A, const Vertex& B, const Vertex& C);
 
+	void SetPolygonMode(trv2::PolygonMode mode);
+
 	void Flush(PrimitiveType primitiveType, const glm::mat4& projection);
 
 

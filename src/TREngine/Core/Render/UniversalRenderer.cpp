@@ -65,6 +65,12 @@ void UniversalRenderer::DrawWiredTriangle(const Vertex& A, const Vertex& B, cons
 	_vertexBuffer.push_back(B);
 	_vertexBuffer.push_back(C);
 }
+
+void UniversalRenderer::SetPolygonMode(trv2::PolygonMode mode)
+{
+	_graphicsDevice->SetPolygonMode(mode);
+}
+
 void UniversalRenderer::Flush(PrimitiveType primitiveType, const glm::mat4& projection)
 {
 	_graphicsDevice->BindVertexArray(_lineVAO);
@@ -79,9 +85,7 @@ void UniversalRenderer::Flush(PrimitiveType primitiveType, const glm::mat4& proj
 	{
 	case trv2::PrimitiveType::TRIANGLE_LIST:
 	{
-		_graphicsDevice->SetPolygonMode(PolygonMode::WIREFRAME);
 		_graphicsDevice->DrawPrimitives(primitiveType, _vertexBuffer.size(), 0);
-		_graphicsDevice->SetPolygonMode(PolygonMode::FILL);
 		break;
 	}
 	case trv2::PrimitiveType::TRIANGLE_STRIP:
