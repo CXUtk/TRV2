@@ -45,20 +45,21 @@ void DirectionalLightCalculator::DrawTriangles(const glm::mat4& worldProjection)
 	int sz = _shadowTriangles.size();
 	for (auto& triangle : _shadowTriangles)
 	{
-		//i++;
-		//if(i == sz - 2)
+		i++;
+		if(i == sz - 2)
 		universalRenderer->DrawWiredTriangle(triangle.Pos[0], triangle.Pos[1], triangle.Pos[2]);
 	}
 	universalRenderer->SetPolygonMode(trv2::PolygonMode::WIREFRAME);
 	universalRenderer->Flush(trv2::PrimitiveType::TRIANGLE_LIST, worldProjection);
 	universalRenderer->SetPolygonMode(trv2::PolygonMode::FILL);
 
-	//for (auto& segment : drawSegments)
-	//{
-	//	if(segment.Id == 83 || segment.Id == 84)
-	//	universalRenderer->DrawLine(segment.Start, segment.End, glm::vec4(0, 0, 1, 1), glm::vec4(1, 0, 0, 1));
-	//}
-	//universalRenderer->Flush(trv2::PrimitiveType::LINE_LIST, worldProjection);
+	for (auto& segment : drawSegments)
+	{
+		if(segment.Id == 136 || segment.Id == 140 
+			|| segment.Id == 77)
+		universalRenderer->DrawLine(segment.Start, segment.End, glm::vec4(0, 0, 1, 1), glm::vec4(1, 0, 0, 1));
+	}
+	universalRenderer->Flush(trv2::PrimitiveType::LINE_LIST, worldProjection);
 }
 
 PVertex DirectionalLightCalculator::getVertexPtr(glm::ivec2 pos)
@@ -290,17 +291,25 @@ void DirectionalLightCalculator::performFirstScan(const std::vector<KeyPointTmp>
 		}
 	}
 
-
+	std::map<std::pair<int, int>, std::vector<PEdge>> batchPush;
 	for (auto& pair : testSegments)
 	{
 		if (pair.second > 0)
 		{
-			insertNewEdge(structure, &_edges[pair.first], sweepCenter);
+			PEdge edge = &_edges[pair.first];
+
+			auto pair = std::pair<int, int>{ edge->Start.x, edge->Start.y };
+			batchPush[pair].push_back(edge);
 		}
 		else if (pair.second < 0)
 		{
 			eraseEdge(structure, &_edges[pair.first], sweepCenter);
 		}
+	}
+
+	for (auto& pair : batchPush)
+	{
+		insertNewEdge(structure, pair.second, sweepCenter);
 	}
 
 	float minnTime = std::numeric_limits<float>::infinity();
@@ -309,6 +318,7 @@ void DirectionalLightCalculator::performFirstScan(const std::vector<KeyPointTmp>
 	assert(minnEdge != nullptr);
 
 	structure.lastKeyPosition = structure.currentRay.Eval(minnTime);
+	structure.currentRound++;
 }
 
 //void DirectionalLightCalculator::findNearestWall(const Ray& ray, std::deque<Edge>::iterator beginBorder,
@@ -362,17 +372,41 @@ void DirectionalLightCalculator::findNearestWall(SweepStructure& structure,
 	//}
 	while (!structure.PQ->empty())
 	{
-		auto edge = structure.PQ->top();
-		int s = structure.activeEdges[edge->Id];
-		if (!structure.activeEdges[edge->Id])
+		auto& edge = structure.PQ->top();
+		if (edge.Edges.size() > 1)
+		{
+			if (edge.Round != structure.currentRound)
+			{
+				structure.PQ->pop();
+				for (auto pedge : edge.Edges)
+				{
+					if (!structure.activeEdges[pedge->Id]) continue;
+					EdgeCmpNode node;
+					node.Round = structure.currentRound;
+					node.Edges.push_back(pedge);
+
+					structure.PQ->push(node);
+				}
+				continue;
+			}
+			else
+			{
+				bool has = edge.Edges.front()->IntersectionTest(structure.currentRay, minnTime);
+				assert(has);
+				minnEdge = edge.Edges.front();
+				return;
+			}
+		}
+		
+		if (!structure.activeEdges[edge.Edges.front()->Id])
 		{
 			structure.PQ->pop();
 		}
 		else
 		{
-			bool has = edge->IntersectionTest(structure.currentRay, minnTime);
+			bool has = edge.Edges.front()->IntersectionTest(structure.currentRay, minnTime);
 			assert(has);
-			minnEdge = edge;
+			minnEdge = edge.Edges.front();
 			break;
 		}
 	}
@@ -449,7 +483,7 @@ void DirectionalLightCalculator::findNearestWall(SweepStructure& structure,
 void DirectionalLightCalculator::performOneScan(const std::vector<KeyPointTmp>& sweep, 
 	SweepStructure& structure, glm::vec2 sweepCenter, int start, int end)
 {
-	if (end == 152)
+	if (start == 164)
 	{
 		if (true)
 			;
@@ -457,7 +491,7 @@ void DirectionalLightCalculator::performOneScan(const std::vector<KeyPointTmp>& 
 	int sz = sweep.size();
 	auto currentVertex = sweep[start % sz].Vertex;
 	structure.currentRay = { sweepCenter, glm::normalize(currentVertex->GetWorldPos() - sweepCenter) };
-	structure.differentialRay = { sweepCenter, rotateBy(structure.currentRay.Dir, 0.01f) };
+	structure.differentialRay = { sweepCenter + rotateBy(structure.currentRay.Dir, 1.57f), structure.currentRay.Dir };
 
 	float minnTime = std::numeric_limits<float>::infinity();
 	PEdge minnEdge = nullptr;
@@ -490,16 +524,24 @@ void DirectionalLightCalculator::performOneScan(const std::vector<KeyPointTmp>& 
 			}
 		}
 	}
-	for (const auto& pair : testSegments)
+	std::map<std::pair<int, int>, std::vector<PEdge>> batchPush;
+	for (auto& pair : testSegments)
 	{
 		if (pair.second > 0)
 		{
-			insertNewEdge(structure, &_edges[pair.first], sweepCenter);
+			PEdge edge = &_edges[pair.first];
+
+			auto pair = std::pair<int, int>{ edge->Start.x, edge->Start.y };
+			batchPush[pair].push_back(edge);
 		}
 		else if (pair.second < 0)
 		{
 			eraseEdge(structure, &_edges[pair.first], sweepCenter);
 		}
+	}
+	for (auto& pair : batchPush)
+	{
+		insertNewEdge(structure, pair.second, sweepCenter);
 	}
 
 	findNearestWall(structure, minnTime, minnEdge);
@@ -509,7 +551,7 @@ void DirectionalLightCalculator::performOneScan(const std::vector<KeyPointTmp>& 
 	{
 		auto lastPos = structure.currentRay.Eval(oldMinTime);
 		auto newPos = structure.currentRay.Eval(minnTime);
-		if (_shadowTriangles.size() == 41 - 3)
+		if (_shadowTriangles.size() == 58 - 3)
 		{
 			if (true);
 		}
@@ -519,19 +561,30 @@ void DirectionalLightCalculator::performOneScan(const std::vector<KeyPointTmp>& 
 		//}
 		structure.lastKeyPosition = newPos;
 	}
+
+	structure.currentRound++;
 }
 
-void DirectionalLightCalculator::insertNewEdge(SweepStructure& structure, PEdge edge, glm::vec2 sweepCenter)
+void DirectionalLightCalculator::insertNewEdge(SweepStructure& structure, const std::vector<PEdge>& edges, glm::vec2 sweepCenter)
 {
-
-	if (edge->IsBorder())
+	std::vector<PEdge> finalPush;
+	for (auto edge : edges)
 	{
-		structure.borderEdges.push_back(edge);
-		return;
+		if (edge->IsBorder())
+		{
+			structure.borderEdges.push_back(edge);
+			continue;
+		}
+		else
+		{
+			assert(!structure.activeEdges[edge->Id]);
+			structure.activeEdges[edge->Id] = true;
+			finalPush.push_back(edge);
+		}
 	}
-	assert(!structure.activeEdges[edge->Id]);
-	structure.activeEdges[edge->Id] = true;
-	structure.PQ->push(edge);
+	if (finalPush.empty()) return;
+	assert(finalPush.size() > 0);
+	structure.PQ->push(EdgeCmpNode{ finalPush, structure.currentRound });
 	//int num = edge->Horizontal;
 	//float value = edge->Start[num] - sweepCenter[num];
 	//if (value >= 0)

@@ -165,7 +165,7 @@ struct KeyPointTmp
 
 struct EdgeCmp;
 struct EdgeCmpNode;
-using GeoPQ = std::priority_queue<PEdge, std::vector<PEdge>, EdgeCmp>;
+using GeoPQ = std::priority_queue<EdgeCmpNode, std::vector<EdgeCmpNode>, EdgeCmp>;
 //using GeoPQ = MinPQ<PEdge, EdgeCmp>;
 
 struct SweepStructure
@@ -173,6 +173,7 @@ struct SweepStructure
 	glm::vec2 lastKeyPosition{};
 	std::unique_ptr<bool[]> activeEdges;
 	std::vector<PEdge> borderEdges{};
+	int currentRound = 0;
 	GeoPQ* PQ = nullptr;
 	Ray currentRay{};
 	Ray differentialRay{};
@@ -194,6 +195,7 @@ struct SweepStructure
 struct EdgeCmpNode
 {
 	std::vector<PEdge> Edges;
+	int Round;
 };
 
 struct EdgeCmp
@@ -202,18 +204,17 @@ struct EdgeCmp
 	SweepStructure& structure;
 	EdgeCmp(SweepStructure& structure) : structure(structure) {}
 
-	bool operator() (PEdge A, PEdge B) const
+	bool operator() (const EdgeCmpNode& A, const EdgeCmpNode& B) const
 	{
-		bool hasA = structure.activeEdges[A->Id];
-		bool hasB = structure.activeEdges[B->Id];
+		bool hasA = structure.activeEdges[A.Edges.front()->Id];
+		bool hasB = structure.activeEdges[B.Edges.front()->Id];
 		if (hasA != hasB) return hasA < hasB;
-		if (!hasA) return A->Id < B->Id;
+		if (!hasA) return A.Edges.front()->Id < B.Edges.front()->Id;
 		float t1, t2;
-		A->IntersectionTest(structure.differentialRay, t1);
-		B->IntersectionTest(structure.differentialRay, t2);
+		A.Edges.front()->IntersectionTest(structure.currentRay, t1);
+		B.Edges.front()->IntersectionTest(structure.currentRay, t2);
 		return t1 > t2;
 	}
-
 };
 
 
@@ -263,6 +264,6 @@ private:
 	void performOneScan(const std::vector<KeyPointTmp>& sweep, SweepStructure& structure,
 		glm::vec2 sweepCenter, int start, int end);
 
-	void insertNewEdge(SweepStructure& structure, PEdge edge, glm::vec2 sweepCenter);
+	void insertNewEdge(SweepStructure& structure, const std::vector<PEdge>& edges, glm::vec2 sweepCenter);
 	void eraseEdge(SweepStructure& structure, PEdge edge, glm::vec2 sweepCenter);
 };
