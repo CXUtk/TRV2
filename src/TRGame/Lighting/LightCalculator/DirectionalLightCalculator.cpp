@@ -246,7 +246,7 @@ void DirectionalLightCalculator::performFirstScan(const std::vector<KeyPointTmp>
 {
 	if (!sweep.size()) return;
 	structure.currentRay = { sweepCenter, glm::normalize(sweep[0].Vertex->GetWorldPos() - sweepCenter) };
-	structure.differentialRay = { sweepCenter, rotateBy(structure.currentRay.Dir, 0.01f) };
+	structure.differentialRay = { sweepCenter + rotateBy(structure.currentRay.Dir, 1.57f), structure.currentRay.Dir };
 	int totalEdges = _edges.size();
 
 	std::vector<PVertex> startpoints;
@@ -526,7 +526,7 @@ void DirectionalLightCalculator::insertNewEdge(SweepStructure& structure, PEdge 
 
 	if (edge->IsBorder())
 	{
-		structure.borderEdges.insert(edge);
+		structure.borderEdges.push_back(edge);
 		return;
 	}
 	assert(!structure.activeEdges[edge->Id]);
@@ -548,7 +548,8 @@ void DirectionalLightCalculator::eraseEdge(SweepStructure& structure, PEdge edge
 {
 	if (edge->IsBorder())
 	{
-		structure.borderEdges.erase(edge);
+		auto p = std::find(structure.borderEdges.begin(), structure.borderEdges.end(), edge);
+		structure.borderEdges.erase(p);
 	}
 	else
 	{
