@@ -124,14 +124,14 @@ struct Edge
 		End = end->Pos * GameWorld::TILE_SIZE;
 	}
 
-	bool IntersectionTest(const Ray& ray, float& t) const
+	bool IntersectionTest(const Ray& ray, float& t, bool checkBorder = false) const
 	{
 		double dv = ray.Dir[Horizontal];
 		double travel = Start[Horizontal] - ray.Start[Horizontal];
 		if (dv == 0.0)
 		{
-			float a = Start[!Horizontal] / ray.Dir[!Horizontal];
-			float b = End[!Horizontal] / ray.Dir[!Horizontal];
+			double a = Start[!Horizontal] / ray.Dir[!Horizontal];
+			double b = End[!Horizontal] / ray.Dir[!Horizontal];
 			if (a > b) std::swap(a, b);
 			t = a;
 			if (a < 0.0) t = b;
@@ -140,10 +140,13 @@ struct Edge
 		t = travel / dv;
 		if (t < -LightCommon::EPS) return false;
 
-		double other = ray.Start[!Horizontal] + travel * ray.Dir[!Horizontal] / dv;
-		double minn = std::min(Start[!Horizontal], End[!Horizontal]);
-		double maxx = std::max(Start[!Horizontal], End[!Horizontal]);
-		if (other < minn - LightCommon::EPS || other > maxx + LightCommon::EPS) return false;
+		if (checkBorder)
+		{
+			double other = ray.Start[!Horizontal] + travel * ray.Dir[!Horizontal] / dv;
+			double minn = std::min(Start[!Horizontal], End[!Horizontal]);
+			double maxx = std::max(Start[!Horizontal], End[!Horizontal]);
+			if (other < minn - LightCommon::EPS || other > maxx + LightCommon::EPS) return false;
+		}
 		return true;
 	}
 };
@@ -171,11 +174,19 @@ struct SweepStructure
 	std::set<PEdge> borderEdges{};
 	GeoPQ* PQ = nullptr;
 	Ray currentRay{};
+	Ray differentialRay{};
 
 	SweepStructure(int maxEdges)
 	{
 		activeEdges = std::make_unique<bool[]>(maxEdges);
 		memset(activeEdges.get(), 0, sizeof(bool) * maxEdges);
+		for (int i = 0; i < maxEdges; i++)
+		{
+			if (activeEdges[i])
+			{
+				assert(false);
+			}
+		}
 	}
 };
 
@@ -188,8 +199,11 @@ struct EdgeCmp
 
 	bool operator() (PEdge A, PEdge B) const
 	{
-		float t1 = std::numeric_limits<float>::infinity(), 
-			t2 = std::numeric_limits<float>::infinity();
+		bool hasA = structure.activeEdges[A->Id];
+		bool hasB = structure.activeEdges[B->Id];
+		if (hasA != hasB) return hasA < hasB;
+		if (!hasA) return A < B;
+		float t1, t2;
 		A->IntersectionTest(structure.currentRay, t1);
 		B->IntersectionTest(structure.currentRay, t2);
 		return t1 > t2;

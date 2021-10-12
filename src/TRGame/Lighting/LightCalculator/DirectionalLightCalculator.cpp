@@ -45,17 +45,17 @@ void DirectionalLightCalculator::DrawTriangles(const glm::mat4& worldProjection)
 	int sz = _shadowTriangles.size();
 	for (auto& triangle : _shadowTriangles)
 	{
-
-			universalRenderer->DrawWiredTriangle(triangle.Pos[0], triangle.Pos[1], triangle.Pos[2]);
-		
+		//i++;
+		//if(i == sz - 2)
+		universalRenderer->DrawWiredTriangle(triangle.Pos[0], triangle.Pos[1], triangle.Pos[2]);
 	}
 	universalRenderer->SetPolygonMode(trv2::PolygonMode::WIREFRAME);
 	universalRenderer->Flush(trv2::PrimitiveType::TRIANGLE_LIST, worldProjection);
 	universalRenderer->SetPolygonMode(trv2::PolygonMode::FILL);
 
-	//int i = 0;
 	//for (auto& segment : drawSegments)
 	//{
+	//	if(segment.Id == 83 || segment.Id == 84)
 	//	universalRenderer->DrawLine(segment.Start, segment.End, glm::vec4(0, 0, 1, 1), glm::vec4(1, 0, 0, 1));
 	//}
 	//universalRenderer->Flush(trv2::PrimitiveType::LINE_LIST, worldProjection);
@@ -86,7 +86,6 @@ void DirectionalLightCalculator::calculateTrianglesForOneLight(const Light& ligh
 
 	glm::ivec2 lightTile = GameWorld::GetLowerWorldCoord(sweepCenter, 0);
 	std::vector<KeyPointTmp> keypointTmps{};
-	int totSegments = 0;
 
 	auto startPos = lightTile - glm::ivec2(light.Radius);
 	auto endPos = lightTile + glm::ivec2(light.Radius + 1);
@@ -113,6 +112,7 @@ void DirectionalLightCalculator::calculateTrianglesForOneLight(const Light& ligh
 	{
 		PVertex pV = &vertex;
 		auto pos = pV->GetWorldPos() - sweepCenter;
+		if (pV->ConjunctionInfo.empty()) continue;
 		keypointTmps.push_back(KeyPointTmp{ pV, atan2(pos.y, pos.x) });
 	}
 	std::sort(keypointTmps.begin(), keypointTmps.end());
@@ -132,7 +132,6 @@ void DirectionalLightCalculator::calculateTrianglesForOneLight(const Light& ligh
 	EdgeCmp cmp(structure);
 	GeoPQ PQ(cmp);
 	structure.PQ = &PQ;
-
 
 	int startIndex;
 	performFirstScan(keypointTmps, structure, sweepCenter, startIndex);
@@ -247,18 +246,19 @@ void DirectionalLightCalculator::performFirstScan(const std::vector<KeyPointTmp>
 {
 	if (!sweep.size()) return;
 	structure.currentRay = { sweepCenter, glm::normalize(sweep[0].Vertex->GetWorldPos() - sweepCenter) };
+	structure.differentialRay = { sweepCenter, rotateBy(structure.currentRay.Dir, 0.01f) };
 	int totalEdges = _edges.size();
 
 	std::vector<PVertex> startpoints;
-	std::map<PEdge, int> testSegments;
+	std::map<int, int> testSegments;
 
 	for (int i = 0; i < totalEdges; i++)
 	{
 		auto& edge = _edges[i];
 		float t;
-		if (edge.IntersectionTest(structure.currentRay, t))
+		if (edge.IntersectionTest(structure.currentRay, t, true))
 		{
-			testSegments[&edge]++;
+			testSegments[edge.Id]++;
 		}
 	}
 
@@ -281,11 +281,11 @@ void DirectionalLightCalculator::performFirstScan(const std::vector<KeyPointTmp>
 		{
 			if (conj.IsEnd)
 			{
-				testSegments[conj.Edge]--;
+				testSegments[conj.Edge->Id]--;
 			}
 			else
 			{
-				testSegments[conj.Edge]++;
+				testSegments[conj.Edge->Id]++;
 			}
 		}
 	}
@@ -295,17 +295,16 @@ void DirectionalLightCalculator::performFirstScan(const std::vector<KeyPointTmp>
 	{
 		if (pair.second > 0)
 		{
-			insertNewEdge(structure, pair.first, sweepCenter);
+			insertNewEdge(structure, &_edges[pair.first], sweepCenter);
 		}
 		else if (pair.second < 0)
 		{
-			eraseEdge(structure, pair.first, sweepCenter);
+			eraseEdge(structure, &_edges[pair.first], sweepCenter);
 		}
 	}
 
 	float minnTime = std::numeric_limits<float>::infinity();
 	PEdge minnEdge = nullptr;
-	//findNearestWall(firstRay, _edges.begin(), _edges.begin() + 4, _edges.end(), minnTime, minnEdge);
 	findNearestWall(structure, minnTime, minnEdge);
 	assert(minnEdge != nullptr);
 
@@ -371,7 +370,8 @@ void DirectionalLightCalculator::findNearestWall(SweepStructure& structure,
 		}
 		else
 		{
-			assert(edge->IntersectionTest(structure.currentRay, minnTime));
+			bool has = edge->IntersectionTest(structure.currentRay, minnTime);
+			assert(has);
 			minnEdge = edge;
 			break;
 		}
@@ -449,9 +449,15 @@ void DirectionalLightCalculator::findNearestWall(SweepStructure& structure,
 void DirectionalLightCalculator::performOneScan(const std::vector<KeyPointTmp>& sweep, 
 	SweepStructure& structure, glm::vec2 sweepCenter, int start, int end)
 {
+	if (end == 152)
+	{
+		if (true)
+			;
+	}
 	int sz = sweep.size();
 	auto currentVertex = sweep[start % sz].Vertex;
 	structure.currentRay = { sweepCenter, glm::normalize(currentVertex->GetWorldPos() - sweepCenter) };
+	structure.differentialRay = { sweepCenter, rotateBy(structure.currentRay.Dir, 0.01f) };
 
 	float minnTime = std::numeric_limits<float>::infinity();
 	PEdge minnEdge = nullptr;
@@ -460,22 +466,27 @@ void DirectionalLightCalculator::performOneScan(const std::vector<KeyPointTmp>& 
 	assert(minnEdge);
 
 	float oldMinTime = minnTime;
-	PEdge oldMinSeg = minnEdge;
+	int oldMinSeg = minnEdge->Id;
 
-	std::map<PEdge, int> testSegments;
+	std::map<int, int> testSegments{};
 	for (int j = start; j <= end; j++)
 	{
 		auto vertex = sweep[j % sz].Vertex;
 
 		for (const auto& conj : vertex->ConjunctionInfo)
 		{
+
 			if (conj.IsEnd)
 			{
-				testSegments[conj.Edge]--;
+				testSegments[conj.Edge->Id]--;
 			}
 			else
 			{
-				testSegments[conj.Edge]++;
+				if (conj.Edge->Start == glm::ivec2(96, 240))
+				{
+					if (true);
+				}
+				testSegments[conj.Edge->Id]++;
 			}
 		}
 	}
@@ -483,27 +494,25 @@ void DirectionalLightCalculator::performOneScan(const std::vector<KeyPointTmp>& 
 	{
 		if (pair.second > 0)
 		{
-			insertNewEdge(structure, pair.first, sweepCenter);
+			insertNewEdge(structure, &_edges[pair.first], sweepCenter);
 		}
 		else if (pair.second < 0)
 		{
-			eraseEdge(structure, pair.first, sweepCenter);
+			eraseEdge(structure, &_edges[pair.first], sweepCenter);
 		}
 	}
 
 	findNearestWall(structure, minnTime, minnEdge);
 	assert(minnEdge);
 
-	if (end == sz || oldMinSeg != minnEdge)
+	if (end == sz || oldMinSeg != minnEdge->Id)
 	{
 		auto lastPos = structure.currentRay.Eval(oldMinTime);
 		auto newPos = structure.currentRay.Eval(minnTime);
-
-		if (_shadowTriangles.size() == 42 - 3)
+		if (_shadowTriangles.size() == 41 - 3)
 		{
 			if (true);
 		}
-
 		//if (std::abs(cross2(structure.lastKeyPosition - sweepCenter, lastPos - sweepCenter)) > 1.f)
 		//{
 			_shadowTriangles.push_back(Triangle(structure.lastKeyPosition, sweepCenter, lastPos));
