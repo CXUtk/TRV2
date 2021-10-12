@@ -10,6 +10,60 @@
 
 #include <TRGame/Worlds/GameWorld.h>
 
+template <typename T, typename PR>
+struct MinPQ
+{
+	static const int MAX_NUM = 5005;
+	T heap[MAX_NUM];
+	PR _pr;
+	int n;
+
+	MinPQ() { n = 0; }
+	~MinPQ() {}
+
+	MinPQ(PR pr) :_pr(pr)
+	{
+		n = 0;
+	}
+
+	inline void push(T item)
+	{
+		heap[++n] = item;
+		swim(n);
+	}
+	inline T top() const { return heap[1]; }
+	inline void pop()
+	{
+		if (empty()) return;
+		std::swap(heap[1], heap[n--]);
+		sink(1);
+	}
+	inline void clear() { n = 0; }
+	inline bool empty() const { return n == 0; }
+
+	inline void swim(int k)
+	{
+		while (k > 1 && _pr(heap[k >> 1], heap[k]))
+		{
+			std::swap(heap[k >> 1], heap[k]);
+			k >>= 1;
+		}
+	}
+
+	inline void sink(int k)
+	{
+		while ((k << 1) <= n)
+		{
+			int j = k << 1;
+			if (j < n && _pr(heap[j], heap[j + 1])) j++;
+			if (!(heap[k] > heap[j])) break;
+			std::swap(heap[k], heap[j]);
+			k = j;
+		}
+	}
+};
+
+
 struct Edge;
 struct Vertex;
 
@@ -80,8 +134,8 @@ struct Edge
 			float b = End[!Horizontal] / ray.Dir[!Horizontal];
 			if (a > b) std::swap(a, b);
 			t = a;
-			if (a < 0) t = b;
-			return t >= 0 && travel == 0.0;
+			if (a < 0.0) t = b;
+			return t >= 0.0 && travel == 0.0;
 		}
 		t = travel / dv;
 		if (t < -LightCommon::EPS) return false;
@@ -105,36 +159,44 @@ struct KeyPointTmp
 	}
 };
 
-struct SegmentNodeMax
-{
-	PEdge Edge;
-	float v;
 
-	bool operator<(const SegmentNodeMax& node) const
-	{
-		return v < node.v;
-	}
-};
-
-struct SegmentNodeMin
-{
-	PEdge Edge;
-	float v;
-
-	bool operator<(const SegmentNodeMin& node) const
-	{
-		return v > node.v;
-	}
-};
+struct EdgeCmp;
+using GeoPQ = std::priority_queue<PEdge, std::vector<PEdge>, EdgeCmp>;
+//using GeoPQ = MinPQ<PEdge, EdgeCmp>;
 
 struct SweepStructure
 {
 	glm::vec2 lastKeyPosition{};
-	std::set<PEdge> activeSegments{};
+	std::unique_ptr<bool[]> activeEdges;
 	std::set<PEdge> borderEdges{};
-	std::priority_queue<SegmentNodeMax> MaxNode[2]{};
-	std::priority_queue<SegmentNodeMin> MinNode[2]{};
+	GeoPQ* PQ = nullptr;
+	Ray currentRay{};
+
+	SweepStructure(int maxEdges)
+	{
+		activeEdges = std::make_unique<bool[]>(maxEdges);
+		memset(activeEdges.get(), 0, sizeof(bool) * maxEdges);
+	}
 };
+
+
+struct EdgeCmp
+{
+
+	SweepStructure& structure;
+	EdgeCmp(SweepStructure& structure) : structure(structure) {}
+
+	bool operator() (PEdge A, PEdge B) const
+	{
+		float t1 = std::numeric_limits<float>::infinity(), 
+			t2 = std::numeric_limits<float>::infinity();
+		A->IntersectionTest(structure.currentRay, t1);
+		B->IntersectionTest(structure.currentRay, t2);
+		return t1 > t2;
+	}
+
+};
+
 
 
 
@@ -171,12 +233,12 @@ private:
 	void performFirstScan(const std::vector<KeyPointTmp>& sweep, SweepStructure& structure, 
 		glm::vec2 sweepCenter, int& nxtIndex);
 
-	void findNearestWall(const Ray& ray, std::deque<Edge>::iterator beginBorder,
-		std::deque<Edge>::iterator endBorder,
-		std::deque<Edge>::iterator endEdges,
-		float& minnTime, PEdge& minnEdge);
+	//void findNearestWall(const Ray& ray, std::deque<Edge>::iterator beginBorder,
+	//	std::deque<Edge>::iterator endBorder,
+	//	std::deque<Edge>::iterator endEdges,
+	//	float& minnTime, PEdge& minnEdge);
 
-	void findNearestWall(const Ray& ray, SweepStructure& structure,
+	void findNearestWall(SweepStructure& structure,
 		float& minnTime, PEdge& minnEdge);
 
 	void performOneScan(const std::vector<KeyPointTmp>& sweep, SweepStructure& structure,
