@@ -10,60 +10,6 @@
 
 #include <TRGame/Worlds/GameWorld.h>
 
-template <typename T, typename PR>
-struct MinPQ
-{
-	static const int MAX_NUM = 5005;
-	T heap[MAX_NUM];
-	PR _pr;
-	int n;
-
-	MinPQ() { n = 0; }
-	~MinPQ() {}
-
-	MinPQ(PR pr) :_pr(pr)
-	{
-		n = 0;
-	}
-
-	inline void push(T item)
-	{
-		heap[++n] = item;
-		swim(n);
-	}
-	inline T top() const { return heap[1]; }
-	inline void pop()
-	{
-		if (empty()) return;
-		std::swap(heap[1], heap[n--]);
-		sink(1);
-	}
-	inline void clear() { n = 0; }
-	inline bool empty() const { return n == 0; }
-
-	inline void swim(int k)
-	{
-		while (k > 1 && _pr(heap[k >> 1], heap[k]))
-		{
-			std::swap(heap[k >> 1], heap[k]);
-			k >>= 1;
-		}
-	}
-
-	inline void sink(int k)
-	{
-		while ((k << 1) <= n)
-		{
-			int j = k << 1;
-			if (j < n && _pr(heap[j], heap[j + 1])) j++;
-			if (!(heap[k] > heap[j])) break;
-			std::swap(heap[k], heap[j]);
-			k = j;
-		}
-	}
-};
-
-
 struct Edge;
 struct Vertex;
 
@@ -81,9 +27,10 @@ struct EndPointInfo
 struct Vertex
 {
 	glm::ivec2 Pos;
+	int Id;
 	std::vector<EndPointInfo> ConjunctionInfo{};
 
-	Vertex(glm::ivec2 pos) : Pos(pos) {}
+	Vertex(int id, glm::ivec2 pos) : Id(id), Pos(pos) {}
 
 	glm::vec2 GetWorldPos() const
 	{
@@ -113,6 +60,7 @@ struct Ray
 struct Edge
 {
 	glm::ivec2 Start, End;
+	PVertex StartVertex;
 	int Id;
 	bool Horizontal;
 
@@ -122,6 +70,7 @@ struct Edge
 	{
 		Start = start->Pos * GameWorld::TILE_SIZE;
 		End = end->Pos * GameWorld::TILE_SIZE;
+		StartVertex = start;
 	}
 
 	bool IntersectionTest(const Ray& ray, float& t, bool checkBorder = false) const
@@ -171,7 +120,7 @@ using GeoPQ = std::priority_queue<EdgeCmpNode, std::vector<EdgeCmpNode>, EdgeCmp
 struct SweepStructure
 {
 	glm::vec2 lastKeyPosition{};
-	std::unique_ptr<bool[]> activeEdges;
+	bool activeEdges[1000];
 	std::vector<PEdge> borderEdges{};
 	int currentRound = 0;
 	GeoPQ* PQ = nullptr;
@@ -180,22 +129,15 @@ struct SweepStructure
 
 	SweepStructure(int maxEdges)
 	{
-		activeEdges = std::make_unique<bool[]>(maxEdges);
-		memset(activeEdges.get(), 0, sizeof(bool) * maxEdges);
-		for (int i = 0; i < maxEdges; i++)
-		{
-			if (activeEdges[i])
-			{
-				assert(false);
-			}
-		}
+		//activeEdges = std::make_unique<bool[]>(maxEdges);
+		memset(activeEdges, 0, sizeof(bool) * maxEdges);
 	}
 };
 
 struct EdgeCmpNode
 {
 	std::vector<PEdge> Edges;
-	int Round;
+	int Round = 0;
 };
 
 struct EdgeCmp
@@ -208,7 +150,7 @@ struct EdgeCmp
 	{
 		bool hasA = structure.activeEdges[A.Edges.front()->Id];
 		bool hasB = structure.activeEdges[B.Edges.front()->Id];
-		if (hasA != hasB) return hasA < hasB;
+		if (hasA != hasB) return hasA > hasB;
 		if (!hasA) return A.Edges.front()->Id < B.Edges.front()->Id;
 		float t1, t2;
 		A.Edges.front()->IntersectionTest(structure.currentRay, t1);

@@ -46,7 +46,7 @@ void DirectionalLightCalculator::DrawTriangles(const glm::mat4& worldProjection)
 	for (auto& triangle : _shadowTriangles)
 	{
 		i++;
-		if(i == sz - 2)
+		if(i == sz - 7)
 		universalRenderer->DrawWiredTriangle(triangle.Pos[0], triangle.Pos[1], triangle.Pos[2]);
 	}
 	universalRenderer->SetPolygonMode(trv2::PolygonMode::WIREFRAME);
@@ -55,8 +55,7 @@ void DirectionalLightCalculator::DrawTriangles(const glm::mat4& worldProjection)
 
 	for (auto& segment : drawSegments)
 	{
-		if(segment.Id == 136 || segment.Id == 140 
-			|| segment.Id == 77)
+		if(segment.Id == 160 || segment.Id == 162)
 		universalRenderer->DrawLine(segment.Start, segment.End, glm::vec4(0, 0, 1, 1), glm::vec4(1, 0, 0, 1));
 	}
 	universalRenderer->Flush(trv2::PrimitiveType::LINE_LIST, worldProjection);
@@ -69,7 +68,8 @@ PVertex DirectionalLightCalculator::getVertexPtr(glm::ivec2 pos)
 	{
 		return p->second;
 	}
-	_vertices.push_back(Vertex(pos));
+	int id = _vertices.size();
+	_vertices.push_back(Vertex(id, pos));
 	PVertex vertex = &_vertices.back();
 	_vertexPtrMap[std::pair<int, int>{pos.x, pos.y}] = vertex;
 	return vertex;
@@ -291,15 +291,13 @@ void DirectionalLightCalculator::performFirstScan(const std::vector<KeyPointTmp>
 		}
 	}
 
-	std::map<std::pair<int, int>, std::vector<PEdge>> batchPush;
+	std::map<int, std::vector<PEdge>> batchPush;
 	for (auto& pair : testSegments)
 	{
 		if (pair.second > 0)
 		{
 			PEdge edge = &_edges[pair.first];
-
-			auto pair = std::pair<int, int>{ edge->Start.x, edge->Start.y };
-			batchPush[pair].push_back(edge);
+			batchPush[edge->StartVertex->Id].push_back(edge);
 		}
 		else if (pair.second < 0)
 		{
@@ -372,7 +370,7 @@ void DirectionalLightCalculator::findNearestWall(SweepStructure& structure,
 	//}
 	while (!structure.PQ->empty())
 	{
-		auto& edge = structure.PQ->top();
+		auto edge = structure.PQ->top();
 		if (edge.Edges.size() > 1)
 		{
 			if (edge.Round != structure.currentRound)
@@ -509,30 +507,23 @@ void DirectionalLightCalculator::performOneScan(const std::vector<KeyPointTmp>& 
 
 		for (const auto& conj : vertex->ConjunctionInfo)
 		{
-
 			if (conj.IsEnd)
 			{
 				testSegments[conj.Edge->Id]--;
 			}
 			else
 			{
-				if (conj.Edge->Start == glm::ivec2(96, 240))
-				{
-					if (true);
-				}
 				testSegments[conj.Edge->Id]++;
 			}
 		}
 	}
-	std::map<std::pair<int, int>, std::vector<PEdge>> batchPush;
+	std::map<int, std::vector<PEdge>> batchPush;
 	for (auto& pair : testSegments)
 	{
 		if (pair.second > 0)
 		{
 			PEdge edge = &_edges[pair.first];
-
-			auto pair = std::pair<int, int>{ edge->Start.x, edge->Start.y };
-			batchPush[pair].push_back(edge);
+			batchPush[edge->StartVertex->Id].push_back(edge);
 		}
 		else if (pair.second < 0)
 		{
@@ -551,7 +542,7 @@ void DirectionalLightCalculator::performOneScan(const std::vector<KeyPointTmp>& 
 	{
 		auto lastPos = structure.currentRay.Eval(oldMinTime);
 		auto newPos = structure.currentRay.Eval(minnTime);
-		if (_shadowTriangles.size() == 58 - 3)
+		if (_shadowTriangles.size() == 36 - 8)
 		{
 			if (true);
 		}
