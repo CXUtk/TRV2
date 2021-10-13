@@ -9,6 +9,7 @@
 #include <vector>
 
 #include <TRGame/Worlds/GameWorld.h>
+#include <TREngine/Core/Utils/Utils.h>
 
 struct Edge;
 struct Vertex;
@@ -113,8 +114,8 @@ struct KeyPointTmp
 
 
 struct EdgeCmp;
-struct EdgeCmpNode;
-using GeoPQ = std::priority_queue<EdgeCmpNode, std::vector<EdgeCmpNode>, EdgeCmp>;
+//struct EdgeCmpNode;
+using GeoPQ = std::set<PEdge, EdgeCmp>;
 //using GeoPQ = MinPQ<PEdge, EdgeCmp>;
 
 struct SweepStructure
@@ -123,7 +124,7 @@ struct SweepStructure
 	bool activeEdges[1000];
 	std::vector<PEdge> borderEdges{};
 	int currentRound = 0;
-	GeoPQ* PQ = nullptr;
+	GeoPQ* EdgeSet;
 	Ray currentRay{};
 	Ray differentialRay{};
 
@@ -134,11 +135,11 @@ struct SweepStructure
 	}
 };
 
-struct EdgeCmpNode
-{
-	std::vector<PEdge> Edges;
-	int Round = 0;
-};
+//struct EdgeCmpNode
+//{
+//	std::vector<PEdge> Edges;
+//	int Round = 0;
+//};
 
 struct EdgeCmp
 {
@@ -146,16 +147,25 @@ struct EdgeCmp
 	SweepStructure& structure;
 	EdgeCmp(SweepStructure& structure) : structure(structure) {}
 
-	bool operator() (const EdgeCmpNode& A, const EdgeCmpNode& B) const
+	bool cmp(PEdge A, PEdge B)  const
 	{
-		bool hasA = structure.activeEdges[A.Edges.front()->Id];
-		bool hasB = structure.activeEdges[B.Edges.front()->Id];
-		if (hasA != hasB) return hasA > hasB;
-		if (!hasA) return A.Edges.front()->Id < B.Edges.front()->Id;
-		float t1, t2;
-		A.Edges.front()->IntersectionTest(structure.currentRay, t1);
-		B.Edges.front()->IntersectionTest(structure.currentRay, t2);
-		return t1 > t2;
+		auto v = A->End - A->Start;
+		auto v2 = B->End - A->Start;
+		return cross2(v, v2) > 0;
+	}
+	bool operator() (PEdge A, PEdge B) const
+	{
+		bool a = cmp(A, B);
+		if (a)
+		{
+			if (cmp(B, A)) return A->Id < B->Id;
+			return true;
+		}
+		else
+		{
+			if(!cmp(B, A)) return A->Id < B->Id;
+			return false;
+		}
 	}
 };
 
