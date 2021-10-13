@@ -35,7 +35,8 @@ struct Vertex
 
 	glm::vec2 GetWorldPos() const
 	{
-		return glm::vec2(Pos * GameWorld::TILE_SIZE);
+		glm::vec2 b = glm::vec2((Pos.x * Pos.y + 1) % 7 - 3, (Pos.x * Pos.y + 3) % 7 - 3);
+		return glm::vec2(Pos * GameWorld::TILE_SIZE) + b;
 	}
 };
 
@@ -60,7 +61,7 @@ struct Ray
 
 struct Edge
 {
-	glm::ivec2 Start, End;
+	glm::vec2 Start, End;
 	PVertex StartVertex;
 	int Id;
 	bool Horizontal;
@@ -69,35 +70,40 @@ struct Edge
 
 	Edge(PVertex start, PVertex end, int id, bool horizontal) : Id(id), Horizontal(horizontal)
 	{
-		Start = start->Pos * GameWorld::TILE_SIZE;
-		End = end->Pos * GameWorld::TILE_SIZE;
+		Start = start->GetWorldPos();
+		End = end->GetWorldPos();
 		StartVertex = start;
 	}
 
 	bool IntersectionTest(const Ray& ray, float& t, bool checkBorder = false) const
 	{
-		double dv = ray.Dir[Horizontal];
-		double travel = Start[Horizontal] - ray.Start[Horizontal];
-		if (dv == 0.0)
-		{
-			double a = Start[!Horizontal] / ray.Dir[!Horizontal];
-			double b = End[!Horizontal] / ray.Dir[!Horizontal];
-			if (a > b) std::swap(a, b);
-			t = a;
-			if (a < 0.0) t = b;
-			return t >= 0.0 && travel == 0.0;
-		}
-		t = travel / dv;
-		if (t < -LightCommon::EPS) return false;
+		glm::vec2 CA = ray.Start - Start;
+		glm::mat2 M(End - Start, -ray.Dir);
+		float a = std::abs(glm::determinant(M));
+		//if (a < LightCommon::EPS)
+		//{
+		//	float s = std::abs(cross2(ray.Start - Start, End - Start));
+		//	if (s < LightCommon::EPS)
+		//	{
+		//		t = ((Start - ray.Start) / ray.Dir).x;
+		//		return true;
+		//	}
+		//	else
+		//	{
+		//		return false;
+		//	}
+		//}
+		auto res = glm::inverse(M) * CA;
+		t = res.y;
+		float t2 = res.x;
 
 		if (checkBorder)
 		{
-			double other = ray.Start[!Horizontal] + travel * ray.Dir[!Horizontal] / dv;
-			double minn = std::min(Start[!Horizontal], End[!Horizontal]);
-			double maxx = std::max(Start[!Horizontal], End[!Horizontal]);
-			if (other < minn - LightCommon::EPS || other > maxx + LightCommon::EPS) return false;
+			if (t < -LightCommon::EPS) return false;
+			if (t2 < -LightCommon::EPS || t2 > 1.f + LightCommon::EPS) return false;
 		}
-		return true;
+		float dist = glm::length(ray.Dir) * t;
+		return !glm::isinf(t);
 	}
 };
 
@@ -121,17 +127,14 @@ using GeoPQ = std::set<PEdge, EdgeCmp>;
 struct SweepStructure
 {
 	glm::vec2 lastKeyPosition{};
-	bool activeEdges[1000];
 	std::vector<PEdge> borderEdges{};
-	int currentRound = 0;
 	GeoPQ* EdgeSet;
 	Ray currentRay{};
-	Ray differentialRay{};
 
 	SweepStructure(int maxEdges)
 	{
 		//activeEdges = std::make_unique<bool[]>(maxEdges);
-		memset(activeEdges, 0, sizeof(bool) * maxEdges);
+		//memset(activeEdges, 0, sizeof(bool) * maxEdges);
 	}
 };
 
@@ -150,21 +153,40 @@ struct EdgeCmp
 	bool cmp(PEdge A, PEdge B)  const
 	{
 		auto v = A->End - A->Start;
+		auto v1 = B->Start - A->Start;
+		auto v2 = B->End - A->Start;
+		bool c1 = cross2(v, v1) >= 0;
+		bool c2 = cross2(v, v2) >= 0;
+		return (c1 && c2);
+	}
+
+	bool cmp2(PEdge A, PEdge B)  const
+	{
+		auto v = A->End - A->Start;
 		auto v2 = B->End - A->Start;
 		return cross2(v, v2) > 0;
 	}
+
 	bool operator() (PEdge A, PEdge B) const
 	{
-		bool a = cmp(A, B);
-		if (a)
+		if (cmp(A, B))
 		{
-			if (cmp(B, A)) return A->Id < B->Id;
+			if(cmp(B,A))return A->Id < B->Id;
 			return true;
 		}
 		else
 		{
-			if(!cmp(B, A)) return A->Id < B->Id;
-			return false;
+			if (cmp(B, A)) return false;
+			if (cmp2(A, B))
+			{
+				if (cmp2(B, A)) return A->Id < B->Id;
+				return true;
+			}
+			else
+			{
+				if (!cmp2(B, A)) return A->Id < B->Id;
+				return false;
+			}
 		}
 	}
 };
@@ -216,6 +238,6 @@ private:
 	void performOneScan(const std::vector<KeyPointTmp>& sweep, SweepStructure& structure,
 		glm::vec2 sweepCenter, int start, int end);
 
-	void insertNewEdge(SweepStructure& structure, const std::vector<PEdge>& edges, glm::vec2 sweepCenter);
+	void insertNewEdge(SweepStructure& structure, PEdge edge, glm::vec2 sweepCenter);
 	void eraseEdge(SweepStructure& structure, PEdge edge, glm::vec2 sweepCenter);
 };
