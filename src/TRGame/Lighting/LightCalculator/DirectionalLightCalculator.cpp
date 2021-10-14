@@ -440,10 +440,36 @@ void DirectionalLightCalculator::insertNewEdge(SweepStructure& structure, PEdge 
 	}
 	else
 	{
+#ifdef _DEBUG
+		{
+			// test if the wrong edge existed in the state
+			for (auto& a : *structure.EdgeSet)
+			{
+				if (a->Id == edge->Id)
+				{
+					assert(false);
+				}
+			}
+		}
+#endif // DEBUG
 		auto p = structure.EdgeSet->find(edge);
 		assert(p == structure.EdgeSet->end());
 		//structure.activeEdges[edge->Id] = true;
 		structure.EdgeSet->insert(edge);
+#ifdef _DEBUG
+		{
+			// test if added the wrong edge
+			bool exist = false;
+			for (auto& a : *structure.EdgeSet)
+			{
+				if (a->Id == edge->Id)
+				{
+					exist = true;
+				}
+			}
+			assert(exist);
+		}
+#endif // DEBUG
 	}
 }
 
