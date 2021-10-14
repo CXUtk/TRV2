@@ -57,7 +57,6 @@ void DirectionalLightCalculator::DrawTriangles(const glm::mat4& worldProjection)
 
 	for (auto& segment : drawSegments)
 	{
-		if(segment.Id == 77 || segment.Id == 135)
 		universalRenderer->DrawLine(segment.Start, segment.End, glm::vec4(0, 0, 1, 1), glm::vec4(1, 0, 0, 1));
 	}
 	universalRenderer->Flush(trv2::PrimitiveType::LINE_LIST, worldProjection);
@@ -462,6 +461,17 @@ void DirectionalLightCalculator::eraseEdge(SweepStructure& structure, PEdge edge
 		auto p = structure.EdgeSet->find(edge);
 		assert(p != structure.EdgeSet->end());
 		structure.EdgeSet->erase(p);
+#ifdef _DEBUG
+		// test if deleted the wrong edge
+		for (auto& a : *structure.EdgeSet)
+		{
+			if (a->Id == edge->Id)
+			{
+				assert(false);
+			}
+		}
+#endif // DEBUG
+
 		auto p2 = structure.EdgeSet->find(edge);
 		assert(p2 == structure.EdgeSet->end());
 	}
