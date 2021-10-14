@@ -21,10 +21,10 @@ UniversalRenderer::UniversalRenderer()
 	_pureColorShader = _assetManager->GetShader("builtin::pure");
 
 
-	_lineVAO = _graphicsDevice->CreateVertexArray();
+	_vao = _graphicsDevice->CreateVertexArray();
 	_vbo = _graphicsDevice->CreateBuffer();
 
-	_graphicsDevice->BindVertexArray(_lineVAO);
+	_graphicsDevice->BindVertexArray(_vao);
 	_graphicsDevice->BindBuffer(trv2::BufferType::ARRAY_BUFFER, _vbo);
 
 	VertexLayout vertexLayout;
@@ -37,6 +37,10 @@ UniversalRenderer::UniversalRenderer()
 
 UniversalRenderer::~UniversalRenderer()
 {}
+void UniversalRenderer::DrawPoint(glm::vec2 point)
+{
+	_vertexBuffer.push_back(Vertex{ point, glm::vec4(1) });
+}
 void UniversalRenderer::DrawLine(glm::vec2 start, glm::vec2 end)
 {
 	_vertexBuffer.push_back(Vertex{ start, glm::vec4(1) });
@@ -73,7 +77,7 @@ void UniversalRenderer::SetPolygonMode(trv2::PolygonMode mode)
 
 void UniversalRenderer::Flush(PrimitiveType primitiveType, const glm::mat4& projection)
 {
-	_graphicsDevice->BindVertexArray(_lineVAO);
+	_graphicsDevice->BindVertexArray(_vao);
 	_graphicsDevice->UseShader(_pureColorShader);
 
 	_pureColorShader->SetParameterfm4x4("uWorldTransform", projection);
@@ -98,6 +102,7 @@ void UniversalRenderer::Flush(PrimitiveType primitiveType, const glm::mat4& proj
 	case trv2::PrimitiveType::LINE_STRIP:
 		break;
 	case trv2::PrimitiveType::POINTS:
+		_graphicsDevice->DrawPrimitives(primitiveType, _vertexBuffer.size(), 0);
 		break;
 	default:
 		break;

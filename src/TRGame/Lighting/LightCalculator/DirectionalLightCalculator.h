@@ -103,7 +103,7 @@ struct Edge
 			if (t2 < -LightCommon::EPS || t2 > 1.f + LightCommon::EPS) return false;
 		}
 		float dist = glm::length(ray.Dir) * t;
-		return !glm::isinf(t);
+		return !glm::isinf(t) && !glm::isnan(t);
 	}
 };
 
@@ -150,43 +150,68 @@ struct EdgeCmp
 	SweepStructure& structure;
 	EdgeCmp(SweepStructure& structure) : structure(structure) {}
 
-	bool cmp(PEdge A, PEdge B)  const
+	//bool cmp(PEdge A, PEdge B)  const
+	//{
+	//	auto v = A->End - A->Start;
+	//	auto v1 = B->Start - A->Start;
+	//	auto v2 = B->End - A->Start;
+	//	bool c1 = cross2(v, v1) > 0;
+	//	bool c2 = cross2(v, v2) > 0;
+	//	return (c1 && c2);
+	//}
+
+	bool inRange(glm::vec2 A, glm::vec2 B, glm::vec2 P) const
 	{
-		auto v = A->End - A->Start;
-		auto v1 = B->Start - A->Start;
-		auto v2 = B->End - A->Start;
-		bool c1 = cross2(v, v1) >= 0;
-		bool c2 = cross2(v, v2) >= 0;
-		return (c1 && c2);
+		auto C = structure.currentRay.Start;
+		auto v1 = A - C;
+		auto v2 = C - B;
+		return cross2(v1, P - C) >= 0 && cross2(v2, P - C) >= 0;
 	}
 
-	bool cmp2(PEdge A, PEdge B)  const
+	bool toRight(glm::vec2 A, glm::vec2 B, glm::vec2 P) const
 	{
-		auto v = A->End - A->Start;
-		auto v2 = B->End - A->Start;
-		return cross2(v, v2) > 0;
+		return cross2(B - A, P - A) < 0;
+	}
+
+	bool cmp(glm::vec2 A, glm::vec2 B, glm::vec2 C, glm::vec2 D) const
+	{
+		bool a = toRight(A, B, C);
+		bool b = toRight(A, B, D);
+		return a || b;
 	}
 
 	bool operator() (PEdge A, PEdge B) const
 	{
-		if (cmp(A, B))
+		bool s = inRange(A->Start, A->End, B->Start);
+		bool t = inRange(A->Start, A->End, B->End);
+		if (s && t)
 		{
-			if(cmp(B,A))return A->Id < B->Id;
-			return true;
+			return cmp(A->Start, A->End, B->Start, B->End);
 		}
 		else
 		{
-			if (cmp(B, A)) return false;
-			if (cmp2(A, B))
+			glm::vec2 start, end;
+			float time;
+			auto C = structure.currentRay.Start;
+			auto R1 = Ray{ C, A->Start - C };
+			if (!s && B->IntersectionTest(R1, time, true))
 			{
-				if (cmp2(B, A)) return A->Id < B->Id;
-				return true;
+				start = R1.Eval(time);
 			}
 			else
 			{
-				if (!cmp2(B, A)) return A->Id < B->Id;
-				return false;
+				start = B->Start;
 			}
+			auto R2 = Ray{ C, A->End - C };
+			if (!t && B->IntersectionTest(R2, time, true))
+			{
+				end = R2.Eval(time);
+			}
+			else
+			{
+				end = B->End;
+			}
+			return cmp(A->Start, A->End, start, end);
 		}
 	}
 };

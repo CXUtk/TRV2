@@ -22,6 +22,8 @@ public:
 	UniversalRenderer();
 	~UniversalRenderer();
 
+	void DrawPoint(glm::vec2 point);
+
 	void DrawLine(glm::vec2 start, glm::vec2 end);
 	void DrawLine(glm::vec2 start, glm::vec2 end, const glm::vec4& color1, const glm::vec4& color2);
 
@@ -35,7 +37,7 @@ public:
 
 
 private:
-	IVertexBufferHandle _lineVAO;
+	IVertexBufferHandle _vao;
 	IVertexBufferHandle _vbo;
 
 	ShaderProgram* _pureColorShader;
