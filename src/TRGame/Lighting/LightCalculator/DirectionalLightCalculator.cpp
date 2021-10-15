@@ -51,15 +51,15 @@ void DirectionalLightCalculator::DrawTriangles(const glm::mat4& worldProjection)
 		//if(i == 1)
 		universalRenderer->DrawWiredTriangle(triangle.Pos[0], triangle.Pos[1], triangle.Pos[2]);
 	}
-	universalRenderer->SetPolygonMode(trv2::PolygonMode::WIREFRAME);
+	//universalRenderer->SetPolygonMode(trv2::PolygonMode::WIREFRAME);
 	universalRenderer->Flush(trv2::PrimitiveType::TRIANGLE_LIST, worldProjection);
-	universalRenderer->SetPolygonMode(trv2::PolygonMode::FILL);
+	//universalRenderer->SetPolygonMode(trv2::PolygonMode::FILL);
 
-	for (auto& segment : drawSegments)
-	{
-		universalRenderer->DrawLine(segment.Start, segment.End, glm::vec4(0, 0, 1, 1), glm::vec4(1, 0, 0, 1));
-	}
-	universalRenderer->Flush(trv2::PrimitiveType::LINE_LIST, worldProjection);
+	//for (auto& segment : drawSegments)
+	//{
+	//	universalRenderer->DrawLine(segment.Start, segment.End, glm::vec4(0, 0, 1, 1), glm::vec4(1, 0, 0, 1));
+	//}
+	//universalRenderer->Flush(trv2::PrimitiveType::LINE_LIST, worldProjection);
 }
 
 PVertex DirectionalLightCalculator::getVertexPtr(glm::ivec2 pos)

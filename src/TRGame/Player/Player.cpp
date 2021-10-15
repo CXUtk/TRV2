@@ -159,7 +159,7 @@ void Player::handleMovement()
 		}
 	}
 
-	//_velocity.y = std::max(-30.f, _velocity.y - _gravity);
+	_velocity.y = std::max(-30.f, _velocity.y - _gravity);
 }
 
 

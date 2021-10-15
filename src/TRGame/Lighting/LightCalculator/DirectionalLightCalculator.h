@@ -35,8 +35,8 @@ struct Vertex
 
 	glm::vec2 GetWorldPos() const
 	{
-		glm::vec2 b = glm::vec2((Pos.x * Pos.y + 1) % 7 - 3, (Pos.x * Pos.y + 3) % 7 - 3);
-		return glm::vec2(Pos * GameWorld::TILE_SIZE) + b;
+		//glm::vec2 b = glm::vec2((Pos.x * Pos.y + 1) % 7 - 3, (Pos.x * Pos.y + 3) % 7 - 3);
+		return glm::vec2(Pos * GameWorld::TILE_SIZE);
 	}
 };
 

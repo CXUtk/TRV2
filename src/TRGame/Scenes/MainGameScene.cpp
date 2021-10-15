@@ -152,7 +152,7 @@ void MainGameScene::drawTilesToScreen()
     }
     spriteRenderer->End();
 
-    lighting->DrawDirectionalTriangles(_worldProjection);
+
 }
 
 void MainGameScene::drawShadowMaps()
@@ -254,7 +254,7 @@ void MainGameScene::drawShadowMaps()
             glm::vec2(0), 0.f, glm::vec4(1));
     }
     spriteRenderer->End();
-
+    lighting->DrawDirectionalTriangles(_worldProjection);
 
 
     if (videoSettings->EnabledFrameBlending())
@@ -292,20 +292,20 @@ void MainGameScene::updateLighting()
     lighting->ClearLights();
 
     x++;
-    for (int i = 0; i < 10; i++)
-    {
-        for (int j = 0; j < 10; j++)
-        {
-            glm::vec3 c = glm::vec3(0);
-            int s = (3 * i + 5 * j) % 8;
-            for (int l = 0; l < 3; l++)
-            {
-                if((s >> l) & 1) c[l] = 1.f;
-            }
-            
-            lighting->AddNormalLight(Light{ glm::vec2(i * 200, j * 200 ), c * 1.f, 16 });
-        }
-    }
+    //for (int i = 0; i < 10; i++)
+    //{
+    //    for (int j = 0; j < 10; j++)
+    //    {
+    //        glm::vec3 c = glm::vec3(0);
+    //        int s = (3 * i + 5 * j) % 8;
+    //        for (int l = 0; l < 3; l++)
+    //        {
+    //            if((s >> l) & 1) c[l] = 1.f;
+    //        }
+    //        
+    //        lighting->AddNormalLight(Light{ glm::vec2(i * 200, j * 200 ), c * 1.f, 16 });
+    //    }
+    //}
     //for (int i = 0; i < 10; i++)
     //{
     //    for (int j = 0; j < 10; j++)
