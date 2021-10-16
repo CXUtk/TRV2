@@ -9,6 +9,7 @@
 #include <vector>
 
 #include <TRGame/Worlds/GameWorld.h>
+#include <TREngine/Core/Utils/Utils.h>
 
 struct Edge;
 struct Vertex;
@@ -27,12 +28,14 @@ struct EndPointInfo
 struct Vertex
 {
 	glm::ivec2 Pos;
+	int Id;
 	std::vector<EndPointInfo> ConjunctionInfo{};
 
-	Vertex(glm::ivec2 pos) : Pos(pos) {}
+	Vertex(int id, glm::ivec2 pos) : Id(id), Pos(pos) {}
 
 	glm::vec2 GetWorldPos() const
 	{
+		//glm::vec2 b = glm::vec2((Pos.x * Pos.y + 1) % 7 - 3, (Pos.x * Pos.y + 3) % 7 - 3);
 		return glm::vec2(Pos * GameWorld::TILE_SIZE);
 	}
 };
@@ -58,7 +61,8 @@ struct Ray
 
 struct Edge
 {
-	glm::ivec2 Start, End;
+	glm::vec2 Start, End;
+	PVertex StartVertex;
 	int Id;
 	bool Horizontal;
 
@@ -66,31 +70,40 @@ struct Edge
 
 	Edge(PVertex start, PVertex end, int id, bool horizontal) : Id(id), Horizontal(horizontal)
 	{
-		Start = start->Pos * GameWorld::TILE_SIZE;
-		End = end->Pos * GameWorld::TILE_SIZE;
+		Start = start->GetWorldPos();
+		End = end->GetWorldPos();
+		StartVertex = start;
 	}
 
-	bool IntersectionTest(const Ray& ray, float& t) const
+	bool IntersectionTest(const Ray& ray, float& t, bool checkBorder = false) const
 	{
-		double dv = ray.Dir[Horizontal];
-		double travel = Start[Horizontal] - ray.Start[Horizontal];
-		if (dv == 0.0)
-		{
-			float a = Start[!Horizontal] / ray.Dir[!Horizontal];
-			float b = End[!Horizontal] / ray.Dir[!Horizontal];
-			if (a > b) std::swap(a, b);
-			t = a;
-			if (a < 0) t = b;
-			return t >= 0 && travel == 0.0;
-		}
-		t = travel / dv;
-		if (t < -LightCommon::EPS) return false;
+		glm::vec2 CA = ray.Start - Start;
+		glm::mat2 M(End - Start, -ray.Dir);
+		float a = std::abs(glm::determinant(M));
+		//if (a < LightCommon::EPS)
+		//{
+		//	float s = std::abs(cross2(ray.Start - Start, End - Start));
+		//	if (s < LightCommon::EPS)
+		//	{
+		//		t = ((Start - ray.Start) / ray.Dir).x;
+		//		return true;
+		//	}
+		//	else
+		//	{
+		//		return false;
+		//	}
+		//}
+		auto res = glm::inverse(M) * CA;
+		t = res.y;
+		float t2 = res.x;
 
-		double other = ray.Start[!Horizontal] + travel * ray.Dir[!Horizontal] / dv;
-		double minn = std::min(Start[!Horizontal], End[!Horizontal]);
-		double maxx = std::max(Start[!Horizontal], End[!Horizontal]);
-		if (other < minn - LightCommon::EPS || other > maxx + LightCommon::EPS) return false;
-		return true;
+		if (checkBorder)
+		{
+			if (t < -LightCommon::EPS) return false;
+			if (t2 < -LightCommon::EPS || t2 > 1.f + LightCommon::EPS) return false;
+		}
+		float dist = glm::length(ray.Dir) * t;
+		return !glm::isinf(t) && !glm::isnan(t);
 	}
 };
 
@@ -105,36 +118,104 @@ struct KeyPointTmp
 	}
 };
 
-struct SegmentNodeMax
-{
-	PEdge Edge;
-	float v;
 
-	bool operator<(const SegmentNodeMax& node) const
-	{
-		return v < node.v;
-	}
-};
-
-struct SegmentNodeMin
-{
-	PEdge Edge;
-	float v;
-
-	bool operator<(const SegmentNodeMin& node) const
-	{
-		return v > node.v;
-	}
-};
+struct EdgeCmp;
+//struct EdgeCmpNode;
+using GeoPQ = std::set<PEdge, EdgeCmp>;
+//using GeoPQ = MinPQ<PEdge, EdgeCmp>;
 
 struct SweepStructure
 {
 	glm::vec2 lastKeyPosition{};
-	std::set<PEdge> activeSegments{};
-	std::set<PEdge> borderEdges{};
-	std::priority_queue<SegmentNodeMax> MaxNode[2]{};
-	std::priority_queue<SegmentNodeMin> MinNode[2]{};
+	std::vector<PEdge> borderEdges{};
+	GeoPQ* EdgeSet;
+	Ray currentRay{};
+
+	SweepStructure(int maxEdges)
+	{
+		//activeEdges = std::make_unique<bool[]>(maxEdges);
+		//memset(activeEdges, 0, sizeof(bool) * maxEdges);
+	}
 };
+
+//struct EdgeCmpNode
+//{
+//	std::vector<PEdge> Edges;
+//	int Round = 0;
+//};
+
+struct EdgeCmp
+{
+
+	SweepStructure& structure;
+	EdgeCmp(SweepStructure& structure) : structure(structure) {}
+
+	//bool cmp(PEdge A, PEdge B)  const
+	//{
+	//	auto v = A->End - A->Start;
+	//	auto v1 = B->Start - A->Start;
+	//	auto v2 = B->End - A->Start;
+	//	bool c1 = cross2(v, v1) > 0;
+	//	bool c2 = cross2(v, v2) > 0;
+	//	return (c1 && c2);
+	//}
+
+	bool inRange(glm::vec2 A, glm::vec2 B, glm::vec2 P) const
+	{
+		auto C = structure.currentRay.Start;
+		auto v1 = A - C;
+		auto v2 = C - B;
+		return cross2(v1, P - C) >= 0 && cross2(v2, P - C) >= 0;
+	}
+
+	bool toRight(glm::vec2 A, glm::vec2 B, glm::vec2 P) const
+	{
+		return cross2(B - A, P - A) < 0;
+	}
+
+	bool cmp(glm::vec2 A, glm::vec2 B, glm::vec2 C, glm::vec2 D) const
+	{
+		bool a = toRight(A, B, C);
+		bool b = toRight(A, B, D);
+		return a || b;
+	}
+
+	bool operator() (PEdge A, PEdge B) const
+	{
+		bool s = inRange(A->Start, A->End, B->Start);
+		bool t = inRange(A->Start, A->End, B->End);
+		if (s && t)
+		{
+			return cmp(A->Start, A->End, B->Start, B->End);
+		}
+		else
+		{
+			glm::vec2 start, end;
+			float time;
+			auto C = structure.currentRay.Start;
+			auto R1 = Ray{ C, A->Start - C };
+			if (!s && B->IntersectionTest(R1, time, true))
+			{
+				start = R1.Eval(time);
+			}
+			else
+			{
+				start = B->Start;
+			}
+			auto R2 = Ray{ C, A->End - C };
+			if (!t && B->IntersectionTest(R2, time, true))
+			{
+				end = R2.Eval(time);
+			}
+			else
+			{
+				end = B->End;
+			}
+			return cmp(A->Start, A->End, start, end);
+		}
+	}
+};
+
 
 
 
@@ -171,12 +252,12 @@ private:
 	void performFirstScan(const std::vector<KeyPointTmp>& sweep, SweepStructure& structure, 
 		glm::vec2 sweepCenter, int& nxtIndex);
 
-	void findNearestWall(const Ray& ray, std::deque<Edge>::iterator beginBorder,
-		std::deque<Edge>::iterator endBorder,
-		std::deque<Edge>::iterator endEdges,
-		float& minnTime, PEdge& minnEdge);
+	//void findNearestWall(const Ray& ray, std::deque<Edge>::iterator beginBorder,
+	//	std::deque<Edge>::iterator endBorder,
+	//	std::deque<Edge>::iterator endEdges,
+	//	float& minnTime, PEdge& minnEdge);
 
-	void findNearestWall(const Ray& ray, SweepStructure& structure,
+	void findNearestWall(SweepStructure& structure,
 		float& minnTime, PEdge& minnEdge);
 
 	void performOneScan(const std::vector<KeyPointTmp>& sweep, SweepStructure& structure,

@@ -7,6 +7,7 @@
 #include <fstream>
 #include <sstream>
 #include <glm/glm.hpp>
+#include <glm/gtx/transform.hpp>
 
 /**
  * @brief Returns the greatest integer less than or equal to Q/D
@@ -54,6 +55,21 @@ inline T cross2(glm::vec<2, T> A, glm::vec<2, T> B)
 inline float sqrDistance(glm::vec2 A, glm::vec2 B)
 {
     return glm::dot(A - B, A - B);
+}
+
+inline glm::vec2 rotateBy(glm::vec2 V, float r)
+{
+    glm::mat2 transform = glm::identity<glm::mat2>();
+    if (r != 0.f)
+    {
+        auto cosr = std::cos(r);
+        auto sinr = std::sin(r);
+        transform[0][0] = cosr;
+        transform[0][1] = sinr;
+        transform[1][0] = -sinr;
+        transform[1][1] = cosr;
+    }
+    return transform * V;
 }
 
 /**

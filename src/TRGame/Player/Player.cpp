@@ -132,6 +132,14 @@ void Player::handleMovement()
 			}
 		}
 	}
+	if (_controlDown)
+	{
+		_playerHitBox.Position.y -= 1;
+	}
+	if (_controlUp)
+	{
+		_playerHitBox.Position.y += 1;
+	}
 
 	if (_controlJump)
 	{

@@ -114,59 +114,9 @@ void Lighting::DrawLightMap(trv2::SpriteRenderer* renderer, const glm::mat4& pro
 void Lighting::DrawDirectionalTriangles(const glm::mat4& worldProjection)
 {
 	_directionCalculator->DrawTriangles(worldProjection);
-	//auto universalRenderer = Engine::GetInstance()->GetUniversalRenderer();
-
-	//for (auto& triangle : triangles)
-	//{
-	//	universalRenderer->DrawWiredTriangle(triangle.Pos[0], triangle.Pos[1], triangle.Pos[2]);
-	//}
-
-	//universalRenderer->Flush(PrimitiveType::TRIANGLE_LIST, worldProjection);
-
-	//int i = 0;
-	//for (auto& segment : drawSegments)
-	//{
-	//	universalRenderer->DrawLine(segment.Start, segment.End, glm::vec4(0, 0, 1, 1), glm::vec4(1, 0, 0, 1));
-	//}
-
-	//universalRenderer->Flush(PrimitiveType::LINE_LIST, worldProjection);
-
-	//triangles.clear();
-	//triangles.push_back(Triangle(glm::vec2(0), glm::vec2(100, 100), glm::vec2(200, 0)));
-
-	//auto graphicsDevice = TRGame::GetInstance()->GetEngine()->GetGraphicsDevice();
-	//graphicsDevice->BindVertexArray(_vao);
-
-	//auto shader = assetManager->GetShader("builtin::pure");
-	//graphicsDevice->UseShader(shader);
-
-	//shader->SetParameterfm4x4("uWorldTransform", worldProjection);
-
-	//graphicsDevice->SetBufferData(trv2::BufferType::ARRAY_BUFFER, _vbo,
-	//	sizeof(Triangle) * triangles.size(), triangles.data(), BufferHint::DYNAMIC_DRAW);
-
-	//graphicsDevice->SetPolygonMode(PolygonMode::WIREFRAME);
-	//graphicsDevice->DrawPrimitives(PrimitiveType::TRIANGLE_LIST, triangles.size() * 3, 0);
-	//graphicsDevice->SetPolygonMode(PolygonMode::FILL);
-
-	//graphicsDevice->UnbindVertexArray();
 }
 
 float Lighting::GetLight(glm::ivec2 coord)
 {
 	return 0.f;
-	//if (coord.x < _tileRect.Position.x || coord.x >= _tileRect.Position.x + _tileRect.Size.x
-	//	|| coord.y < _tileRect.Position.y || coord.y >= _tileRect.Position.y + _tileRect.Size.y)
-	//{
-	//	assert(false);
-	//	return 0.f;
-	//}
-	//auto tileRect = _tileRect;
-	//auto getId = [tileRect](glm::ivec2 pos) {
-	//	int x = pos.x;
-	//	int y = pos.y;
-	//	return y * tileRect.Size.x + x;
-	//};
-	//int id = getId(coord - _tileRect.Position);
-	//return glm::smoothstep(0.f, 1.f, 1.f - distArray[id] / MAXDIST);
 }

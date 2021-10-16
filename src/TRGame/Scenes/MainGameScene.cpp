@@ -151,6 +151,8 @@ void MainGameScene::drawTilesToScreen()
         spriteRenderer->Draw(glm::vec2(0), _screenRect.Size, glm::vec2(0), 0.f, glm::vec4(1));
     }
     spriteRenderer->End();
+
+
 }
 
 void MainGameScene::drawShadowMaps()
@@ -255,7 +257,6 @@ void MainGameScene::drawShadowMaps()
     lighting->DrawDirectionalTriangles(_worldProjection);
 
 
-
     if (videoSettings->EnabledFrameBlending())
     {
         _prevShadowMap->Resize(_tileRect.Size);
@@ -290,7 +291,7 @@ void MainGameScene::updateLighting()
 
     lighting->ClearLights();
 
-    //x++;
+    x++;
     //for (int i = 0; i < 10; i++)
     //{
     //    for (int j = 0; j < 10; j++)
@@ -302,7 +303,7 @@ void MainGameScene::updateLighting()
     //            if((s >> l) & 1) c[l] = 1.f;
     //        }
     //        
-    //        lighting->AddNormalLight(Light{ glm::vec2(i * 200, j * 200 ), c, 16 });
+    //        lighting->AddNormalLight(Light{ glm::vec2(i * 200, j * 200 ), c * 1.f, 16 });
     //    }
     //}
     //for (int i = 0; i < 10; i++)
