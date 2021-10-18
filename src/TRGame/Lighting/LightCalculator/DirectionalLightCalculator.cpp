@@ -41,18 +41,18 @@ void DirectionalLightCalculator::Calculate()
 
 void DirectionalLightCalculator::DrawTriangles(const glm::mat4& worldProjection)
 {
-	auto universalRenderer = trv2::Engine::GetInstance()->GetUniversalRenderer();
+	//auto universalRenderer = trv2::Engine::GetInstance()->GetUniversalRenderer();
 
-	int i = 0;
-	int sz = _shadowTriangles.size();
-	for (auto& triangle : _shadowTriangles)
-	{
-		//i++;
-		//if(i == 1)
-		universalRenderer->DrawWiredTriangle(triangle.Pos[0], triangle.Pos[1], triangle.Pos[2]);
-	}
-	//universalRenderer->SetPolygonMode(trv2::PolygonMode::WIREFRAME);
-	universalRenderer->Flush(trv2::PrimitiveType::TRIANGLE_LIST, worldProjection);
+	//int i = 0;
+	//int sz = _shadowTriangles.size();
+	//for (auto& triangle : _shadowTriangles)
+	//{
+	//	//i++;
+	//	//if(i == 1)
+	//	universalRenderer->DrawWiredTriangle(triangle.Pos[0], triangle.Pos[1], triangle.Pos[2]);
+	//}
+	////universalRenderer->SetPolygonMode(trv2::PolygonMode::WIREFRAME);
+	//universalRenderer->Flush(trv2::PrimitiveType::TRIANGLE_LIST, worldProjection);
 	//universalRenderer->SetPolygonMode(trv2::PolygonMode::FILL);
 
 	//for (auto& segment : drawSegments)
@@ -315,6 +315,35 @@ void DirectionalLightCalculator::performFirstScan(const std::vector<KeyPointTmp>
 	assert(minnEdge != nullptr);
 
 	structure.lastKeyPosition = structure.currentRay.Eval(minnTime);
+}
+
+void DirectionalLightCalculator::RasterizeLightTriangles()
+{
+	auto common = _lightCommonData;
+	common->TileRectWorld.ForEach([this, common](glm::ivec2 coord) -> void {
+		glm::vec2 center = glm::vec2(coord * GameWorld::TILE_SIZE + GameWorld::TILE_SIZE / 2);
+		for (const auto& triangle : _shadowTriangles)
+		{
+			bool can = true;
+			for (int i = 0; i < 3; i++)
+			{
+				glm::vec2 dir = triangle.Pos[(i + 1) % 3] - triangle.Pos[i];
+				if (cross2(dir, center - triangle.Pos[i]) > 0)
+				{
+					can = false;
+					break;
+				}
+			}
+			if (can)
+			{
+				int id = common->GetBlockId(coord - common->TileRectWorld.Position);
+				common->TileColors[0][id] += 2.f;
+				common->TileColors[1][id] += 2.f;
+				common->TileColors[2][id] += 2.f;
+				break;
+			}
+		}
+		});
 }
 
 void DirectionalLightCalculator::findNearestWall(SweepStructure& structure, 

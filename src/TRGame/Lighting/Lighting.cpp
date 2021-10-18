@@ -83,6 +83,7 @@ void Lighting::CalculateLight(const trv2::RectI& tileRectCalc, const trv2::RectI
 
 	_bfsCalculator->Calculate();
 	_directionCalculator->Calculate();
+	_directionCalculator->RasterizeLightTriangles();
 }
 
 

@@ -20,7 +20,6 @@ struct LightNode
 	}
 };
 
-
 class BFSLightCalculator : public LightCalculator
 {
 public:

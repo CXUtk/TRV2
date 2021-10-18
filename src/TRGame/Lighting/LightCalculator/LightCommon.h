@@ -9,6 +9,9 @@ struct TileCacheInfo
 	int Type;
 };
 
+
+struct Triangle;
+
 class LightCommon
 {
 public:

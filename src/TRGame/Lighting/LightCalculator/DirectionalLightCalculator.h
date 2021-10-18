@@ -230,6 +230,7 @@ public:
 	virtual void Calculate() override;
 
 	void DrawTriangles(const glm::mat4& worldProjection);
+	void RasterizeLightTriangles();
 
 private:
 	LightCommon* _lightCommonData;

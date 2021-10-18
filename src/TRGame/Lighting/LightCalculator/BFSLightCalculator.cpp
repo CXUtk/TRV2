@@ -51,6 +51,7 @@ void BFSLightCalculator::Calculate()
 	}
 }
 
+
 void BFSLightCalculator::calculateOneChannel(int channel)
 {
 	const auto common = _lightCommonData;
