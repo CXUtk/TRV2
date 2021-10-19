@@ -151,7 +151,7 @@ void MainGameScene::drawTilesToScreen()
         spriteRenderer->Draw(glm::vec2(0), _screenRect.Size, glm::vec2(0), 0.f, glm::vec4(1));
     }
     spriteRenderer->End();
-
+    lighting->DrawDirectionalTriangles(_worldProjection);
 
 }
 
@@ -254,7 +254,6 @@ void MainGameScene::drawShadowMaps()
             glm::vec2(0), 0.f, glm::vec4(1));
     }
     spriteRenderer->End();
-    lighting->DrawDirectionalTriangles(_worldProjection);
 
 
     if (videoSettings->EnabledFrameBlending())

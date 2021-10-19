@@ -14,7 +14,8 @@
 Player::Player()
 {
 	_playerHitBox.Size = glm::vec2(16, 32);
-	_playerHitBox.Position = glm::vec2(100, 200);
+	_playerHitBox.Position = glm::vec2(1384.0024, 1564.0049);
+	_velocity = glm::vec2(-1, 46.5);
 }
 
 Player::~Player()
@@ -159,7 +160,7 @@ void Player::handleMovement()
 		}
 	}
 
-	_velocity.y = std::max(-30.f, _velocity.y - _gravity);
+	//_velocity.y = std::max(-30.f, _velocity.y - _gravity);
 }
 
 

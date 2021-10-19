@@ -27,7 +27,7 @@ public:
 	static constexpr float distA[8] = { DECREASE, DECREASE, DECREASE, DECREASE,
 			DECREASE_DIAG, DECREASE_DIAG, DECREASE_DIAG, DECREASE_DIAG };
 
-	static constexpr float EPS = 1e-4;
+	static constexpr float EPS = 1e-5;
 
 	static constexpr float MAXDIST = 16.f;
 	static constexpr int K = 1;
