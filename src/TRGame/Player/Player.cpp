@@ -14,8 +14,8 @@
 Player::Player()
 {
 	_playerHitBox.Size = glm::vec2(16, 32);
-	_playerHitBox.Position = glm::vec2(1384.0024, 1564.0049);
-	_velocity = glm::vec2(-1, 46.5);
+	_playerHitBox.Position = glm::vec2(1128.00012, 1902.5);
+	_velocity = glm::vec2(0);
 }
 
 Player::~Player()
@@ -85,19 +85,19 @@ void Player::clearState()
 void Player::updateInput()
 {
 	auto inputControl = TRGame::GetInstance()->GetEngine()->GetInputController();
-	if (inputControl->IsKeyDowned(trv2::KeyCode::TRV2_A_KEY))
+	if (inputControl->IsKeyDowned(trv2::KeyCode::TRV2_LEFT_KEY))
 	{
 		_controlLeft = true;
 	}
-	if (inputControl->IsKeyDowned(trv2::KeyCode::TRV2_D_KEY))
+	if (inputControl->IsKeyDowned(trv2::KeyCode::TRV2_RIGHT_KEY))
 	{
 		_controlRight = true;
 	}
-	if (inputControl->IsKeyDowned(trv2::KeyCode::TRV2_W_KEY))
+	if (inputControl->IsKeyDowned(trv2::KeyCode::TRV2_UP_KEY))
 	{
 		_controlUp = true;
 	}
-	if (inputControl->IsKeyDowned(trv2::KeyCode::TRV2_S_KEY))
+	if (inputControl->IsKeyDowned(trv2::KeyCode::TRV2_DOWN_KEY))
 	{
 		_controlDown = true;
 	}
