@@ -56,7 +56,7 @@ void DirectionalLightCalculator::DrawTriangles(const glm::mat4& worldProjection)
 
 	for (auto& segment : drawSegments)
 	{
-		if(segment.Id == 137 || segment.Id == 138)
+		if(segment.Id == 138 || segment.Id == 137)
 		universalRenderer->DrawLine(segment.Start, segment.End, glm::vec4(0, 0, 1, 1), glm::vec4(1, 0, 0, 1));
 	}
 	universalRenderer->Flush(trv2::PrimitiveType::LINE_LIST, worldProjection);
@@ -124,37 +124,39 @@ void DirectionalLightCalculator::calculateTrianglesForOneLight(const Light& ligh
 	GeoPQ PQ(cmp);
 	structure.EdgeSet = &PQ;
 
-	//int startIndex;
-	//performFirstScan(keypointTmps, structure, sweepCenter, startIndex);
+	int startIndex;
+	performFirstScan(keypointTmps, structure, sweepCenter, startIndex);
 
-	////if (_edges.size() > 90)
-	////{
-	////	bool a = cmp(&_edges[85], &_edges[92]);
-	////	bool b = cmp(&_edges[92], &_edges[85]);
-	////	bool c = cmp(&_edges[92], &_edges[86]);
-	////	bool d = cmp(&_edges[85], &_edges[86]);
-	////	if (true);
-	////}
-
-	//int sz = keypointTmps.size();
-	//int cnt = 0;
-
-	//for (int i = startIndex; i < sz + 1; i++)
+	//if (_edges.size() > 90)
 	//{
-	//	auto& cur = keypointTmps[i % sz];
-	//	auto& nxt = keypointTmps[(i + 1) % sz];
-	//	auto keypointPosCur = cur.Vertex->GetWorldPos();
-	//	auto keypointPosNext = nxt.Vertex->GetWorldPos();
-
-	//	// Batch the points with the same polar angle
-	//	++cnt;
-	//	if (i == sz || std::abs(cross2(keypointPosCur - light.Position,
-	//		keypointPosNext - light.Position)) > LightCommon::EPS)
-	//	{
-	//		performOneScan(keypointTmps, structure, sweepCenter, i - cnt + 1, i);
-	//		cnt = 0;
-	//	}
+	//	structure.currentRay.Start = sweepCenter;
+	//	structure.currentRay.Dir = _vertices[677].GetWorldPos() - sweepCenter;
+	//	bool a = cmp(&_edges[137], &_edges[138]);
+	//	bool b = cmp(&_edges[138], &_edges[137]);
+	//	//bool c = cmp(&_edges[92], &_edges[86]);
+	//	//bool d = cmp(&_edges[85], &_edges[86]);
+	//	if (true);
 	//}
+
+	int sz = keypointTmps.size();
+	int cnt = 0;
+
+	for (int i = startIndex; i < sz + 1; i++)
+	{
+		auto& cur = keypointTmps[i % sz];
+		auto& nxt = keypointTmps[(i + 1) % sz];
+		auto keypointPosCur = cur.Vertex->GetWorldPos();
+		auto keypointPosNext = nxt.Vertex->GetWorldPos();
+
+		// Batch the points with the same polar angle
+		++cnt;
+		if (i == sz || std::abs(cross2(keypointPosCur - light.Position,
+			keypointPosNext - light.Position)) > LightCommon::EPS)
+		{
+			performOneScan(keypointTmps, structure, sweepCenter, i - cnt + 1, i);
+			cnt = 0;
+		}
+	}
 }
 
 void DirectionalLightCalculator::addBorderEdges(const trv2::RectI& rect, glm::vec2 sweepCenter)
@@ -221,9 +223,11 @@ void DirectionalLightCalculator::addOneSegment(PVertex A, PVertex B, bool horizo
 {
 	auto vA = A->GetWorldPos() - sweepCenter;
 	auto vB = B->GetWorldPos() - sweepCenter;
-	float jud = cross2(vA, vB);
 
-	if (jud == 0) return;
+	
+	float jud = cross2(glm::normalize(vA), glm::normalize(vB));
+
+	if (std::abs(jud) < LightCommon::EPS) return;
 	// jud >= 0 means vB is on the left of vA, starting point should be A
 	bool s;
 

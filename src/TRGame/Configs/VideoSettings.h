@@ -19,5 +19,5 @@ private:
 	int _lightingBlurCount = 2;
 
 	float _prevFrameBlendingRatio = 0.5f;
-	float _cameraChaseRatio = 0.4f;
+	float _cameraChaseRatio = 1.f;
 };
